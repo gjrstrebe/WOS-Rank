@@ -62,7 +62,7 @@
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                         State SvS Buff Dashboard
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">v2.6</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">v2.7</span>
                     </h1>
                     <p class="text-xs text-slate-400">Whiteout Survival Battle Scheduler</p>
                 </div>
@@ -893,8 +893,11 @@ service cloud.firestore {
                     stateData.schedules = data.schedules || {};
                     refreshUI();
                 } else {
-                    // Save default empty dataset if it's the first execution
-                    saveCloudData();
+                    // CRITICAL FIX: If the document doesn't exist, keep local state empty but DO NOT automatically 
+                    // write back to the server. This prevents the empty cache from wiping existing player records on refresh.
+                    stateData.players = [];
+                    stateData.schedules = {};
+                    refreshUI();
                 }
             }, (error) => {
                 runDiagnostics.firestore = 'failed';
