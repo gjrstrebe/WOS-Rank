@@ -54,7 +54,7 @@
 
     <!-- Top Navigation / Status Header -->
     <header class="border-b border-brand-border bg-brand-card/70 backdrop-blur sticky top-0 z-40 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20">
                     <i class="fa-solid fa-tower-broadcast text-xl animate-pulse"></i>
@@ -62,13 +62,19 @@
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                         State SvS Buff Dashboard
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">v2.5</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">v2.6</span>
                     </h1>
                     <p class="text-xs text-slate-400">Whiteout Survival Battle Scheduler</p>
                 </div>
             </div>
             
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
+                <!-- Built-In Diagnostics Status Button -->
+                <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                    <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
+                    <span>Database Status: <strong id="statusText">Checking...</strong></span>
+                </button>
+
                 <!-- Sandbox/Sync Toggle -->
                 <button onclick="toggleSyncMode()" id="syncModeBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20">
                     <span class="relative flex h-2 w-2">
@@ -270,6 +276,82 @@
         </div>
     </div>
 
+    <!-- Built-In Diagnostics and Troubleshooting Modal -->
+    <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-lg w-full p-6 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-nodes text-brand-accent"></i>
+                    <h3 class="text-md font-bold text-white">Database Connection Diagnoser</h3>
+                </div>
+                <button onclick="closeDiagnosticsModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <p class="text-xs text-slate-400">Use this connection log to identify exactly why your data isn't syncing or retrieving from the Google Cloud database.</p>
+
+                <!-- Step 1: SDK Load Status -->
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
+                    <div class="mt-0.5" id="diagSdkIcon">
+                        <i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i>
+                    </div>
+                    <div class="text-xs">
+                        <h4 class="font-bold text-white">1. Firebase Web SDK Status</h4>
+                        <p class="text-slate-400" id="diagSdkText">Verifying Javascript packages...</p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Auth Status -->
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
+                    <div class="mt-0.5" id="diagAuthIcon">
+                        <i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i>
+                    </div>
+                    <div class="text-xs">
+                        <h4 class="font-bold text-white">2. Anonymous Authentication</h4>
+                        <p class="text-slate-400" id="diagAuthText">Attempting guest auth handshake...</p>
+                        <div id="diagAuthAction" class="mt-2 hidden">
+                            <p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg leading-relaxed">
+                                <i class="fa-solid fa-wrench"></i> <strong>How to Fix:</strong> In your Firebase Console, click on <strong>Authentication</strong> > <strong>Sign-in method</strong> tab. Under "Sign-in providers", click "Add new provider", select <strong>Anonymous</strong>, switch it to "Enable", and hit save.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Firestore Database Connection -->
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
+                    <div class="mt-0.5" id="diagDbIcon">
+                        <i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i>
+                    </div>
+                    <div class="text-xs">
+                        <h4 class="font-bold text-white">3. Firestore Database Sync</h4>
+                        <p class="text-slate-400" id="diagDbText">Testing real-time document listener...</p>
+                        <div id="diagDbAction" class="mt-2 hidden">
+                            <p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg leading-relaxed">
+                                <i class="fa-solid fa-wrench"></i> <strong>How to Fix:</strong> In your Firebase Console, make sure you created a <strong>Firestore Database</strong> (not Realtime Database). Go to the database's <strong>Rules</strong> tab and set them to:
+                                <code class="block bg-slate-950 p-1.5 rounded text-[9px] font-mono mt-1 text-slate-300 whitespace-pre-wrap">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</code>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button onclick="closeDiagnosticsModal()" class="w-full py-2 px-3 bg-slate-850 hover:bg-slate-850 border border-brand-border hover:border-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- System Toasts Container -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
@@ -295,6 +377,16 @@
             '08:00 - 08:30', '08:30 - 09:00', '09:00 - 09:30', '09:30 - 10:00',
             '10:00 - 10:30', '10:30 - 11:00', '11:00 - 11:30', '11:30 - 12:00'
         ];
+
+        // Track live connection diagnostics
+        let runDiagnostics = {
+            sdkInit: 'checking',
+            sdkError: null,
+            auth: 'checking',
+            authError: null,
+            firestore: 'checking',
+            firestoreError: null
+        };
 
         // Custom live score counter as the user types
         const furnaceInput = document.getElementById('furnaceLevel');
@@ -652,9 +744,97 @@
             });
         }
 
+        // Render Diagnostics Window
+        function openDiagnosticsModal() {
+            const modal = document.getElementById('diagnosticsModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            
+            // Render logs to user dynamically
+            const sdkIcon = document.getElementById('diagSdkIcon');
+            const sdkText = document.getElementById('diagSdkText');
+            const authIcon = document.getElementById('diagAuthIcon');
+            const authText = document.getElementById('diagAuthText');
+            const authAction = document.getElementById('diagAuthAction');
+            const dbIcon = document.getElementById('diagDbIcon');
+            const dbText = document.getElementById('diagDbText');
+            const dbAction = document.getElementById('diagDbAction');
+
+            // 1. SDK Status
+            if (runDiagnostics.sdkInit === 'success') {
+                sdkIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
+                sdkText.innerHTML = `<span class="text-brand-success font-semibold">Connected.</span> Firebase libraries compiled.`;
+            } else {
+                sdkIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
+                sdkText.innerHTML = `<span class="text-brand-danger font-semibold">Failed.</span> Error: ${runDiagnostics.sdkError || 'Credentials missing'}`;
+            }
+
+            // 2. Auth Status
+            if (runDiagnostics.auth === 'success') {
+                authIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
+                authText.innerHTML = `<span class="text-brand-success font-semibold">Connected.</span> Anonymous connection assigned.`;
+                authAction.classList.add('hidden');
+            } else if (runDiagnostics.auth === 'failed') {
+                authIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
+                authText.innerHTML = `<span class="text-brand-danger font-semibold">Failed.</span> Error: ${runDiagnostics.authError}`;
+                authAction.classList.remove('hidden');
+            } else {
+                authIcon.innerHTML = `<i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse text-base"></i>`;
+                authText.textContent = "Negotiating Firebase session...";
+                authAction.classList.add('hidden');
+            }
+
+            // 3. Database Sync Status
+            if (runDiagnostics.firestore === 'success') {
+                dbIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
+                dbText.innerHTML = `<span class="text-brand-success font-semibold">Ready.</span> Active live document sync on path: <code class="bg-slate-950 px-1 py-0.5 rounded text-[10px] text-slate-300 font-mono">/state/main</code>`;
+                dbAction.classList.add('hidden');
+            } else if (runDiagnostics.firestore === 'failed') {
+                dbIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
+                dbText.innerHTML = `<span class="text-brand-danger font-semibold">Wrote failed / connection blocked.</span> Error: ${runDiagnostics.firestoreError}`;
+                dbAction.classList.remove('hidden');
+            } else {
+                dbIcon.innerHTML = `<i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse text-base"></i>`;
+                dbText.textContent = "Listening for Cloud mutations...";
+                dbAction.classList.add('hidden');
+            }
+        }
+
+        function closeDiagnosticsModal() {
+            const modal = document.getElementById('diagnosticsModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // Dynamically update header status pill depending on diagnosis
+        function updateHeaderStatusPill() {
+            const pill = document.getElementById('dbStatusPill');
+            const dot = document.getElementById('statusDot');
+            const txt = document.getElementById('statusText');
+
+            if (syncMode === 'offline') {
+                dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
+                txt.textContent = "Sandbox Mode";
+                return;
+            }
+
+            if (runDiagnostics.firestore === 'success') {
+                dot.className = "h-2 w-2 rounded-full bg-emerald-500 animate-pulse";
+                txt.textContent = "Online";
+                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20";
+            } else if (runDiagnostics.auth === 'failed' || runDiagnostics.firestore === 'failed') {
+                dot.className = "h-2 w-2 rounded-full bg-rose-500 animate-pulse";
+                txt.textContent = "Setup Required";
+                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20";
+            } else {
+                dot.className = "h-2 w-2 rounded-full bg-slate-500 animate-pulse";
+                txt.textContent = "Connecting...";
+                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
+            }
+        }
+
         function refreshUI() {
             renderPlayers();
             renderSchedule();
+            updateHeaderStatusPill();
 
             // If drawer is currently active, refresh its list too
             if (activeDrawerSlot) {
@@ -686,7 +866,10 @@
             appInstance = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
             auth = firebase.auth();
+            runDiagnostics.sdkInit = 'success';
         } catch (err) {
+            runDiagnostics.sdkInit = 'failed';
+            runDiagnostics.sdkError = err.message;
             console.error("Firebase setup failed", err);
         }
 
@@ -702,6 +885,8 @@
             const docRef = db.doc(`artifacts/${appId}/public/data/state/main`);
 
             unsubscribeState = docRef.onSnapshot((doc) => {
+                runDiagnostics.firestore = 'success';
+                updateHeaderStatusPill();
                 if (doc.exists) {
                     const data = doc.data();
                     stateData.players = data.players || [];
@@ -712,8 +897,11 @@
                     saveCloudData();
                 }
             }, (error) => {
+                runDiagnostics.firestore = 'failed';
+                runDiagnostics.firestoreError = error.message;
+                updateHeaderStatusPill();
                 console.error("Firestore synchronizer error:", error);
-                showToast("Connection Sync Error. Please retry later.", "error");
+                showToast("Connection Sync Error. Click Database Status badge to diagnose.", "error");
             });
         }
 
@@ -731,9 +919,14 @@
                     players: stateData.players,
                     schedules: stateData.schedules
                 }, { merge: true });
+                runDiagnostics.firestore = 'success';
+                updateHeaderStatusPill();
             } catch (e) {
+                runDiagnostics.firestore = 'failed';
+                runDiagnostics.firestoreError = e.message;
+                updateHeaderStatusPill();
                 console.error("Cloud upload failed:", e);
-                showToast("Failed to upload changes. Local copies preserved.", "error");
+                showToast("Upload failed. Click Database Status badge to diagnose.", "error");
             }
         }
 
@@ -751,9 +944,14 @@
             try {
                 // Instantly sign in anonymously
                 await auth.signInAnonymously();
+                runDiagnostics.auth = 'success';
+                updateHeaderStatusPill();
             } catch (err) {
+                runDiagnostics.auth = 'failed';
+                runDiagnostics.authError = err.message;
+                updateHeaderStatusPill();
                 console.error("Auth flow failed:", err);
-                showToast("Offline local simulator activated.", "info");
+                showToast("Online credentials failed. Running offline.", "info");
                 toggleSyncMode();
             }
         }
