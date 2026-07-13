@@ -52,23 +52,51 @@
 </head>
 <body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-accent/30 selection:text-brand-accent">
 
+    <!-- Error Interception Script (Must run first) -->
+    <script>
+        window.capturedErrors = [];
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            const errorMsg = args.map(arg => {
+                if (typeof arg === 'object') {
+                    try { return JSON.stringify(arg); } catch(e) { return arg.toString(); }
+                }
+                return arg.toString();
+            }).join(' ');
+            window.capturedErrors.push(errorMsg);
+            
+            // Live update troubleshooter panel if open
+            const logDisplay = document.getElementById('consoleLogDisplay');
+            if (logDisplay) {
+                logDisplay.innerHTML += `<div class="text-rose-400 font-mono text-[10px] p-1.5 bg-rose-950/30 border border-rose-900/30 rounded mb-1.5 break-words">> ${errorMsg}</div>`;
+            }
+            originalConsoleError.apply(console, args);
+        };
+    </script>
+
     <!-- Top Navigation / Status Header -->
     <header class="border-b border-brand-border bg-brand-card/70 backdrop-blur sticky top-0 z-40 px-4 py-3">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20">
-                    <i class="fa-solid fa-tower-broadcast text-xl animate-pulse"></i>
+                    <i class="fa-solid fa-crown text-xl animate-pulse text-amber-400"></i>
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        State SvS Buff Dashboard
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">v2.7</span>
+                        State SvS Command Center
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Whiteout Survival Battle Scheduler</p>
+                    <p class="text-xs text-slate-400">Official Ministerial Buff Booking & Strategy Panel</p>
                 </div>
             </div>
             
             <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
+                <!-- Admin Override Button -->
+                <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                    <i class="fa-solid fa-key text-[10px]"></i>
+                    <span id="adminBtnText">Presidency Login</span>
+                </button>
+
                 <!-- Built-In Diagnostics Status Button -->
                 <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
                     <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
@@ -98,6 +126,26 @@
         </div>
     </header>
 
+    <!-- Buff Type Navigation Hub -->
+    <div class="bg-brand-card/30 border-b border-brand-border px-4 py-2 sticky top-[61px] z-30 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-extrabold">
+                <i class="fa-solid fa-sliders text-brand-accent"></i> Selected Buff Area:
+            </div>
+            <div class="grid grid-cols-3 gap-1 w-full md:w-auto md:flex md:items-center">
+                <button onclick="switchBuffType('architect')" id="btnBuff-architect" class="px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-brand-accent/20 text-brand-accent border-brand-accent">
+                    <i class="fa-solid fa-compass-drafting text-[10px]"></i> Architect
+                </button>
+                <button onclick="switchBuffType('scientist')" id="btnBuff-scientist" class="px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-slate-800 text-slate-400 border-transparent hover:text-white">
+                    <i class="fa-solid fa-microscope text-[10px]"></i> Scientist
+                </button>
+                <button onclick="switchBuffType('instructor')" id="btnBuff-instructor" class="px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-slate-800 text-slate-400 border-transparent hover:text-white">
+                    <i class="fa-solid fa-dumbbell text-[10px]"></i> Instructor
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -106,14 +154,14 @@
             
             <!-- Whiteout Survival Calculations Rule Info Card -->
             <div class="bg-gradient-to-br from-brand-card to-brand-card/90 border border-brand-border rounded-xl p-4 shadow-xl">
-                <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-info text-brand-accent"></i>
-                    How Priority Scoring Works
+                <h3 class="font-bold text-sm text-white mb-1.5 flex items-center gap-2">
+                    <i class="fa-solid fa-calculator text-brand-accent"></i>
+                    Formula Details: <span id="infoBuffLabel" class="text-brand-accent">Architect</span>
                 </h3>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                    Higher scores automatically hold slot reservations. Slots resolve live by selecting competitors. Banned or lower-yielding players are automatically bumped to the waiting list.
+                <p id="infoBuffDescription" class="text-xs text-slate-300 leading-relaxed mb-3">
+                    Calculates priority based on (Construction + Universal Speedups) combined with your Furnace Level.
                 </p>
-                <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800 text-center text-[10px]">
+                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-center text-[10px] mb-2">
                     <div class="p-1.5 rounded bg-slate-900/50">
                         <span class="block font-bold text-emerald-400">1.0x Weight</span>
                         <span class="text-slate-400">Furnace 30+</span>
@@ -127,6 +175,10 @@
                         <span class="text-slate-400">Furnace &lt; 28</span>
                     </div>
                 </div>
+                <div class="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] text-amber-400 leading-relaxed">
+                    <i class="fa-solid fa-circle-info mr-1"></i>
+                    <strong>Fire Crystal Boost:</strong> Activating the "FC Push" status applies a flat <strong>1.5x score multiplier</strong> to represent the massive point yield advantage of FC upgrades during SvS events.
+                </div>
             </div>
 
             <!-- Player Database Input Card -->
@@ -134,9 +186,9 @@
                 <div class="flex justify-between items-center">
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-user-plus text-brand-accent"></i>
-                        Register Competitor
+                        Register Competitor Profile
                     </h2>
-                    <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State Database</span>
+                    <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State Registry</span>
                 </div>
 
                 <form id="addPlayerForm" onsubmit="handleAddPlayer(event)" class="space-y-4">
@@ -155,27 +207,53 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-clock text-blue-400"></i> Speed-up Days
-                            </label>
-                            <input type="number" id="speedups" required step="0.01" min="0" placeholder="e.g. 25.5" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent transition">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-calculator text-slate-500"></i> Est. Yield Score
-                            </label>
-                            <div class="w-full bg-slate-900/60 border border-dashed border-brand-border rounded-lg px-3 py-2 text-sm font-bold text-brand-success flex items-center justify-between">
-                                <span id="liveScorePreview">0.00</span>
-                                <span class="text-[10px] text-slate-500 font-normal">Score preview</span>
+                    <!-- Speedup Balances Grid -->
+                    <div class="space-y-2 border-t border-brand-border/60 pt-3">
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Event Speedups Balance (In Days)</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-bold text-cyan-400">📐 Architect (Build)</label>
+                                <input type="number" id="speedups_build" step="0.01" min="0" placeholder="e.g. 10.5" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
                             </div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-bold text-violet-400">🔬 Scientist (Research)</label>
+                                <input type="number" id="speedups_research" step="0.01" min="0" placeholder="e.g. 8.2" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-bold text-amber-400">⚔️ Instructor (Troop)</label>
+                                <input type="number" id="speedups_train" step="0.01" min="0" placeholder="e.g. 15.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-bold text-slate-300">📦 Universal (General)</label>
+                                <input type="number" id="speedups_universal" step="0.01" min="0" placeholder="e.g. 20.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fire Crystal Push Checkbox -->
+                    <div class="p-3 bg-slate-900/80 rounded-xl border border-brand-border flex items-start gap-3">
+                        <input type="checkbox" id="fc_upgrade_push" onchange="updateLiveRegistrationPreviews()" class="h-4 w-4 mt-0.5 rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/30 focus:ring-offset-slate-900">
+                        <div class="text-xs">
+                            <label for="fc_upgrade_push" class="font-bold text-white flex items-center gap-1.5 cursor-pointer">
+                                <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
+                                Active Fire Crystal (FC) Upgrade Push
+                            </label>
+                            <p class="text-slate-400 mt-0.5 text-[10px]">Check this if you are actively promoting T10 troops to T11/T12 or unlocking FC building levels during your requested slot. Applies a <strong>1.5x score multiplier</strong>.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-2.5 rounded-lg bg-slate-900/60 border border-brand-border text-center">
+                        <span class="text-[10px] text-slate-400 block">Calculated Yield Scores (Includes Universal + FC Boost)</span>
+                        <div class="grid grid-cols-3 gap-1 mt-1 text-[11px] font-bold">
+                            <div class="text-cyan-400">📐 Build: <span id="scorePreview-build">0.00</span></div>
+                            <div class="text-violet-400">🔬 Tech: <span id="scorePreview-research">0.00</span></div>
+                            <div class="text-amber-400">⚔️ Troop: <span id="scorePreview-train">0.00</span></div>
                         </div>
                     </div>
 
                     <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 active:scale-[0.98] text-brand-dark font-bold rounded-lg text-sm transition shadow-lg shadow-brand-accent/20 flex items-center justify-center gap-2">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        Add to State Roster
+                        Add Competitor Profile
                     </button>
                 </form>
             </div>
@@ -184,7 +262,7 @@
             <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4 flex flex-col max-h-[450px]">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <h2 class="text-base font-bold text-white">Registered Roster</h2>
+                        <h2 class="text-base font-bold text-white">Roster Database</h2>
                         <span id="playerCount" class="text-xs bg-slate-900 text-brand-accent px-2 py-0.5 rounded-full font-mono border border-brand-border">0</span>
                     </div>
                     <div class="relative w-40">
@@ -207,22 +285,50 @@
         <!-- Right Column: Live Buff Priority Schedule (7 Cols) -->
         <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col space-y-4">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-brand-border pb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
                 <div>
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i class="fa-regular fa-calendar-check text-brand-accent"></i>
-                        Live Priority Buff Schedule
+                        Buff Allocation Timeline
                     </h2>
-                    <p class="text-xs text-slate-400">Assign multiple players; high-rank yields automatically claim the slot lock.</p>
+                    <p class="text-xs text-slate-400">Set up schedules across different days. Yield values apply dynamically.</p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Resolves Instantly</span>
+                
+                <!-- Timezone Format Switcher -->
+                <div class="flex bg-slate-900 p-1 rounded-lg border border-brand-border self-start">
+                    <button onclick="setTimeMode('utc')" id="timeBtn-utc" class="px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent">
+                        UTC
+                    </button>
+                    <button onclick="setTimeMode('local')" id="timeBtn-local" class="px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white">
+                        My Local Time
+                    </button>
                 </div>
             </div>
 
+            <!-- SVS Days Tab Strip -->
+            <div class="bg-slate-900/60 p-1.5 rounded-xl border border-brand-border flex flex-wrap gap-1">
+                <button onclick="switchDay('day1')" id="btnDay-day1" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-brand-accent bg-brand-accent/10 border border-brand-accent/20">
+                    Day 1 (Gen)
+                </button>
+                <button onclick="switchDay('day2')" id="btnDay-day2" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                    Day 2 (Troops)
+                </button>
+                <button onclick="switchDay('day3')" id="btnDay-day3" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                    Day 3 (Hero)
+                </button>
+                <button onclick="switchDay('day4')" id="btnDay-day4" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                    Day 4 (Troops)
+                </button>
+                <button onclick="switchDay('day5')" id="btnDay-day5" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                    Day 5 (Prep)
+                </button>
+                <button onclick="switchDay('day6')" id="btnDay-day6" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
+                    Day 6 (Battle)
+                </button>
+            </div>
+
             <!-- Time Slots Schedule Container -->
-            <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[750px] pr-2">
+            <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[650px] pr-2">
                 <!-- Dynamic schedule blocks will generate here -->
             </div>
 
@@ -257,6 +363,26 @@
         </div>
     </div>
 
+    <!-- Admin Authorization Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-sm w-full p-5 shadow-2xl text-center">
+            <div class="inline-flex p-3 rounded-full bg-brand-accent/10 text-brand-accent mb-4">
+                <i class="fa-solid fa-key text-xl"></i>
+            </div>
+            <h3 class="text-md font-bold text-white mb-2">Presidency Authorization</h3>
+            <p class="text-xs text-slate-400 mb-4">Enter your State Passcode to activate administrative overrides and slot locks.</p>
+            <input type="password" id="adminPasscode" placeholder="Enter State Code" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white text-center tracking-widest focus:outline-none focus:border-brand-accent mb-4">
+            <div class="flex gap-3">
+                <button onclick="closeAdminModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                    Cancel
+                </button>
+                <button onclick="authenticateAdmin()" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-bold rounded-lg text-xs transition">
+                    Authorize
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Confirmation Dialog -->
     <div id="confirmDialog" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
         <div class="bg-brand-card border border-brand-border rounded-xl max-w-sm w-full p-5 shadow-2xl text-center">
@@ -277,8 +403,8 @@
     </div>
 
     <!-- Built-In Diagnostics and Troubleshooting Modal -->
-    <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
-        <div class="bg-brand-card border border-brand-border rounded-xl max-w-lg w-full p-6 shadow-2xl">
+    <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200 text-left">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-circle-nodes text-brand-accent"></i>
@@ -289,7 +415,7 @@
                 </button>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-4 overflow-y-auto pr-1 flex-grow">
                 <p class="text-xs text-slate-400">Use this connection log to identify exactly why your data isn't syncing or retrieving from the Google Cloud database.</p>
 
                 <!-- Step 1: SDK Load Status -->
@@ -342,10 +468,24 @@ service cloud.firestore {
                         </div>
                     </div>
                 </div>
+
+                <!-- Live Error Logging Mirror -->
+                <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-mono text-[10px] text-slate-400 uppercase tracking-wider">Live Captured Error Logs</h4>
+                        <button onclick="clearCapturedErrors()" class="text-[9px] font-semibold text-brand-accent hover:underline">Clear logs</button>
+                    </div>
+                    <div id="consoleLogDisplay" class="max-h-32 overflow-y-auto font-mono text-[10px] text-slate-500 p-1 bg-slate-900 rounded border border-slate-800">
+                        <div class="italic text-slate-600">> Ready. Logs will capture here if errors occur.</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex gap-2 mt-5">
-                <button onclick="closeDiagnosticsModal()" class="w-full py-2 px-3 bg-slate-850 hover:bg-slate-850 border border-brand-border hover:border-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+            <div class="flex gap-2 mt-4 pt-2 border-t border-brand-border">
+                <button onclick="testManualDatabaseWrite()" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-bold rounded-lg text-xs transition">
+                    Test Manual Write
+                </button>
+                <button onclick="closeDiagnosticsModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
                     Dismiss
                 </button>
             </div>
@@ -360,14 +500,17 @@ service cloud.firestore {
         // Global State variables
         let stateData = { 
             players: [], 
-            schedules: {} 
+            schedules: {}, // schedules[buffType][dayId] = { "00:00 - 00:30": { applicants: [], lockedWinner: null } }
+            locks: {}      // Dynamic manual overrides: locks[buffType][dayId][slot] = "PlayerName" or null
         };
         
-        // Active slot drawer state
+        // Active selections
+        let currentBuff = 'architect';
+        let currentDay = 'day1';
         let activeDrawerSlot = null;
-
-        // Sync mode: 'live' or 'offline'
         let syncMode = 'live';
+        let timeDisplayMode = 'utc'; // 'utc' or 'local'
+        let isAdmin = false;
 
         const timeSlots = [
             '00:00 - 00:30', '00:30 - 01:00', '01:00 - 01:30', '01:30 - 02:00',
@@ -375,7 +518,13 @@ service cloud.firestore {
             '04:00 - 04:30', '04:30 - 05:00', '05:00 - 05:30', '05:30 - 06:00',
             '06:00 - 06:30', '06:30 - 07:00', '07:00 - 07:30', '07:30 - 08:00',
             '08:00 - 08:30', '08:30 - 09:00', '09:00 - 09:30', '09:30 - 10:00',
-            '10:00 - 10:30', '10:30 - 11:00', '11:00 - 11:30', '11:30 - 12:00'
+            '10:00 - 10:30', '10:30 - 11:00', '11:00 - 11:30', '11:30 - 12:00',
+            '12:00 - 12:30', '12:30 - 13:00', '13:00 - 13:30', '13:30 - 14:00',
+            '14:00 - 14:30', '14:30 - 15:00', '15:00 - 15:30', '15:30 - 16:00',
+            '16:00 - 16:30', '16:30 - 17:00', '17:00 - 17:30', '17:30 - 18:00',
+            '18:00 - 18:30', '18:30 - 19:00', '19:00 - 19:30', '19:30 - 20:00',
+            '20:00 - 20:30', '20:30 - 21:00', '21:00 - 21:30', '21:30 - 22:00',
+            '22:00 - 22:30', '22:30 - 23:00', '23:00 - 23:30', '23:30 - 24:00'
         ];
 
         // Track live connection diagnostics
@@ -388,29 +537,8 @@ service cloud.firestore {
             firestoreError: null
         };
 
-        // Custom live score counter as the user types
-        const furnaceInput = document.getElementById('furnaceLevel');
-        const speedupInput = document.getElementById('speedups');
-        const liveScorePreview = document.getElementById('liveScorePreview');
-
-        function updateLivePreview() {
-            const furnace = parseInt(furnaceInput.value) || 0;
-            const speedups = parseFloat(speedupInput.value) || 0;
-            const score = calculateScore(furnace, speedups);
-            liveScorePreview.textContent = score.toFixed(2);
-            
-            if (score > 0) {
-                liveScorePreview.className = "w-full text-sm font-bold text-brand-success flex items-center justify-between";
-            } else {
-                liveScorePreview.className = "w-full text-sm font-bold text-slate-500 flex items-center justify-between";
-            }
-        }
-
-        furnaceInput.addEventListener('input', updateLivePreview);
-        speedupInput.addEventListener('input', updateLivePreview);
-
-        // Score formulation
-        function calculateScore(furnace, speedups) {
+        // Score formulation based on context with 1.5x FC Upgrade Boost modifier
+        function calculateScore(furnace, speedups, hasFcUpgrade = false) {
             let weight = 0.01;
             if (furnace >= 30) {
                 weight = 1.0;
@@ -419,57 +547,222 @@ service cloud.firestore {
             } else {
                 weight = 0.01;
             }
-            return parseFloat((speedups * weight).toFixed(2));
+            let baseScore = speedups * weight;
+            if (hasFcUpgrade) {
+                baseScore = baseScore * 1.5;
+            }
+            return parseFloat(baseScore.toFixed(2));
         }
 
-        // Add user player
+        // Live timezone parser
+        function convertSlotToLocal(utcSlot) {
+            try {
+                const parts = utcSlot.split(' - ');
+                const startParts = parts[0].split(':');
+                const endParts = parts[1].split(':');
+
+                const now = new Date();
+                const startUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(startParts[0]), parseInt(startParts[1]), 0));
+                const endUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(endParts[0]), parseInt(endParts[1]), 0));
+
+                const options = { hour: 'numeric', minute: '2-digit', hour12: true };
+                const startLocalStr = startUtc.toLocaleTimeString([], options);
+                const endLocalStr = endUtc.toLocaleTimeString([], options);
+                
+                const tzAbbr = startUtc.toLocaleTimeString(undefined, {timeZoneName:'short'}).split(' ').pop();
+
+                return `${startLocalStr} - ${endLocalStr} (${tzAbbr})`;
+            } catch(e) {
+                return utcSlot + " UTC";
+            }
+        }
+
+        function setTimeMode(mode) {
+            timeDisplayMode = mode;
+            ['utc', 'local'].forEach(m => {
+                const btn = document.getElementById(`timeBtn-${m}`);
+                if (m === mode) {
+                    btn.className = "px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent";
+                } else {
+                    btn.className = "px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white";
+                }
+            });
+            refreshUI();
+        }
+
+        // Live scores counter as the user types
+        const fInput = document.getElementById('furnaceLevel');
+        const sBuild = document.getElementById('speedups_build');
+        const sResearch = document.getElementById('speedups_research');
+        const sTrain = document.getElementById('speedups_train');
+        const sUniversal = document.getElementById('speedups_universal');
+        const sFcUpgrade = document.getElementById('fc_upgrade_push');
+
+        function updateLiveRegistrationPreviews() {
+            const furnace = parseInt(fInput.value) || 0;
+            const sb = parseFloat(sBuild.value) || 0;
+            const sr = parseFloat(sResearch.value) || 0;
+            const st = parseFloat(sTrain.value) || 0;
+            const su = parseFloat(sUniversal.value) || 0;
+            const sFc = sFcUpgrade ? sFcUpgrade.checked : false;
+
+            document.getElementById('scorePreview-build').textContent = calculateScore(furnace, sb + su, sFc).toFixed(2);
+            document.getElementById('scorePreview-research').textContent = calculateScore(furnace, sr + su, sFc).toFixed(2);
+            document.getElementById('scorePreview-train').textContent = calculateScore(furnace, st + su, sFc).toFixed(2);
+        }
+
+        [fInput, sBuild, sResearch, sTrain, sUniversal].forEach(input => {
+            if(input) input.addEventListener('input', updateLiveRegistrationPreviews);
+        });
+
+        // Toggle active tabs
+        function switchBuffType(buffType) {
+            currentBuff = buffType;
+            
+            // Render active button styling
+            ['architect', 'scientist', 'instructor'].forEach(b => {
+                const btn = document.getElementById(`btnBuff-${b}`);
+                if (b === buffType) {
+                    btn.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-brand-accent/20 text-brand-accent border-brand-accent";
+                } else {
+                    btn.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-slate-800 text-slate-400 border-transparent hover:text-white";
+                }
+            });
+
+            // Update formula card information block
+            const label = document.getElementById('infoBuffLabel');
+            const desc = document.getElementById('infoBuffDescription');
+            if (buffType === 'architect') {
+                label.textContent = "Architect";
+                desc.textContent = "Calculates priority based on (Construction + Universal Speedups) combined with your Furnace Level.";
+            } else if (buffType === 'scientist') {
+                label.textContent = "Scientist";
+                desc.textContent = "Calculates priority based on (Research + Universal Speedups) combined with your Furnace Level.";
+            } else {
+                label.textContent = "Instructor";
+                desc.textContent = "Calculates priority based on (Troop Training + Universal Speedups) combined with your Furnace Level.";
+            }
+
+            refreshUI();
+        }
+
+        function switchDay(dayId) {
+            currentDay = dayId;
+
+            // Render active day button styling
+            ['day1', 'day2', 'day3', 'day4', 'day5', 'day6'].forEach(d => {
+                const btn = document.getElementById(`btnDay-${d}`);
+                if (d === dayId) {
+                    btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-brand-accent bg-brand-accent/10 border border-brand-accent/20";
+                } else {
+                    btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
+                }
+            });
+
+            refreshUI();
+        }
+
+        // Add player to system
         function handleAddPlayer(event) {
             event.preventDefault();
             const nameField = document.getElementById('playerName');
             const furnaceField = document.getElementById('furnaceLevel');
-            const speedupsField = document.getElementById('speedups');
 
             const name = nameField.value.trim();
             const furnace = parseInt(furnaceField.value);
-            const speedups = parseFloat(speedupsField.value);
+            const buildVal = parseFloat(sBuild.value) || 0;
+            const techVal = parseFloat(sResearch.value) || 0;
+            const troopVal = parseFloat(sTrain.value) || 0;
+            const universalVal = parseFloat(sUniversal.value) || 0;
+            const fcPushVal = sFcUpgrade ? sFcUpgrade.checked : false;
 
-            if (!name || isNaN(furnace) || isNaN(speedups)) {
-                showToast("Please provide accurate parameters.", "warning");
+            if (!name || isNaN(furnace)) {
+                showToast("Please provide a name and valid furnace level.", "warning");
                 return;
             }
 
-            // Check duplicate player
+            // Check duplicate
             if (stateData.players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                showToast("A player with this name already exists in the roster.", "warning");
+                showToast("This competitor already exists in the registry.", "warning");
                 return;
             }
 
-            const score = calculateScore(furnace, speedups);
-            stateData.players.push({ name, furnace, speedups, score });
+            stateData.players.push({
+                name,
+                furnace,
+                speedups_build: buildVal,
+                speedups_research: techVal,
+                speedups_train: troopVal,
+                speedups_universal: universalVal,
+                fc_upgrade: fcPushVal
+            });
             
             saveCloudData();
-            showToast(`Added ${name} successfully!`, "success");
+            showToast(`Added profile: ${name}`, "success");
 
-            // Reset UI inputs
+            // Reset inputs
             nameField.value = '';
             furnaceField.value = '';
-            speedupsField.value = '';
-            liveScorePreview.textContent = '0.00';
+            sBuild.value = '';
+            sResearch.value = '';
+            sTrain.value = '';
+            sUniversal.value = '';
+            if (sFcUpgrade) sFcUpgrade.checked = false;
+            updateLiveRegistrationPreviews();
         }
 
-        // Remove user player from roster
+        // Delete player
         function removePlayer(name) {
             stateData.players = stateData.players.filter(p => p.name !== name);
             
-            // Clean references to the removed player in bookings
-            Object.keys(stateData.schedules).forEach(slot => {
-                if (stateData.schedules[slot]) {
-                    stateData.schedules[slot] = stateData.schedules[slot].filter(pName => pName !== name);
-                }
+            // Clean references across all buffs, days and slots
+            Object.keys(stateData.schedules).forEach(bType => {
+                Object.keys(stateData.schedules[bType] || {}).forEach(day => {
+                    Object.keys(stateData.schedules[bType][day] || {}).forEach(slot => {
+                        let currentSlot = stateData.schedules[bType][day][slot];
+                        if (currentSlot) {
+                            if (Array.isArray(currentSlot)) {
+                                stateData.schedules[bType][day][slot] = currentSlot.filter(pName => pName !== name);
+                            } else if (typeof currentSlot === 'object') {
+                                stateData.schedules[bType][day][slot].applicants = (currentSlot.applicants || []).filter(pName => pName !== name);
+                                if (currentSlot.lockedWinner === name) {
+                                    stateData.schedules[bType][day][slot].lockedWinner = null;
+                                }
+                            }
+                        }
+                    });
+                });
             });
 
             saveCloudData();
-            showToast(`Removed player: ${name}`, "info");
+            showToast(`Removed player profile: ${name}`, "info");
+        }
+
+        // Live Toggle FC Upgrade status from the roster card directly
+        function togglePlayerFcStatus(playerName) {
+            const player = stateData.players.find(p => p.name === playerName);
+            if (player) {
+                player.fc_upgrade = !player.fc_upgrade;
+                saveCloudData();
+                showToast(`${playerName} FC priority boost turned ${player.fc_upgrade ? 'ON 🟢' : 'OFF 🔴'}`, "success");
+            }
+        }
+
+        // Safe parser for scoring based on active state context
+        function getPlayerScore(p, targetBuff) {
+            const f = parseInt(p.furnace) || 0;
+            let speedupsVal = 0;
+            const universalVal = parseFloat(p.speedups_universal !== undefined ? p.speedups_universal : 0) || 0;
+            const hasFcUpgrade = p.fc_upgrade || false;
+            
+            if (targetBuff === 'architect') {
+                speedupsVal = parseFloat(p.speedups_build !== undefined ? p.speedups_build : p.speedups) || 0;
+            } else if (targetBuff === 'scientist') {
+                speedupsVal = parseFloat(p.speedups_research !== undefined ? p.speedups_research : 0) || 0;
+            } else {
+                speedupsVal = parseFloat(p.speedups_train !== undefined ? p.speedups_train : 0) || 0;
+            }
+            return calculateScore(f, speedupsVal + universalVal, hasFcUpgrade);
         }
 
         // Toggle state sync mode
@@ -487,12 +780,11 @@ service cloud.firestore {
                 btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20";
                 txt.textContent = "Live State Sync";
                 showToast("Reconnected to real-time sync database.", "success");
-                // Immediately pull state from server
                 subscribeToData();
             }
         }
 
-        // Custom alert confirmation
+        // Reset system conformation
         function confirmResetData() {
             const dialog = document.getElementById('confirmDialog');
             dialog.classList.remove('opacity-0', 'pointer-events-none');
@@ -509,29 +801,147 @@ service cloud.firestore {
             stateData = { players: [], schedules: {} };
             saveCloudData();
             closeConfirmDialog();
-            showToast("State database has been completely wiped.", "danger");
+            showToast("Database has been completely wiped.", "danger");
         }
 
-        // Drawer Operations for Slot Selection
+        // Presidency Overrides / Lock Engine
+        function toggleAdminPanel() {
+            if (isAdmin) {
+                isAdmin = false;
+                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
+                document.getElementById('adminBtnText').textContent = "Presidency Login";
+                showToast("Presidency admin mode deactivated.", "info");
+                refreshUI();
+            } else {
+                const modal = document.getElementById('adminModal');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                document.getElementById('adminPasscode').focus();
+            }
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('adminModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('adminPasscode').value = '';
+        }
+
+        function authenticateAdmin() {
+            const passcode = document.getElementById('adminPasscode').value;
+            if (passcode === '4336') {
+                isAdmin = true;
+                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 animate-pulse";
+                document.getElementById('adminBtnText').textContent = "Presidency Active";
+                showToast("Authorized successfully! Overrides unlocked.", "success");
+                closeAdminModal();
+                refreshUI();
+            } else {
+                showToast("Incorrect State Passcode. Authorization denied.", "danger");
+            }
+        }
+
+        function toggleSlotPresidencyLock(slot) {
+            if (!isAdmin) {
+                showToast("Presidency authorization required to lock slots.", "warning");
+                return;
+            }
+
+            if (!stateData.schedules[currentBuff]) stateData.schedules[currentBuff] = {};
+            if (!stateData.schedules[currentBuff][currentDay]) stateData.schedules[currentBuff][currentDay] = {};
+            
+            let slotData = stateData.schedules[currentBuff][currentDay][slot];
+            
+            // Normalize schema
+            let applicants = [];
+            let currentLock = null;
+            if (Array.isArray(slotData)) {
+                applicants = slotData;
+            } else if (slotData && typeof slotData === 'object') {
+                applicants = slotData.applicants || [];
+                currentLock = slotData.lockedWinner || null;
+            }
+
+            if (currentLock) {
+                // Unlock
+                stateData.schedules[currentBuff][currentDay][slot] = {
+                    applicants: applicants,
+                    lockedWinner: null
+                };
+                showToast(`Slot ${slot} unlocked. Auto-bumping resumed.`, "info");
+            } else {
+                // Find high scorer to lock
+                let winner = null;
+                let maxScore = -1;
+                applicants.forEach(name => {
+                    const pData = stateData.players.find(p => p.name === name);
+                    if (pData) {
+                        const score = getPlayerScore(pData, currentBuff);
+                        if (score > maxScore) {
+                            maxScore = score;
+                            winner = name;
+                        }
+                    }
+                });
+
+                if (!winner) {
+                    showToast("No applicants in this slot to lock in.", "warning");
+                    return;
+                }
+
+                stateData.schedules[currentBuff][currentDay][slot] = {
+                    applicants: applicants,
+                    lockedWinner: winner
+                };
+                showToast(`Slot ${slot} permanently locked for ${winner}!`, "success");
+            }
+
+            saveCloudData();
+        }
+
+        // Drawer operations
         function openSlotDrawer(slot) {
             activeDrawerSlot = slot;
             const slotNameDisplay = document.getElementById('drawerSlotTime');
-            slotNameDisplay.textContent = slot;
+            slotNameDisplay.textContent = `${slot} (${currentBuff.toUpperCase()} - ${currentDay.toUpperCase()})`;
 
             const listContainer = document.getElementById('drawerCompetitorList');
             listContainer.innerHTML = '';
 
-            const selectedPeople = stateData.schedules[slot] || [];
+            // Guard paths in schedule structure
+            if (!stateData.schedules[currentBuff]) stateData.schedules[currentBuff] = {};
+            if (!stateData.schedules[currentBuff][currentDay]) stateData.schedules[currentBuff][currentDay] = {};
+            
+            const slotData = stateData.schedules[currentBuff][currentDay][slot];
+            let selectedPeople = [];
+            let isLocked = false;
+
+            if (Array.isArray(slotData)) {
+                selectedPeople = slotData;
+            } else if (slotData && typeof slotData === 'object') {
+                selectedPeople = slotData.applicants || [];
+                isLocked = !!slotData.lockedWinner;
+            }
+
+            if (isLocked && !isAdmin) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-6 text-amber-500 text-xs">
+                        <i class="fa-solid fa-lock block mb-1 text-base text-amber-500 animate-bounce"></i>
+                        This slot is locked by the Presidency. You cannot change applicants.
+                    </div>`;
+                return;
+            }
 
             if (stateData.players.length === 0) {
                 listContainer.innerHTML = `
                     <div class="text-center py-6 text-slate-500 text-xs">
                         <i class="fa-solid fa-user-slash block mb-1 text-base"></i>
-                        Please register players in the roster first.
+                        Please register players in the roster database first.
                     </div>`;
             } else {
                 stateData.players.forEach(p => {
                     const isChecked = selectedPeople.includes(p.name);
+                    const score = getPlayerScore(p, currentBuff);
+                    const hasFc = p.fc_upgrade || false;
+                    
                     listContainer.innerHTML += `
                         <label class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-brand-border cursor-pointer hover:bg-slate-800 transition">
                             <div class="flex items-center gap-2.5">
@@ -541,11 +951,14 @@ service cloud.firestore {
                                        onchange="toggleSlotApplicant('${slot}', '${p.name}', this.checked)"
                                        class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-accent focus:ring-brand-accent/30 focus:ring-offset-slate-900">
                                 <div>
-                                    <span class="text-xs font-semibold text-white">${p.name}</span>
-                                    <span class="block text-[10px] text-slate-400">F${p.furnace} • Score: ${p.score}</span>
+                                    <span class="text-xs font-semibold text-white flex items-center gap-1.5">
+                                        ${p.name}
+                                        ${hasFc ? `<span class="bg-amber-500/20 text-amber-400 text-[8px] font-extrabold px-1.5 rounded border border-amber-500/20"><i class="fa-solid fa-fire text-[6px]"></i> FC PUSH</span>` : ''}
+                                    </span>
+                                    <span class="block text-[10px] text-slate-400">F${p.furnace} • Score: ${score.toFixed(2)}</span>
                                 </div>
                             </div>
-                            <span class="text-[10px] font-bold text-emerald-400">Yield: ${p.score}</span>
+                            <span class="text-[10px] font-bold text-emerald-400">Score: ${score.toFixed(2)}</span>
                         </label>`;
                 });
             }
@@ -555,7 +968,6 @@ service cloud.firestore {
             document.getElementById('slotDrawerPanel').classList.remove('scale-95');
         }
 
-        // Close Drawer Operations
         function closeSlotDrawer() {
             const drawer = document.getElementById('slotDrawer');
             drawer.classList.add('opacity-0', 'pointer-events-none');
@@ -564,22 +976,40 @@ service cloud.firestore {
         }
 
         function toggleSlotApplicant(slot, playerName, isChecked) {
-            if (!stateData.schedules[slot]) {
-                stateData.schedules[slot] = [];
+            if (!stateData.schedules[currentBuff]) stateData.schedules[currentBuff] = {};
+            if (!stateData.schedules[currentBuff][currentDay]) stateData.schedules[currentBuff][currentDay] = {};
+            
+            let slotData = stateData.schedules[currentBuff][currentDay][slot];
+            let applicants = [];
+            let lockedWinner = null;
+
+            if (Array.isArray(slotData)) {
+                applicants = slotData;
+            } else if (slotData && typeof slotData === 'object') {
+                applicants = slotData.applicants || [];
+                lockedWinner = slotData.lockedWinner || null;
             }
 
             if (isChecked) {
-                if (!stateData.schedules[slot].includes(playerName)) {
-                    stateData.schedules[slot].push(playerName);
+                if (!applicants.includes(playerName)) {
+                    applicants.push(playerName);
                 }
             } else {
-                stateData.schedules[slot] = stateData.schedules[slot].filter(name => name !== playerName);
+                applicants = applicants.filter(name => name !== playerName);
+                if (lockedWinner === playerName) {
+                    lockedWinner = null;
+                }
             }
+
+            stateData.schedules[currentBuff][currentDay][slot] = {
+                applicants: applicants,
+                lockedWinner: lockedWinner
+            };
 
             saveCloudData();
         }
 
-        // Custom Toast System
+        // Toast notifications
         function showToast(message, type = "info") {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -608,24 +1038,17 @@ service cloud.firestore {
             `;
 
             container.appendChild(toast);
-            
-            // Animate In
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 50);
-
-            // Animate Out & Auto Clean
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
             setTimeout(() => {
                 toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => {
-                    toast.remove();
-                }, 300);
+                setTimeout(() => { toast.remove(); }, 300);
             }, 4500);
         }
 
-        // Refresh HTML Roster View
+        // Render Competitors list based on active tab
         function renderPlayers() {
             const container = document.getElementById('playerList');
+            if(!container) return;
             const searchVal = document.getElementById('rosterSearch').value.toLowerCase().trim();
             
             const playersList = stateData.players || [];
@@ -643,8 +1066,10 @@ service cloud.firestore {
             }
 
             container.innerHTML = '';
-            // Sort players by higher yield score
-            filteredPlayers.sort((a, b) => b.score - a.score).forEach((p) => {
+            filteredPlayers.sort((a,b) => getPlayerScore(b, currentBuff) - getPlayerScore(a, currentBuff)).forEach((p) => {
+                const score = getPlayerScore(p, currentBuff);
+                const hasFc = p.fc_upgrade || false;
+                
                 let badgeColor = "bg-slate-800 text-slate-300 border-slate-700";
                 if (p.furnace >= 30) {
                     badgeColor = "bg-blue-950 text-blue-400 border-blue-800";
@@ -652,21 +1077,41 @@ service cloud.firestore {
                     badgeColor = "bg-amber-950 text-amber-400 border-amber-800";
                 }
 
+                let daysLabel = "Build";
+                let daysVal = p.speedups_build || 0;
+                if (currentBuff === 'scientist') {
+                    daysLabel = "Research";
+                    daysVal = p.speedups_research || 0;
+                } else if (currentBuff === 'instructor') {
+                    daysLabel = "Train";
+                    daysVal = p.speedups_train || 0;
+                }
+
+                const uVal = p.speedups_universal || 0;
+
                 container.innerHTML += `
                     <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/40 border border-brand-border hover:border-slate-700 transition">
                         <div class="flex items-center gap-2.5">
                             <span class="text-xs font-semibold px-2 py-0.5 rounded border ${badgeColor}">F${p.furnace}</span>
                             <div>
-                                <span class="text-xs font-bold text-white block">${p.name}</span>
-                                <span class="text-[10px] text-slate-400 block">${p.speedups} Speedup Days</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-white block">${p.name}</span>
+                                    <button onclick="togglePlayerFcStatus('${p.name}')" class="focus:outline-none transition-all scale-95 hover:scale-100" title="Click to toggle FC Push multiplier status">
+                                        ${hasFc 
+                                            ? `<span class="bg-amber-500/20 text-amber-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded border border-amber-500/30 flex items-center gap-0.5"><i class="fa-solid fa-fire text-amber-500 animate-pulse"></i> FC PUSH ON</span>` 
+                                            : `<span class="bg-slate-850 text-slate-500 hover:text-slate-300 hover:bg-slate-800 text-[8px] font-bold px-1.5 py-0.5 rounded border border-slate-800 flex items-center gap-0.5"><i class="fa-solid fa-fire text-slate-600"></i> FC Push Off</span>`
+                                        }
+                                    </button>
+                                </div>
+                                <span class="text-[10px] text-slate-400 block mt-0.5">${daysVal} ${daysLabel} Days ${uVal > 0 ? `(+${uVal} Gen)` : ''}</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="text-right">
-                                <span class="text-xs font-bold text-brand-success block">${p.score.toFixed(2)}</span>
+                                <span class="text-xs font-bold text-brand-success block">${score.toFixed(2)}</span>
                                 <span class="text-[8px] text-slate-400 uppercase tracking-widest block">Yield Score</span>
                             </div>
-                            <button onclick="removePlayer('${p.name}')" class="text-xs text-brand-danger bg-brand-danger/10 hover:bg-brand-danger hover:text-white p-1.5 rounded transition" title="Delete Player">
+                            <button onclick="removePlayer('${p.name}')" class="text-xs text-brand-danger bg-brand-danger/10 hover:bg-brand-danger hover:text-white p-1.5 rounded transition" title="Delete Profile">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -674,82 +1119,147 @@ service cloud.firestore {
             });
         }
 
-        // Refresh HTML Schedule View
+        // Render schedule list based on active buff + active day
         function renderSchedule() {
             const container = document.getElementById('scheduleContainer');
+            if(!container) return;
             container.innerHTML = '';
 
-            timeSlots.forEach(slot => {
-                const signedUpNames = stateData.schedules[slot] || [];
+            const activeSchedules = stateData.schedules[currentBuff]?.[currentDay] || {};
+
+            timeSlots.forEach(utcSlot => {
+                const slotData = activeSchedules[utcSlot];
+                
+                // Safe Schema parsing
+                let applicants = [];
+                let lockedWinner = null;
+                if (Array.isArray(slotData)) {
+                    applicants = slotData;
+                } else if (slotData && typeof slotData === 'object') {
+                    applicants = slotData.applicants || [];
+                    lockedWinner = slotData.lockedWinner || null;
+                }
+
                 let winner = null;
                 let maxScore = -1;
-                let bumped = [];
+                let nextInLine = [];
 
-                // Resolve slot winner automatically
-                signedUpNames.forEach(name => {
-                    const pData = stateData.players.find(p => p.name === name);
-                    if (pData) {
-                        if (pData.score > maxScore) {
-                            if (winner) bumped.push(winner);
-                            maxScore = pData.score;
-                            winner = name;
-                        } else {
-                            bumped.push(name);
-                        }
+                if (lockedWinner) {
+                    winner = lockedWinner;
+                    const wData = stateData.players.find(p => p.name === winner);
+                    if (wData) {
+                        maxScore = getPlayerScore(wData, currentBuff);
                     }
-                });
+                    // Sort queue of others
+                    nextInLine = applicants
+                        .filter(name => name !== winner)
+                        .map(name => {
+                            const pData = stateData.players.find(p => p.name === name);
+                            return { name, score: pData ? getPlayerScore(pData, currentBuff) : 0 };
+                        })
+                        .sort((a,b) => b.score - a.score);
+                } else {
+                    // Standard Dynamic Calc
+                    applicants.forEach(name => {
+                        const pData = stateData.players.find(p => p.name === name);
+                        if (pData) {
+                            const score = getPlayerScore(pData, currentBuff);
+                            if (score > maxScore) {
+                                maxScore = score;
+                                winner = name;
+                            }
+                        }
+                    });
+
+                    // Pull everyone except the temporary winner into queue
+                    nextInLine = applicants
+                        .filter(name => name !== winner)
+                        .map(name => {
+                            const pData = stateData.players.find(p => p.name === name);
+                            return { name, score: pData ? getPlayerScore(pData, currentBuff) : 0 };
+                        })
+                        .sort((a,b) => b.score - a.score);
+                }
 
                 const isVacant = !winner;
-                const statusBadge = isVacant
-                    ? `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full"><i class="fa-solid fa-circle text-[6px]"></i> Vacant</span>`
-                    : `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2 py-0.5 rounded-full"><i class="fa-solid fa-lock text-[8px]"></i> Secured: ${winner} (Yield: ${maxScore})</span>`;
+                const winnerProfile = winner ? stateData.players.find(p => p.name === winner) : null;
+                const winnerHasFc = winnerProfile ? winnerProfile.fc_upgrade : false;
 
-                let competitorBadges = "";
-                if (signedUpNames.length > 0) {
-                    competitorBadges = signedUpNames.map(name => {
-                        const pData = stateData.players.find(p => p.name === name);
-                        const isLeader = name === winner;
-                        const cardStyle = isLeader 
-                            ? "bg-brand-accent/10 border-brand-accent text-brand-accent" 
-                            : "bg-slate-900 border-brand-border text-slate-400";
-                        return `<span class="text-[10px] px-2 py-0.5 rounded border font-semibold ${cardStyle}">${name}</span>`;
-                    }).join(" ");
+                // Status Badge rendering
+                let statusBadge = "";
+                if (isVacant) {
+                    statusBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full"><i class="fa-solid fa-circle text-[6px]"></i> Vacant</span>`;
+                } else if (lockedWinner) {
+                    statusBadge = `<span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full shadow-lg shadow-amber-500/5 animate-pulse">
+                        <i class="fa-solid fa-lock text-[8px]"></i> PRESIDENCY LOCKED: ${winner} (Yield: ${maxScore.toFixed(2)})
+                       </span>`;
                 } else {
-                    competitorBadges = `<span class="text-[10px] text-slate-500 italic">No competitors configured</span>`;
+                    statusBadge = `<span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2 py-0.5 rounded-full">
+                        <i class="fa-solid fa-lock text-[8px]"></i> Secured: ${winner} (Yield: ${maxScore.toFixed(2)})
+                        ${winnerHasFc ? `<span class="text-amber-500 animate-pulse"><i class="fa-solid fa-fire text-[8px]"></i> FC BOOST</span>` : ''}
+                       </span>`;
+                }
+
+                // Display local time conversion if active
+                const displayTime = timeDisplayMode === 'local' ? convertSlotToLocal(utcSlot) : `${utcSlot} UTC`;
+
+                // Queue/Next In Line badges rendering
+                let queueSection = "";
+                if (nextInLine.length > 0) {
+                    queueSection = `
+                        <div class="mt-2 pt-2 border-t border-brand-border/40 text-[10px] text-slate-400 flex flex-wrap items-center gap-2">
+                            <span class="uppercase font-bold tracking-wider text-slate-500 text-[9px] flex items-center gap-1"><i class="fa-solid fa-arrow-down-9-1"></i> Next in Line (Queue):</span>
+                            ${nextInLine.map((p, idx) => {
+                                const competitorProfile = stateData.players.find(pl => pl.name === p.name);
+                                const competitorHasFc = competitorProfile ? competitorProfile.fc_upgrade : false;
+                                return `<span class="inline-flex items-center gap-1 bg-slate-900 border border-brand-border rounded px-2 py-0.5 text-slate-300 font-medium">
+                                    <strong class="text-slate-500 font-bold">#${idx + 1}</strong> ${p.name} (${p.score.toFixed(2)})
+                                    ${competitorHasFc ? `<i class="fa-solid fa-fire text-amber-500 text-[8px]"></i>` : ''}
+                                </span>`;
+                            }).join('')}
+                        </div>`;
+                }
+
+                // Admin Controls rendering
+                let adminControlBtn = "";
+                if (isAdmin) {
+                    const isSlotLocked = !!lockedWinner;
+                    adminControlBtn = `
+                        <button onclick="toggleSlotPresidencyLock('${utcSlot}')" class="py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20" title="${isSlotLocked ? 'Unlock slot' : 'Lock current winner'}">
+                            <i class="fa-solid ${isSlotLocked ? 'fa-unlock' : 'fa-lock'}"></i>
+                            ${isSlotLocked ? 'Presidency Unlock' : 'Presidency Lock'}
+                        </button>`;
                 }
 
                 container.innerHTML += `
-                    <div class="p-3.5 rounded-xl bg-slate-900/40 border border-brand-border hover:border-slate-800 transition flex flex-col md:flex-row md:items-center justify-between gap-3">
-                        <div class="space-y-1.5 flex-grow">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-extrabold tracking-tight text-white">${slot}</span>
-                                ${statusBadge}
+                    <div class="p-3.5 rounded-xl bg-slate-900/40 border border-brand-border hover:border-slate-800 transition flex flex-col space-y-3">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-xs font-extrabold tracking-tight text-white">${displayTime}</span>
+                                    ${statusBadge}
+                                </div>
+                                <div class="text-[9px] text-slate-500 font-semibold tracking-wider flex items-center gap-1">
+                                    <i class="fa-regular fa-user"></i> Active Applicant Total: ${applicants.length}
+                                </div>
                             </div>
-                            <div class="flex flex-wrap items-center gap-1">
-                                <span class="text-[9px] text-slate-500 uppercase font-bold tracking-wider mr-1">Applicants:</span>
-                                ${competitorBadges}
+                            <div class="flex items-center gap-2 self-start md:self-auto flex-wrap">
+                                ${adminControlBtn}
+                                <button onclick="openSlotDrawer('${utcSlot}')" class="py-1.5 px-3 bg-brand-card hover:bg-slate-800 text-slate-300 border border-brand-border hover:border-slate-700 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-user-pen"></i> Select Applicants
+                                </button>
                             </div>
-                            ${bumped.length > 0 ? `
-                            <div class="text-[9px] text-brand-danger flex items-center gap-1 font-semibold">
-                                <i class="fa-solid fa-triangle-exclamation"></i>
-                                Bumped: ${bumped.join(', ')} (yield score too low)
-                            </div>` : ''}
                         </div>
-                        <div class="flex-shrink-0">
-                            <button onclick="openSlotDrawer('${slot}')" class="w-full md:w-auto py-1.5 px-3 bg-brand-card hover:bg-slate-800 text-slate-300 border border-brand-border hover:border-slate-700 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-user-pen"></i> Select Applicants
-                            </button>
-                        </div>
+                        ${queueSection}
                     </div>`;
             });
         }
 
-        // Render Diagnostics Window
+        // Render Diagnostics Window log entries
         function openDiagnosticsModal() {
             const modal = document.getElementById('diagnosticsModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
             
-            // Render logs to user dynamically
             const sdkIcon = document.getElementById('diagSdkIcon');
             const sdkText = document.getElementById('diagSdkText');
             const authIcon = document.getElementById('diagAuthIcon');
@@ -759,7 +1269,6 @@ service cloud.firestore {
             const dbText = document.getElementById('diagDbText');
             const dbAction = document.getElementById('diagDbAction');
 
-            // 1. SDK Status
             if (runDiagnostics.sdkInit === 'success') {
                 sdkIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
                 sdkText.innerHTML = `<span class="text-brand-success font-semibold">Connected.</span> Firebase libraries compiled.`;
@@ -768,7 +1277,6 @@ service cloud.firestore {
                 sdkText.innerHTML = `<span class="text-brand-danger font-semibold">Failed.</span> Error: ${runDiagnostics.sdkError || 'Credentials missing'}`;
             }
 
-            // 2. Auth Status
             if (runDiagnostics.auth === 'success') {
                 authIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
                 authText.innerHTML = `<span class="text-brand-success font-semibold">Connected.</span> Anonymous connection assigned.`;
@@ -783,19 +1291,23 @@ service cloud.firestore {
                 authAction.classList.add('hidden');
             }
 
-            // 3. Database Sync Status
             if (runDiagnostics.firestore === 'success') {
                 dbIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
-                dbText.innerHTML = `<span class="text-brand-success font-semibold">Ready.</span> Active live document sync on path: <code class="bg-slate-950 px-1 py-0.5 rounded text-[10px] text-slate-300 font-mono">/state/main</code>`;
+                dbText.innerHTML = `<span class="text-brand-success font-semibold">Ready.</span> Active live document sync on path: <code class="bg-slate-950 px-1 py-0.5 rounded text-[10px] text-slate-300 font-mono">state_schedulers/svs-scheduler-a1919</code>`;
                 dbAction.classList.add('hidden');
             } else if (runDiagnostics.firestore === 'failed') {
                 dbIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
-                dbText.innerHTML = `<span class="text-brand-danger font-semibold">Wrote failed / connection blocked.</span> Error: ${runDiagnostics.firestoreError}`;
+                dbText.innerHTML = `<span class="text-brand-danger font-semibold">Sync blocked or database disabled.</span> Error: ${runDiagnostics.firestoreError}`;
                 dbAction.classList.remove('hidden');
             } else {
                 dbIcon.innerHTML = `<i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse text-base"></i>`;
                 dbText.textContent = "Listening for Cloud mutations...";
                 dbAction.classList.add('hidden');
+            }
+
+            const logDisplay = document.getElementById('consoleLogDisplay');
+            if (window.capturedErrors.length > 0) {
+                logDisplay.innerHTML = window.capturedErrors.map(err => `<div class="text-rose-400 font-mono text-[10px] p-1.5 bg-rose-950/30 border border-rose-900/30 rounded mb-1.5 break-words">> ${err}</div>`).join('');
             }
         }
 
@@ -804,30 +1316,37 @@ service cloud.firestore {
             modal.classList.add('opacity-0', 'pointer-events-none');
         }
 
-        // Dynamically update header status pill depending on diagnosis
+        function clearCapturedErrors() {
+            window.capturedErrors = [];
+            const logDisplay = document.getElementById('consoleLogDisplay');
+            if (logDisplay) {
+                logDisplay.innerHTML = `<div class="italic text-slate-600">> Logs cleared. Ready.</div>`;
+            }
+        }
+
         function updateHeaderStatusPill() {
             const pill = document.getElementById('dbStatusPill');
             const dot = document.getElementById('statusDot');
             const txt = document.getElementById('statusText');
 
             if (syncMode === 'offline') {
-                dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
-                txt.textContent = "Sandbox Mode";
+                if(dot) dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
+                if(txt) txt.textContent = "Sandbox Mode";
                 return;
             }
 
             if (runDiagnostics.firestore === 'success') {
-                dot.className = "h-2 w-2 rounded-full bg-emerald-500 animate-pulse";
-                txt.textContent = "Online";
-                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20";
+                if(dot) dot.className = "h-2 w-2 rounded-full bg-emerald-500 animate-pulse";
+                if(txt) txt.textContent = "Online";
+                if(pill) pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20";
             } else if (runDiagnostics.auth === 'failed' || runDiagnostics.firestore === 'failed') {
-                dot.className = "h-2 w-2 rounded-full bg-rose-500 animate-pulse";
-                txt.textContent = "Setup Required";
-                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20";
+                if(dot) dot.className = "h-2 w-2 rounded-full bg-rose-500 animate-pulse";
+                if(txt) txt.textContent = "Setup Required";
+                if(pill) pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20";
             } else {
-                dot.className = "h-2 w-2 rounded-full bg-slate-500 animate-pulse";
-                txt.textContent = "Connecting...";
-                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
+                if(dot) dot.className = "h-2 w-2 rounded-full bg-slate-500 animate-pulse";
+                if(txt) txt.textContent = "Connecting...";
+                if(pill) pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
             }
         }
 
@@ -836,7 +1355,6 @@ service cloud.firestore {
             renderSchedule();
             updateHeaderStatusPill();
 
-            // If drawer is currently active, refresh its list too
             if (activeDrawerSlot) {
                 openSlotDrawer(activeDrawerSlot);
             }
@@ -845,10 +1363,9 @@ service cloud.firestore {
 
     <!-- Firebase Integration Pipeline with your Exact Configuration Details -->
     <script>
-        // Custom State Identification Tag
+        // Official Production State Database ID
         const appId = 'svs-scheduler-a1919';
         
-        // Exact Firebase configuration provided
         const firebaseConfig = {
           apiKey: "AIzaSyDQuzprhL2M3hrR585iyHeLr0BtUTMfCxA",
           authDomain: "svs-scheduler-a1919.firebaseapp.com",
@@ -860,7 +1377,6 @@ service cloud.firestore {
           measurementId: "G-W0DFYH7M9Q"
         };
 
-        // Initialize Firebase SDK
         let appInstance, db, auth;
         try {
             appInstance = firebase.initializeApp(firebaseConfig);
@@ -870,31 +1386,89 @@ service cloud.firestore {
         } catch (err) {
             runDiagnostics.sdkInit = 'failed';
             runDiagnostics.sdkError = err.message;
-            console.error("Firebase setup failed", err);
+            console.error("Firebase initialization failed", err);
         }
 
         let unsubscribeState = null;
 
-        // Subscribing to public state document
+        // Subscribing to database updates on custom table reference
         function subscribeToData() {
             if (!db || !auth.currentUser || syncMode === 'offline') return;
 
             if (unsubscribeState) unsubscribeState();
 
-            // Setup document location using the mandatory path formats
-            const docRef = db.doc(`artifacts/${appId}/public/data/state/main`);
+            const docRef = db.collection('state_schedulers').doc(appId);
 
             unsubscribeState = docRef.onSnapshot((doc) => {
                 runDiagnostics.firestore = 'success';
                 updateHeaderStatusPill();
                 if (doc.exists) {
                     const data = doc.data();
-                    stateData.players = data.players || [];
-                    stateData.schedules = data.schedules || {};
+                    
+                    // Run Schema Safe Migrations for old players
+                    const rawPlayers = data.players || [];
+                    stateData.players = rawPlayers.map(p => {
+                        return {
+                            name: p.name,
+                            furnace: parseInt(p.furnace) || 30,
+                            speedups_build: p.speedups_build !== undefined ? parseFloat(p.speedups_build) : parseFloat(p.speedups || 0),
+                            speedups_research: p.speedups_research !== undefined ? parseFloat(p.speedups_research) : 0,
+                            speedups_train: p.speedups_train !== undefined ? parseFloat(p.speedups_train) : 0,
+                            speedups_universal: p.speedups_universal !== undefined ? parseFloat(p.speedups_universal) : 0,
+                            fc_upgrade: p.fc_upgrade !== undefined ? p.fc_upgrade : false
+                        };
+                    });
+
+                    // Safeguard schedules tree structures mapping
+                    const rawSchedules = data.schedules || {};
+                    stateData.schedules = {};
+                    
+                    // Standard multi-buff, multi-day schedule structure
+                    ['architect', 'scientist', 'instructor'].forEach(bType => {
+                        stateData.schedules[bType] = {};
+                        ['day1', 'day2', 'day3', 'day4', 'day5', 'day6'].forEach(day => {
+                            stateData.schedules[bType][day] = {};
+                        });
+                    });
+
+                    // Migrate previous simple schedule structure if detected
+                    if (rawSchedules && !rawSchedules['architect'] && !rawSchedules['scientist']) {
+                        // Normalize flat structure to Day 1 Architect
+                        Object.keys(rawSchedules).forEach(slotKey => {
+                            let slotValue = rawSchedules[slotKey];
+                            if (Array.isArray(slotValue)) {
+                                stateData.schedules['architect']['day1'][slotKey] = {
+                                    applicants: slotValue,
+                                    lockedWinner: null
+                                };
+                            } else {
+                                stateData.schedules['architect']['day1'][slotKey] = slotValue;
+                            }
+                        });
+                    } else {
+                        // Map multi-day tree structure
+                        Object.keys(rawSchedules).forEach(bType => {
+                            if (stateData.schedules[bType]) {
+                                Object.keys(rawSchedules[bType] || {}).forEach(day => {
+                                    let dayData = rawSchedules[bType][day] || {};
+                                    Object.keys(dayData).forEach(slotKey => {
+                                        let val = dayData[slotKey];
+                                        if (Array.isArray(val)) {
+                                            stateData.schedules[bType][day][slotKey] = {
+                                                applicants: val,
+                                                lockedWinner: null
+                                            };
+                                        } else {
+                                            stateData.schedules[bType][day][slotKey] = val;
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    }
+
                     refreshUI();
                 } else {
-                    // CRITICAL FIX: If the document doesn't exist, keep local state empty but DO NOT automatically 
-                    // write back to the server. This prevents the empty cache from wiping existing player records on refresh.
                     stateData.players = [];
                     stateData.schedules = {};
                     refreshUI();
@@ -903,12 +1477,12 @@ service cloud.firestore {
                 runDiagnostics.firestore = 'failed';
                 runDiagnostics.firestoreError = error.message;
                 updateHeaderStatusPill();
-                console.error("Firestore synchronizer error:", error);
-                showToast("Connection Sync Error. Click Database Status badge to diagnose.", "error");
+                console.error("Firestore sync error:", error);
+                showToast("Connection Sync Error. Click Database Status to check logs.", "error");
             });
         }
 
-        // Save actions to Firestore
+        // Write live state to cloud database
         async function saveCloudData() {
             refreshUI();
 
@@ -917,35 +1491,55 @@ service cloud.firestore {
             }
 
             try {
-                const docRef = db.doc(`artifacts/${appId}/public/data/state/main`);
+                const docRef = db.collection('state_schedulers').doc(appId);
                 await docRef.set({
                     players: stateData.players,
                     schedules: stateData.schedules
                 }, { merge: true });
+                
                 runDiagnostics.firestore = 'success';
                 updateHeaderStatusPill();
             } catch (e) {
                 runDiagnostics.firestore = 'failed';
                 runDiagnostics.firestoreError = e.message;
                 updateHeaderStatusPill();
-                console.error("Cloud upload failed:", e);
-                showToast("Upload failed. Click Database Status badge to diagnose.", "error");
+                console.error("Cloud save failed:", e);
+                showToast("Save failed. Check diagnostics logs.", "error");
             }
         }
 
-        // Initialize anonymous state authorization instantly on load
+        // Test manual Firestore write operation
+        async function testManualDatabaseWrite() {
+            if (!db || !auth.currentUser) {
+                showToast("Not authenticated to test database.", "warning");
+                return;
+            }
+            try {
+                showToast("Testing write operation...", "info");
+                const docRef = db.collection('state_schedulers').doc('test-connection-doc');
+                await docRef.set({
+                    lastTest: new Date().toISOString(),
+                    testStatus: "Operational"
+                });
+                showToast("Database is fully operational!", "success");
+            } catch (e) {
+                console.error("Manual Write Failed:", e);
+                showToast("Manual write failed. Check logs.", "error");
+            }
+        }
+
+        // Init anonymous session credentials
         async function initAuth() {
             if (!auth) {
-                showToast("Database configuration missing. Running offline mode.", "warning");
+                showToast("Configuration missing. Sandbox mode active.", "warning");
                 toggleSyncMode();
                 return;
             }
 
             const uidDisplay = document.getElementById('userUidDisplay');
-            document.getElementById('userIdTag').classList.remove('hidden');
+            if(uidDisplay) document.getElementById('userIdTag').classList.remove('hidden');
 
             try {
-                // Instantly sign in anonymously
                 await auth.signInAnonymously();
                 runDiagnostics.auth = 'success';
                 updateHeaderStatusPill();
@@ -954,25 +1548,23 @@ service cloud.firestore {
                 runDiagnostics.authError = err.message;
                 updateHeaderStatusPill();
                 console.error("Auth flow failed:", err);
-                showToast("Online credentials failed. Running offline.", "info");
+                showToast("Online connection failed. Running offline.", "info");
                 toggleSyncMode();
             }
         }
 
-        // Listener for authentication changes
         if (auth) {
             auth.onAuthStateChanged((user) => {
                 const uidDisplay = document.getElementById('userUidDisplay');
                 if (user) {
-                    uidDisplay.textContent = user.uid.substring(0, 8) + "...";
+                    if(uidDisplay) uidDisplay.textContent = user.uid.substring(0, 8) + "...";
                     subscribeToData();
                 } else {
-                    uidDisplay.textContent = "Offline User";
+                    if(uidDisplay) uidDisplay.textContent = "Offline User";
                 }
             });
         }
 
-        // Init execution triggers
         window.addEventListener('DOMContentLoaded', async () => {
             refreshUI();
             await initAuth();
