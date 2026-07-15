@@ -515,6 +515,20 @@
 
         let runDiagnostics = { sdkInit: 'checking', sdkError: null, auth: 'checking', authError: null, firestore: 'checking', firestoreError: null };
 
+        // Normalizes database nodes safely to prevent crashes from legacy databases
+        function normalizeSlotData(rawSlot) {
+            if (!rawSlot) {
+                return { applicants: [], lockedWinner: null };
+            }
+            if (Array.isArray(rawSlot)) {
+                return { applicants: rawSlot, lockedWinner: null };
+            }
+            return {
+                applicants: Array.isArray(rawSlot.applicants) ? rawSlot.applicants : [],
+                lockedWinner: typeof rawSlot.lockedWinner === 'string' ? rawSlot.lockedWinner : null
+            };
+        }
+
         function calculateScore(furnace, speedups, fc_level = 0, hasHeavyPush = false) {
             let normalizedFurnace = furnace;
             let normalizedFc = fc_level;
@@ -562,32 +576,18 @@
             refreshUI();
         }
 
-        const fInput = document.getElementById('furnaceLevel');
-        const sBuild = document.getElementById('speedups_build');
-        const sResearch = document.getElementById('speedups_research');
-        const sTrain = document.getElementById('speedups_train');
-        const sUniversal = document.getElementById('speedups_universal');
-        const sFcUpgrade = document.getElementById('fc_upgrade_push');
-        const fcDropdown = document.getElementById('fcLevel');
-
-        if (fInput) {
-            fInput.addEventListener('input', () => {
-                const level = parseInt(fInput.value) || 0;
-                const container = document.getElementById('fcDropdownContainer');
-                if (level >= 30) {
-                    container.classList.remove('hidden');
-                    if (level > 30 && level <= 35) {
-                        fcDropdown.value = (level - 30).toString();
-                    }
-                } else {
-                    container.classList.add('hidden');
-                    if (fcDropdown) fcDropdown.value = "0";
-                }
-                updateLiveRegistrationPreviews();
-            });
-        }
-
+        // DYNAMIC PREVIEW GENERATION (Safeguarded from loading sequence race conditions)
         function updateLiveRegistrationPreviews() {
+            const fInput = document.getElementById('furnaceLevel');
+            const fcDropdown = document.getElementById('fcLevel');
+            const sBuild = document.getElementById('speedups_build');
+            const sResearch = document.getElementById('speedups_research');
+            const sTrain = document.getElementById('speedups_train');
+            const sUniversal = document.getElementById('speedups_universal');
+            const sFcUpgrade = document.getElementById('fc_upgrade_push');
+
+            if (!fInput || !sBuild || !sResearch || !sTrain || !sUniversal) return;
+
             const furnace = parseInt(fInput.value) || 0;
             const fc_level = fcDropdown ? parseInt(fcDropdown.value) || 0 : 0;
             const sb = parseFloat(sBuild.value) || 0;
@@ -596,17 +596,59 @@
             const su = parseFloat(sUniversal.value) || 0;
             const sFc = sFcUpgrade ? sFcUpgrade.checked : false;
 
-            document.getElementById('scorePreview-build').textContent = calculateScore(furnace, sb + su, fc_level, sFc).toFixed(2);
-            document.getElementById('scorePreview-research').textContent = calculateScore(furnace, sr + su, fc_level, sFc).toFixed(2);
-            document.getElementById('scorePreview-train').textContent = calculateScore(furnace, st + su, fc_level, sFc).toFixed(2);
+            const previewBuild = document.getElementById('scorePreview-build');
+            const previewResearch = document.getElementById('scorePreview-research');
+            const previewTrain = document.getElementById('scorePreview-train');
+
+            if (previewBuild) previewBuild.textContent = calculateScore(furnace, sb + su, fc_level, sFc).toFixed(2);
+            if (previewResearch) previewResearch.textContent = calculateScore(furnace, sr + su, fc_level, sFc).toFixed(2);
+            if (previewTrain) previewTrain.textContent = calculateScore(furnace, st + su, fc_level, sFc).toFixed(2);
         }
-        [sBuild, sResearch, sTrain, sUniversal].forEach(el => el && el.addEventListener('input', updateLiveRegistrationPreviews));
+
+        // Binds event listeners securely inside DOMContentLoaded hook to guarantee elements exist
+        function initEventListeners() {
+            const fInput = document.getElementById('furnaceLevel');
+            const fcDropdown = document.getElementById('fcLevel');
+            const sBuild = document.getElementById('speedups_build');
+            const sResearch = document.getElementById('speedups_research');
+            const sTrain = document.getElementById('speedups_train');
+            const sUniversal = document.getElementById('speedups_universal');
+
+            if (fInput) {
+                fInput.addEventListener('input', () => {
+                    const level = parseInt(fInput.value) || 0;
+                    const container = document.getElementById('fcDropdownContainer');
+                    if (container) {
+                        if (level >= 30) {
+                            container.classList.remove('hidden');
+                            if (level > 30 && level <= 35 && fcDropdown) {
+                                fcDropdown.value = (level - 30).toString();
+                            }
+                        } else {
+                            container.classList.add('hidden');
+                            if (fcDropdown) fcDropdown.value = "0";
+                        }
+                    }
+                    updateLiveRegistrationPreviews();
+                });
+            }
+
+            [sBuild, sResearch, sTrain, sUniversal].forEach(el => {
+                if (el) {
+                    el.addEventListener('input', updateLiveRegistrationPreviews);
+                }
+            });
+        }
 
         function switchDay(dayId) {
             currentDay = dayId;
             const config = dayConfig[dayId];
-            document.getElementById('infoBuffLabel').textContent = config.title;
-            document.getElementById('infoBuffDescription').textContent = config.desc;
+            if (!config) return;
+
+            const buffLabel = document.getElementById('infoBuffLabel');
+            const buffDesc = document.getElementById('infoBuffDescription');
+            if (buffLabel) buffLabel.textContent = config.title;
+            if (buffDesc) buffDesc.textContent = config.desc;
 
             const scheduleList = document.getElementById('scheduleContainer');
             const beastSlayCard = document.getElementById('beastSlayAlert');
@@ -614,18 +656,20 @@
             const promotionGuideCard = document.getElementById('promotionGuideCard');
 
             if (dayId === 'day3') {
-                scheduleList.classList.add('hidden');
-                registrationCard.classList.add('hidden');
-                promotionGuideCard.classList.add('hidden');
-                beastSlayCard.classList.remove('hidden');
+                if (scheduleList) scheduleList.classList.add('hidden');
+                if (registrationCard) registrationCard.classList.add('hidden');
+                if (promotionGuideCard) promotionGuideCard.classList.add('hidden');
+                if (beastSlayCard) beastSlayCard.classList.remove('hidden');
             } else {
-                scheduleList.classList.remove('hidden');
-                registrationCard.classList.remove('hidden');
-                beastSlayCard.classList.add('hidden');
-                if (dayId === 'day4' || dayId === 'day5') {
-                    promotionGuideCard.classList.remove('hidden');
-                } else {
-                    promotionGuideCard.classList.add('hidden');
+                if (scheduleList) scheduleList.classList.remove('hidden');
+                if (registrationCard) registrationCard.classList.remove('hidden');
+                if (beastSlayCard) beastSlayCard.classList.add('hidden');
+                if (promotionGuideCard) {
+                    if (dayId === 'day4' || dayId === 'day5') {
+                        promotionGuideCard.classList.remove('hidden');
+                    } else {
+                        promotionGuideCard.classList.add('hidden');
+                    }
                 }
             }
 
@@ -662,9 +706,18 @@
             event.preventDefault();
             const nameField = document.getElementById('playerName');
             const furnaceField = document.getElementById('furnaceLevel');
+            const fcDropdown = document.getElementById('fcLevel');
+            const sBuild = document.getElementById('speedups_build');
+            const sResearch = document.getElementById('speedups_research');
+            const sTrain = document.getElementById('speedups_train');
+            const sUniversal = document.getElementById('speedups_universal');
+            const sFcUpgrade = document.getElementById('fc_upgrade_push');
+
+            if (!nameField || !furnaceField) return;
+
             const name = nameField.value.trim();
             let furnace = parseInt(furnaceField.value);
-            let fc_level = furnace === 30 ? parseInt(fcDropdown.value) || 0 : 0;
+            let fc_level = (furnace === 30 && fcDropdown) ? parseInt(fcDropdown.value) || 0 : 0;
 
             if (furnace > 30) {
                 fc_level = Math.min(furnace - 30, 5);
@@ -679,10 +732,10 @@
 
             stateData.players.push({
                 name, furnace, fc_level,
-                speedups_build: parseFloat(sBuild.value) || 0,
-                speedups_research: parseFloat(sResearch.value) || 0,
-                speedups_train: parseFloat(sTrain.value) || 0,
-                speedups_universal: parseFloat(sUniversal.value) || 0,
+                speedups_build: sBuild ? parseFloat(sBuild.value) || 0 : 0,
+                speedups_research: sResearch ? parseFloat(sResearch.value) || 0 : 0,
+                speedups_train: sTrain ? parseFloat(sTrain.value) || 0 : 0,
+                speedups_universal: sUniversal ? parseFloat(sUniversal.value) || 0 : 0,
                 fc_upgrade: sFcUpgrade ? sFcUpgrade.checked : false
             });
 
@@ -691,8 +744,14 @@
             
             nameField.value = ''; furnaceField.value = '';
             if (fcDropdown) fcDropdown.value = "0";
-            document.getElementById('fcDropdownContainer').classList.add('hidden');
-            sBuild.value = ''; sResearch.value = ''; sTrain.value = ''; sUniversal.value = '';
+            
+            const dropdownContainer = document.getElementById('fcDropdownContainer');
+            if (dropdownContainer) dropdownContainer.classList.add('hidden');
+
+            if (sBuild) sBuild.value = '';
+            if (sResearch) sResearch.value = '';
+            if (sTrain) sTrain.value = '';
+            if (sUniversal) sUniversal.value = '';
             if (sFcUpgrade) sFcUpgrade.checked = false;
             updateLiveRegistrationPreviews();
         }
@@ -726,21 +785,27 @@
             const txt = document.getElementById('syncModeText');
             if (syncMode === 'live') {
                 syncMode = 'offline';
-                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-amber-500/10 text-amber-400 border border-amber-500/30";
-                txt.textContent = "Offline Sandbox";
+                if (btn) btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-amber-500/10 text-amber-400 border border-amber-500/30";
+                if (txt) txt.textContent = "Offline Sandbox";
                 showToast("Switched to Offline Sandbox. Data saving suspended.", "warning");
             } else {
                 syncMode = 'live';
-                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
-                txt.textContent = "Live State Sync";
+                if (btn) btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                if (txt) txt.textContent = "Live State Sync";
                 subscribeToData();
                 showToast("Reconnected to Live State Sync database.", "success");
             }
             refreshUI();
         }
 
-        function confirmResetData() { document.getElementById('confirmDialog').classList.remove('opacity-0', 'pointer-events-none'); }
-        function closeConfirmDialog() { document.getElementById('confirmDialog').classList.add('opacity-0', 'pointer-events-none'); }
+        function confirmResetData() { 
+            const dialog = document.getElementById('confirmDialog');
+            if (dialog) dialog.classList.remove('opacity-0', 'pointer-events-none'); 
+        }
+        function closeConfirmDialog() { 
+            const dialog = document.getElementById('confirmDialog');
+            if (dialog) dialog.classList.add('opacity-0', 'pointer-events-none'); 
+        }
         function executeResetData() {
             stateData = { players: [], schedules: {} };
             ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
@@ -752,20 +817,34 @@
         function toggleAdminPanel() {
             if (isAdmin) {
                 isAdmin = false;
-                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700";
-                document.getElementById('adminBtnText').textContent = "Presidency Login";
+                const adminBtn = document.getElementById('adminBtn');
+                const adminBtnText = document.getElementById('adminBtnText');
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700";
+                if (adminBtnText) adminBtnText.textContent = "Presidency Login";
                 refreshUI();
             } else {
-                document.getElementById('adminModal').classList.remove('opacity-0', 'pointer-events-none');
-                document.getElementById('adminPasscode').focus();
+                const adminModal = document.getElementById('adminModal');
+                if (adminModal) {
+                    adminModal.classList.remove('opacity-0', 'pointer-events-none');
+                    const adminPasscode = document.getElementById('adminPasscode');
+                    if (adminPasscode) adminPasscode.focus();
+                }
             }
         }
-        function closeAdminModal() { document.getElementById('adminModal').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('adminPasscode').value=''; }
+        function closeAdminModal() { 
+            const adminModal = document.getElementById('adminModal');
+            const adminPasscode = document.getElementById('adminPasscode');
+            if (adminModal) adminModal.classList.add('opacity-0', 'pointer-events-none'); 
+            if (adminPasscode) adminPasscode.value=''; 
+        }
         function authenticateAdmin() {
-            if (document.getElementById('adminPasscode').value === '4336') {
+            const adminPasscode = document.getElementById('adminPasscode');
+            if (adminPasscode && adminPasscode.value === '4336') {
                 isAdmin = true;
-                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
-                document.getElementById('adminBtnText').textContent = "Presidency Active";
+                const adminBtn = document.getElementById('adminBtn');
+                const adminBtnText = document.getElementById('adminBtnText');
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
+                if (adminBtnText) adminBtnText.textContent = "Presidency Active";
                 closeAdminModal();
                 refreshUI();
                 showToast("Administrative overriding privileges enabled.", "success");
@@ -775,7 +854,7 @@
         function toggleSlotPresidencyLock(slot) {
             if (!isAdmin) return;
             if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
-            let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
+            let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
 
             if (sData.lockedWinner) {
                 sData.lockedWinner = null;
@@ -797,10 +876,10 @@
             saveCloudData();
         }
 
-        // FIX 1: Safely write applicant array adjustments to local copy before triggering database merges
+        // FIX 1: Safely write applicant array adjustments to local copy before database merges
         function toggleSlotApplicant(slot, playerName, isChecked) {
             if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
-            let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
+            let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
             
             if (isChecked) { 
                 if (!sData.applicants.includes(playerName)) {
@@ -815,21 +894,24 @@
             saveCloudData();
         }
 
-        // FIX 2: Restores comprehensive dark-mode HTML elements completely for true dynamic queues
+        // FIX 2: Restores comprehensive styled dark-mode HTML inputs with schema normalization
         function openSlotDrawer(slot) {
             activeDrawerSlot = slot;
-            document.getElementById('drawerSlotTime').textContent = `${slot} (${currentDay.toUpperCase()})`;
+            const drawerTime = document.getElementById('drawerSlotTime');
+            if (drawerTime) drawerTime.textContent = `${slot} (${currentDay.toUpperCase()})`;
+            
             const list = document.getElementById('drawerCompetitorList');
             if(!list) return;
             list.innerHTML = '';
 
             if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
-            let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
+            let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
             let isLocked = !!sData.lockedWinner;
 
             if (isLocked && !isAdmin) {
                 list.innerHTML = `<div class="text-center py-6 text-amber-500 text-xs"><i class="fa-solid fa-lock block mb-1 text-base animate-bounce"></i>Slot locked by Presidency authorization. Only officers can edit.</div>`;
-                document.getElementById('slotDrawer').classList.remove('opacity-0', 'pointer-events-none');
+                const drawer = document.getElementById('slotDrawer');
+                if (drawer) drawer.classList.remove('opacity-0', 'pointer-events-none');
                 return;
             }
 
@@ -857,17 +939,26 @@
                         </label>`;
                 });
             }
-            document.getElementById('slotDrawer').classList.remove('opacity-0', 'pointer-events-none');
+            const drawer = document.getElementById('slotDrawer');
+            if (drawer) drawer.classList.remove('opacity-0', 'pointer-events-none');
         }
 
-        function closeSlotDrawer() { document.getElementById('slotDrawer').classList.add('opacity-0', 'pointer-events-none'); activeDrawerSlot = null; }
+        function closeSlotDrawer() { 
+            const drawer = document.getElementById('slotDrawer');
+            if (drawer) drawer.classList.add('opacity-0', 'pointer-events-none'); 
+            activeDrawerSlot = null; 
+        }
 
         function renderPlayers() {
             const container = document.getElementById('playerList');
             if(!container) return;
-            const search = document.getElementById('rosterSearch').value.toLowerCase().trim();
+            
+            const searchInput = document.getElementById('rosterSearch');
+            const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const filtered = stateData.players.filter(p => p.name.toLowerCase().includes(search));
-            document.getElementById('playerCount').textContent = stateData.players.length;
+            
+            const countBadge = document.getElementById('playerCount');
+            if (countBadge) countBadge.textContent = stateData.players.length;
 
             if(filtered.length === 0) {
                 container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No matching profiles found.</div>`;
@@ -902,7 +993,7 @@
             const activeDaySched = stateData.schedules[currentDay] || {};
 
             timeSlots.forEach(slot => {
-                let sData = activeDaySched[slot] || { applicants: [], lockedWinner: null };
+                let sData = normalizeSlotData(activeDaySched[slot]);
                 let apps = sData.applicants || [];
                 let winner = sData.lockedWinner || null;
                 let maxScore = -1;
@@ -956,8 +1047,14 @@
             setTimeout(() => { t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 4000);
         }
 
-        function openDiagnosticsModal() { document.getElementById('diagnosticsModal').classList.remove('opacity-0', 'pointer-events-none'); }
-        function closeDiagnosticsModal() { document.getElementById('diagnosticsModal').classList.add('opacity-0', 'pointer-events-none'); }
+        function openDiagnosticsModal() { 
+            const modal = document.getElementById('diagnosticsModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none'); 
+        }
+        function closeDiagnosticsModal() { 
+            const modal = document.getElementById('diagnosticsModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none'); 
+        }
         
         function updateHeaderStatusPill() {
             let dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
@@ -967,7 +1064,7 @@
             else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
         }
 
-        // FIX 3: Intelligently updates checkbox visibility inside open drawers without layout structural resets
+        // FIX 3: Dynamic live checkboxes visibility updates without destructive layout resets
         function refreshUI() { 
             renderPlayers(); 
             renderSchedule(); 
@@ -979,7 +1076,7 @@
                     const list = document.getElementById('drawerCompetitorList');
                     if (list) {
                         const activeDaySched = stateData.schedules[currentDay] || {};
-                        let sData = activeDaySched[activeDrawerSlot] || { applicants: [], lockedWinner: null };
+                        let sData = normalizeSlotData(activeDaySched[activeDrawerSlot]);
                         
                         stateData.players.forEach(p => {
                             let isChecked = (sData.applicants || []).includes(p.name);
@@ -1050,12 +1147,19 @@
                         Object.keys(mapping).forEach(dayId => {
                             const buffType = mapping[dayId];
                             if (rawSchedules[buffType] && rawSchedules[buffType][dayId]) {
-                                stateData.schedules[dayId] = rawSchedules[buffType][dayId];
+                                stateData.schedules[dayId] = {};
+                                Object.keys(rawSchedules[buffType][dayId]).forEach(slot => {
+                                    stateData.schedules[dayId][slot] = normalizeSlotData(rawSchedules[buffType][dayId][slot]);
+                                });
                             }
                         });
                     } else {
                         Object.keys(rawSchedules).forEach(dayId => {
-                            stateData.schedules[dayId] = rawSchedules[dayId] || {};
+                            stateData.schedules[dayId] = {};
+                            const slots = rawSchedules[dayId] || {};
+                            Object.keys(slots).forEach(slot => {
+                                stateData.schedules[dayId][slot] = normalizeSlotData(slots[slot]);
+                            });
                         });
                     }
                 }
@@ -1067,7 +1171,7 @@
             });
         }
 
-        // FIX 4: Explicit JSON serialization maps array strings reliably to stop wiping slot records on update
+        // FIX 4: Deep JSON serialization prevents key-drop anomalies inside Firestore doc structures
         async function saveCloudData() {
             refreshUI();
             if(!db || !auth.currentUser || syncMode==='offline') return;
@@ -1093,12 +1197,15 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
+            initEventListeners();
             switchDay('day4'); 
             if (auth) {
                 auth.onAuthStateChanged(user => {
                     if (user) {
-                        document.getElementById('userIdTag').classList.remove('hidden');
-                        document.getElementById('userUidDisplay').textContent = user.uid.substring(0,6)+"...";
+                        const tag = document.getElementById('userIdTag');
+                        const display = document.getElementById('userUidDisplay');
+                        if (tag) tag.classList.remove('hidden');
+                        if (display) display.textContent = user.uid.substring(0,6)+"...";
                         subscribeToData();
                     }
                 });
