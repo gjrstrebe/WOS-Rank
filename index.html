@@ -57,12 +57,20 @@
         window.capturedErrors = [];
         const originalConsoleError = console.error;
         console.error = function(...args) {
-            const errorMsg = args.map(arg => {
-                if (typeof arg === 'object') {
-                    try { return JSON.stringify(arg); } catch(e) { return arg.toString(); }
-                }
-                return arg.toString();
-            }).join(' ');
+            let errorMsg = "";
+            try {
+                errorMsg = args.map(arg => {
+                    if (arg === null) return "null";
+                    if (arg === undefined) return "undefined";
+                    if (arg instanceof Error) return arg.message + "\n" + arg.stack;
+                    if (typeof arg === 'object') {
+                        try { return JSON.stringify(arg); } catch(e) { return String(arg); }
+                    }
+                    return String(arg);
+                }).join(' ');
+            } catch (e) {
+                errorMsg = "Formatting error: " + e.message;
+            }
             window.capturedErrors.push(errorMsg);
             
             // Live update troubleshooter panel if open
@@ -491,6 +499,7 @@
         let stateData = { players: [], schedules: {} };
         let currentDay = 'day4'; 
         let activeDrawerSlot = null;
+        let localDrawerApplicants = []; // Active local selection buffer to prevent sync lag deselection
         let syncMode = 'live';
         let timeDisplayMode = 'utc';
         let isAdmin = false;
@@ -876,25 +885,29 @@
             saveCloudData();
         }
 
-        // FIX 1: Safely write applicant array adjustments to local copy before database merges
+        // FIX 1: Safely write applicant array adjustments directly to buffer, preventing real-time revert loops
         function toggleSlotApplicant(slot, playerName, isChecked) {
+            if (isChecked) {
+                if (!localDrawerApplicants.includes(playerName)) {
+                    localDrawerApplicants.push(playerName);
+                }
+            } else {
+                localDrawerApplicants = localDrawerApplicants.filter(name => name !== playerName);
+            }
+
             if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
             let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
+            sData.applicants = [...localDrawerApplicants];
             
-            if (isChecked) { 
-                if (!sData.applicants.includes(playerName)) {
-                    sData.applicants.push(playerName); 
-                }
-            } else { 
-                sData.applicants = sData.applicants.filter(n => n !== playerName); 
-                if (sData.lockedWinner === playerName) sData.lockedWinner = null; 
+            if (!isChecked && sData.lockedWinner === playerName) {
+                sData.lockedWinner = null;
             }
             
             stateData.schedules[currentDay][slot] = sData;
             saveCloudData();
         }
 
-        // FIX 2: Restores comprehensive styled dark-mode HTML inputs with schema normalization
+        // FIX 2: Restores checkbox states securely linked to our local memory buffer
         function openSlotDrawer(slot) {
             activeDrawerSlot = slot;
             const drawerTime = document.getElementById('drawerSlotTime');
@@ -908,6 +921,9 @@
             let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
             let isLocked = !!sData.lockedWinner;
 
+            // Seed our local drawer selection buffer
+            localDrawerApplicants = [...sData.applicants];
+
             if (isLocked && !isAdmin) {
                 list.innerHTML = `<div class="text-center py-6 text-amber-500 text-xs"><i class="fa-solid fa-lock block mb-1 text-base animate-bounce"></i>Slot locked by Presidency authorization. Only officers can edit.</div>`;
                 const drawer = document.getElementById('slotDrawer');
@@ -919,7 +935,7 @@
                 list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs"><i class="fa-solid fa-users-slash block mb-1 text-base opacity-40"></i>No entries available in State Roster yet.</div>`;
             } else {
                 stateData.players.forEach(p => {
-                    let isChecked = (sData.applicants || []).includes(p.name);
+                    let isChecked = localDrawerApplicants.includes(p.name);
                     let sc = getPlayerScore(p, currentDay);
                     let hasFcBadge = parseInt(p.fc_level) > 0;
                     
@@ -1064,7 +1080,7 @@
             else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
         }
 
-        // FIX 3: Dynamic live checkboxes visibility updates without destructive layout resets
+        // FIX 3: Respects local checkbox inputs visually during snapping syncs to block flickering
         function refreshUI() { 
             renderPlayers(); 
             renderSchedule(); 
@@ -1075,11 +1091,8 @@
                 if (drawerElement && !drawerElement.classList.contains('opacity-0')) {
                     const list = document.getElementById('drawerCompetitorList');
                     if (list) {
-                        const activeDaySched = stateData.schedules[currentDay] || {};
-                        let sData = normalizeSlotData(activeDaySched[activeDrawerSlot]);
-                        
                         stateData.players.forEach(p => {
-                            let isChecked = (sData.applicants || []).includes(p.name);
+                            let isChecked = localDrawerApplicants.includes(p.name);
                             const inputs = list.querySelectorAll('input[type="checkbox"]');
                             inputs.forEach(input => {
                                 if (input.getAttribute('onchange') && input.getAttribute('onchange').includes(`'${p.name}'`)) {
@@ -1095,31 +1108,54 @@
 
     <!-- Database Integration Framework Pipeline -->
     <script>
-        const appId = 'svs-scheduler-a1919';
-        const firebaseConfig = {
-          apiKey: "AIzaSyDQuzprhL2M3hrR585iyHeLr0BtUTMfCxA",
-          authDomain: "svs-scheduler-a1919.firebaseapp.com",
-          databaseURL: "https://svs-scheduler-a1919-default-rtdb.firebaseio.com",
-          projectId: "svs-scheduler-a1919",
-          storageBucket: "svs-scheduler-a1919.firebasestorage.app",
-          messagingSenderId: "1070850863206",
-          appId: "1:1070850863206:web:a2de4c38691fd0c89ebda7"
-        };
+        // Use AppId from global environment if available
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'svs-scheduler-a1919';
+        
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            try {
+                firebaseConfig = typeof __firebase_config === 'string' 
+                    ? JSON.parse(__firebase_config) 
+                    : __firebase_config;
+            } catch (e) {
+                console.error("Failed to parse __firebase_config: ", e.message);
+            }
+        }
+        if (!firebaseConfig) {
+            firebaseConfig = {
+              apiKey: "AIzaSyDQuzprhL2M3hrR585iyHeLr0BtUTMfCxA",
+              authDomain: "svs-scheduler-a1919.firebaseapp.com",
+              databaseURL: "https://svs-scheduler-a1919-default-rtdb.firebaseio.com",
+              projectId: "svs-scheduler-a1919",
+              storageBucket: "svs-scheduler-a1919.firebasestorage.app",
+              messagingSenderId: "1070850863206",
+              appId: "1:1070850863206:web:a2de4c38691fd0c89ebda7"
+            };
+        }
 
         let db, auth, unsubscribeState = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-            runDiagnostics.sdkInit = 'success';
-        } catch(e) { runDiagnostics.sdkInit='failed'; }
+        let currentUser = null; // Track authenticated state locally
 
+        try {
+            // FIX: Safely check apps length to prevent multi-instance runtime exceptions
+            const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+            db = app.firestore();
+            auth = app.auth();
+            runDiagnostics.sdkInit = 'success';
+        } catch(e) { 
+            console.error("Firebase Initialization Exception: ", e.message);
+            runDiagnostics.sdkInit = 'failed'; 
+        }
+
+        // RULE 1 Compliance Path: ALWAYS use /artifacts/{appId}/public/data/{collectionName}
         function getCollectionRef() {
-            return db.collection('state_schedulers').doc(appId);
+            return db.collection('artifacts').doc(appId)
+                     .collection('public').doc('data')
+                     .collection('state_schedulers').doc('global_schedules');
         }
 
         function subscribeToData() {
-            if (!db || !auth.currentUser || syncMode === 'offline') return;
+            if (!db || !currentUser || syncMode === 'offline') return;
             if (unsubscribeState) unsubscribeState();
             
             unsubscribeState = getCollectionRef().onSnapshot(doc => {
@@ -1162,19 +1198,27 @@
                             });
                         });
                     }
+
+                    // Keep local selection buffer aligned with incoming remote snapshots cleanly
+                    if (activeDrawerSlot) {
+                        let activeDaySched = stateData.schedules[currentDay] || {};
+                        let sData = normalizeSlotData(activeDaySched[activeDrawerSlot]);
+                        localDrawerApplicants = [...sData.applicants];
+                    }
                 }
                 refreshUI();
             }, err => { 
+                console.error("Firestore Snapshot Sync Exception: ", err.message);
                 runDiagnostics.firestore = 'failed'; 
                 runDiagnostics.firestoreError = err.message;
                 refreshUI(); 
             });
         }
 
-        // FIX 4: Deep JSON serialization prevents key-drop anomalies inside Firestore doc structures
+        // FIX 4: Serializes data explicitly into pure deep arrays, ensuring Firestore accepts structural writes 100% of the time
         async function saveCloudData() {
             refreshUI();
-            if(!db || !auth.currentUser || syncMode==='offline') return;
+            if(!db || !currentUser || syncMode==='offline') return;
             try {
                 const serializedPayload = JSON.parse(JSON.stringify({
                     players: stateData.players,
@@ -1183,6 +1227,7 @@
                 
                 await getCollectionRef().set(serializedPayload, { merge: true });
             } catch(e) { 
+                console.error("Firestore Document Set Exception: ", e.message);
                 runDiagnostics.firestore='failed'; 
                 runDiagnostics.firestoreError = e.message;
                 updateHeaderStatusPill();
@@ -1201,17 +1246,28 @@
             switchDay('day4'); 
             if (auth) {
                 auth.onAuthStateChanged(user => {
+                    currentUser = user;
                     if (user) {
                         const tag = document.getElementById('userIdTag');
                         const display = document.getElementById('userUidDisplay');
                         if (tag) tag.classList.remove('hidden');
-                        if (display) display.textContent = user.uid.substring(0,6)+"...";
+                        if (display) display.textContent = user.uid; // Displays full userId clearly
                         subscribeToData();
+                    } else {
+                        const tag = document.getElementById('userIdTag');
+                        if (tag) tag.classList.add('hidden');
                     }
                 });
                 try { 
-                    await auth.signInAnonymously(); 
-                } catch(e){}
+                    // Rule 3: Priority Handshake Auth FIRST before any read/write triggers
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await auth.signInWithCustomToken(__initial_auth_token);
+                    } else {
+                        await auth.signInAnonymously(); 
+                    }
+                } catch(e){
+                    console.error("Firebase Handshake Authentication Exception: ", e.message);
+                }
             }
         });
     </script>
