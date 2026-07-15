@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State SvS Ministerial Scheduler</title>
+    <title>State 4336 SvS Ministerial Scheduler</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -79,14 +79,14 @@
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20">
-                    <i class="fa-solid fa-crown text-xl animate-pulse text-amber-400"></i>
+                    <i class="fa-solid fa-crown text-xl text-amber-400"></i>
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        State SvS Command Center
+                        State 4336 Command Center
                         <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
                     </h1>
-                    <p class="text-xs text-slate-400">Official Ministerial Buff Booking & Strategy Panel</p>
+                    <p class="text-xs text-slate-400">SvS Prep Stage Ministerial Speedup Scheduler</p>
                 </div>
             </div>
             
@@ -97,7 +97,7 @@
                     <span id="adminBtnText">Presidency Login</span>
                 </button>
 
-                <!-- Built-In Diagnostics Status Button -->
+                <!-- Diagnostics Status Button -->
                 <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
                     <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
                     <span>Database Status: <strong id="statusText">Checking...</strong></span>
@@ -126,21 +126,32 @@
         </div>
     </header>
 
-    <!-- Buff Type Navigation Hub -->
+    <!-- SVS Days Tab Strip (State 4336 Live Event Flow) -->
     <div class="bg-brand-card/30 border-b border-brand-border px-4 py-2 sticky top-[61px] z-30 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-extrabold">
-                <i class="fa-solid fa-sliders text-brand-accent"></i> Selected Buff Area:
+            <div class="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto">
+                <i class="fa-solid fa-calendar-days text-brand-accent"></i> Select Prep Stage Day:
             </div>
-            <div class="grid grid-cols-3 gap-1 w-full md:w-auto md:flex md:items-center">
-                <button onclick="switchBuffType('architect')" id="btnBuff-architect" class="px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-brand-accent/20 text-brand-accent border-brand-accent">
-                    <i class="fa-solid fa-compass-drafting text-[10px]"></i> Architect
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 w-full md:w-auto">
+                <button onclick="switchDay('day1')" id="btnDay-day1" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                    <span class="text-[9px] text-slate-500">DAY 1</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-compass-drafting text-[10px] text-cyan-400"></i> Construction</span>
                 </button>
-                <button onclick="switchBuffType('scientist')" id="btnBuff-scientist" class="px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-slate-800 text-slate-400 border-transparent hover:text-white">
-                    <i class="fa-solid fa-microscope text-[10px]"></i> Scientist
+                <button onclick="switchDay('day2')" id="btnDay-day2" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                    <span class="text-[9px] text-slate-500">DAY 2</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-microscope text-[10px] text-violet-400"></i> Basic Skills Up</span>
                 </button>
-                <button onclick="switchBuffType('instructor')" id="btnBuff-instructor" class="px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-slate-800 text-slate-400 border-transparent hover:text-white">
-                    <i class="fa-solid fa-dumbbell text-[10px]"></i> Instructor
+                <button onclick="switchDay('day3')" id="btnDay-day3" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                    <span class="text-[9px] text-slate-500">DAY 3</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-paw text-[10px] text-emerald-400"></i> Beast Slay</span>
+                </button>
+                <button onclick="switchDay('day4')" id="btnDay-day4" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                    <span class="text-[9px] text-slate-500">DAY 4</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-[10px] text-amber-400"></i> Hero Development</span>
+                </button>
+                <button onclick="switchDay('day5')" id="btnDay-day5" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                    <span class="text-[9px] text-slate-500">DAY 5</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-[10px] text-orange-400"></i> Power Boost</span>
                 </button>
             </div>
         </div>
@@ -149,46 +160,66 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- Left Column: Instructions, Player Registration & Roster (5 Cols) -->
+        <!-- Left Column: Registration & Stats (5 Cols) -->
         <section class="lg:col-span-5 space-y-6">
             
-            <!-- Whiteout Survival Calculations Rule Info Card -->
+            <!-- Whiteout Survival Dynamic Active Buff Details -->
             <div class="bg-gradient-to-br from-brand-card to-brand-card/90 border border-brand-border rounded-xl p-4 shadow-xl">
-                <h3 class="font-bold text-sm text-white mb-1.5 flex items-center gap-2">
+                <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
                     <i class="fa-solid fa-calculator text-brand-accent"></i>
-                    Formula Details: <span id="infoBuffLabel" class="text-brand-accent">Architect</span>
+                    Current Cabinet Assignment
                 </h3>
-                <p id="infoBuffDescription" class="text-xs text-slate-300 leading-relaxed mb-3">
-                    Calculates priority based on (Construction + Universal Speedups) combined with your Furnace Level.
-                </p>
-                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800 text-center text-[10px] mb-2">
-                    <div class="p-1.5 rounded bg-slate-900/50">
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border/80 mb-3 text-xs">
+                    <span class="text-slate-400 block mb-0.5">Required Buff Position:</span>
+                    <span id="infoBuffLabel" class="text-brand-accent font-extrabold uppercase tracking-wide text-sm block">Education Minister</span>
+                    <p id="infoBuffDescription" class="text-[11px] text-slate-300 mt-1 leading-relaxed">Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.</p>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-[10px] mb-2">
+                    <div class="p-1.5 rounded bg-slate-900/50 border border-brand-border">
                         <span class="block font-bold text-emerald-400">1.0x Weight</span>
-                        <span class="text-slate-400">Furnace 30+</span>
+                        <span class="text-slate-400">Furnace 30</span>
                     </div>
-                    <div class="p-1.5 rounded bg-slate-900/50">
+                    <div class="p-1.5 rounded bg-slate-900/50 border border-brand-border">
+                        <span class="block font-bold text-sky-400">1.1x - 1.5x</span>
+                        <span class="text-slate-400">FC1 - FC5</span>
+                    </div>
+                    <div class="p-1.5 rounded bg-slate-900/50 border border-brand-border">
                         <span class="block font-bold text-amber-400">0.5x Weight</span>
                         <span class="text-slate-400">Furnace 28-29</span>
                     </div>
-                    <div class="p-1.5 rounded bg-slate-900/50">
-                        <span class="block font-bold text-slate-400">0.01x Weight</span>
-                        <span class="text-slate-400">Furnace &lt; 28</span>
-                    </div>
                 </div>
-                <div class="p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] text-amber-400 leading-relaxed">
+                <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] text-amber-400 leading-relaxed">
                     <i class="fa-solid fa-circle-info mr-1"></i>
-                    <strong>Fire Crystal Boost:</strong> Activating the "FC Push" status applies a flat <strong>1.5x score multiplier</strong> to represent the massive point yield advantage of FC upgrades during SvS events.
+                    <strong>Power Weighting:</strong> High level Furnace 30 and Fire Crystal accounts get extra prioritization weights to help secure slots for state-defining power pushes.
+                </div>
+            </div>
+
+            <!-- Pro-Tip: Troop Promotion Guide Card (Visible on Training Days) -->
+            <div id="promotionGuideCard" class="hidden bg-gradient-to-br from-slate-900 via-brand-card to-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-xl space-y-2.5">
+                <h4 class="font-bold text-xs text-amber-400 flex items-center gap-1.5 border-b border-brand-border pb-1.5">
+                    <i class="fa-solid fa-lightbulb text-amber-400 animate-pulse"></i>
+                    Official State 4336 SvS Troop Tactics
+                </h4>
+                <div class="space-y-2 text-[11px] text-slate-300 leading-relaxed">
+                    <div>
+                        <span class="font-bold text-brand-accent block mb-0.5">🚀 Step 1: The Day 4 "Pre-Queue" (Free Points)</span>
+                        On Day 4 (Hero Dev), grab the **Education Minister** buff to start your absolute largest, longest possible training batch *without using speedups*. Let it cook for 24+ hours and tap **Collect** the moment Day 5 begins for free launch points!
+                    </div>
+                    <div class="border-t border-brand-border/60 pt-2">
+                        <span class="font-bold text-emerald-400 block mb-0.5">⚔️ Step 2: High-Efficiency Promotions (Day 5)</span>
+                        During Day 5, promote lower-tier troops to your highest unlocked tier using speedups. Although promotion points yield the *difference* between tiers, they cost only a fraction of the training time—giving you **up to 50% more SvS points per minute of speedups spent**!
+                    </div>
                 </div>
             </div>
 
             <!-- Player Database Input Card -->
-            <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+            <div id="registrationCard" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-user-plus text-brand-accent"></i>
                         Register Competitor Profile
                     </h2>
-                    <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State Registry</span>
+                    <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State 4336</span>
                 </div>
 
                 <form id="addPlayerForm" onsubmit="handleAddPlayer(event)" class="space-y-4">
@@ -197,53 +228,69 @@
                             <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                                 <i class="fa-solid fa-signature text-slate-500"></i> Player Name
                             </label>
-                            <input type="text" id="playerName" required placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent transition">
+                            <input type="text" id="playerName" required placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
                         </div>
                         <div class="space-y-1.5">
                             <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                                 <i class="fa-solid fa-fire text-amber-500"></i> Furnace Level
                             </label>
-                            <input type="number" id="furnaceLevel" required min="1" max="40" placeholder="e.g. 30" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-accent transition">
+                            <input type="number" id="furnaceLevel" required min="1" max="35" placeholder="e.g. 30" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
                         </div>
+                    </div>
+
+                    <!-- Dynamic Fire Crystal Dropdown (Shows if Furnace is 30 or if user entered 31-35 directly) -->
+                    <div id="fcDropdownContainer" class="hidden space-y-1.5">
+                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-gem text-cyan-400"></i> Fire Crystal (FC) Tier
+                        </label>
+                        <select id="fcLevel" onchange="updateLiveRegistrationPreviews()" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                            <option value="0">None (Standard Furnace 30)</option>
+                            <option value="1">Fire Crystal 1 (FC1)</option>
+                            <option value="2">Fire Crystal 2 (FC2)</option>
+                            <option value="3">Fire Crystal 3 (FC3)</option>
+                            <option value="4">Fire Crystal 4 (FC4)</option>
+                            <option value="5">Fire Crystal 5 (FC5)</option>
+                        </select>
+                        <span class="text-[9px] text-slate-500 block">Select your current active Fire Crystal tier.</span>
                     </div>
 
                     <!-- Speedup Balances Grid -->
                     <div class="space-y-2 border-t border-brand-border/60 pt-3">
-                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Event Speedups Balance (In Days)</span>
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Total Speedup Stockpiles (In Days)</span>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-cyan-400">📐 Architect (Build)</label>
-                                <input type="number" id="speedups_build" step="0.01" min="0" placeholder="e.g. 10.5" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                <label class="text-[9px] font-bold text-cyan-400">📐 Build Speedups</label>
+                                <input type="number" id="speedups_build" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-violet-400">🔬 Scientist (Research)</label>
-                                <input type="number" id="speedups_research" step="0.01" min="0" placeholder="e.g. 8.2" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                <label class="text-[9px] font-bold text-violet-400">🔬 Research Speedups</label>
+                                <input type="number" id="speedups_research" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-amber-400">⚔️ Instructor (Troop)</label>
-                                <input type="number" id="speedups_train" step="0.01" min="0" placeholder="e.g. 15.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                <label class="text-[9px] font-bold text-amber-400">⚔️ Training Speedups</label>
+                                <input type="number" id="speedups_train" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-slate-300">📦 Universal (General)</label>
-                                <input type="number" id="speedups_universal" step="0.01" min="0" placeholder="e.g. 20.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                <label class="text-[9px] font-bold text-slate-300">📦 Universal Speedups</label>
+                                <input type="number" id="speedups_universal" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Fire Crystal Push Checkbox -->
+                    <!-- Upgrade Push Checkbox -->
                     <div class="p-3 bg-slate-900/80 rounded-xl border border-brand-border flex items-start gap-3">
                         <input type="checkbox" id="fc_upgrade_push" onchange="updateLiveRegistrationPreviews()" class="h-4 w-4 mt-0.5 rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/30 focus:ring-offset-slate-900">
                         <div class="text-xs">
                             <label for="fc_upgrade_push" class="font-bold text-white flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
-                                Active Fire Crystal (FC) Upgrade Push
+                                <i class="fa-solid fa-circle-up text-amber-500"></i>
+                                Active Heavy Event Upgrade Push
                             </label>
-                            <p class="text-slate-400 mt-0.5 text-[10px]">Check this if you are actively promoting T10 troops to T11/T12 or unlocking FC building levels during your requested slot. Applies a <strong>1.5x score multiplier</strong>.</p>
+                            <p class="text-slate-400 mt-0.5 text-[10px]">Applies a <strong>1.5x score multiplier</strong>. Check this if you are actively performing a massive building/tech expansion or a major troop promotion batch during your slot.</p>
                         </div>
                     </div>
 
                     <div class="p-2.5 rounded-lg bg-slate-900/60 border border-brand-border text-center">
-                        <span class="text-[10px] text-slate-400 block">Calculated Yield Scores (Includes Universal + FC Boost)</span>
+                        <span class="text-[10px] text-slate-400 block">Calculated Yield Scores for Active Selections</span>
                         <div class="grid grid-cols-3 gap-1 mt-1 text-[11px] font-bold">
                             <div class="text-cyan-400">📐 Build: <span id="scorePreview-build">0.00</span></div>
                             <div class="text-violet-400">🔬 Tech: <span id="scorePreview-research">0.00</span></div>
@@ -262,7 +309,7 @@
             <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4 flex flex-col max-h-[450px]">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-2">
-                        <h2 class="text-base font-bold text-white">Roster Database</h2>
+                        <h2 class="text-base font-bold text-white">Alliance Roster</h2>
                         <span id="playerCount" class="text-xs bg-slate-900 text-brand-accent px-2 py-0.5 rounded-full font-mono border border-brand-border">0</span>
                     </div>
                     <div class="relative w-40">
@@ -272,10 +319,9 @@
                 </div>
 
                 <div id="playerList" class="space-y-2.5 overflow-y-auto pr-1 flex-grow">
-                    <!-- Dynamic player rows will load here -->
                     <div class="text-center py-8 text-slate-500 text-xs">
                         <i class="fa-solid fa-users text-2xl mb-2 block opacity-40"></i>
-                        No registered competitors found.
+                        No registered profiles found.
                     </div>
                 </div>
             </div>
@@ -291,7 +337,7 @@
                         <i class="fa-regular fa-calendar-check text-brand-accent"></i>
                         Buff Allocation Timeline
                     </h2>
-                    <p class="text-xs text-slate-400">Set up schedules across different days. Yield values apply dynamically.</p>
+                    <p class="text-xs text-slate-400">Saves and sorts requested slots dynamically based on active player yield values.</p>
                 </div>
                 
                 <!-- Timezone Format Switcher -->
@@ -305,31 +351,23 @@
                 </div>
             </div>
 
-            <!-- SVS Days Tab Strip -->
-            <div class="bg-slate-900/60 p-1.5 rounded-xl border border-brand-border flex flex-wrap gap-1">
-                <button onclick="switchDay('day1')" id="btnDay-day1" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-brand-accent bg-brand-accent/10 border border-brand-accent/20">
-                    Day 1 (Gen)
-                </button>
-                <button onclick="switchDay('day2')" id="btnDay-day2" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
-                    Day 2 (Troops)
-                </button>
-                <button onclick="switchDay('day3')" id="btnDay-day3" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
-                    Day 3 (Hero)
-                </button>
-                <button onclick="switchDay('day4')" id="btnDay-day4" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
-                    Day 4 (Troops)
-                </button>
-                <button onclick="switchDay('day5')" id="btnDay-day5" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
-                    Day 5 (Prep)
-                </button>
-                <button onclick="switchDay('day6')" id="btnDay-day6" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white">
-                    Day 6 (Battle)
-                </button>
+            <!-- Special Beast Slay Placeholder (Day 3 Only) -->
+            <div id="beastSlayAlert" class="hidden p-6 bg-slate-900/60 rounded-xl border border-brand-border text-center space-y-4 my-auto">
+                <div class="inline-flex p-4 rounded-full bg-emerald-500/10 text-emerald-400">
+                    <i class="fa-solid fa-paw text-3xl animate-bounce"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Day 3: Beast Slay Event</h3>
+                <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                    Stamina Day requires <strong>no speedup buffs</strong>! Since no building, tech, or training speedups are burned today, the Presidency has turned cabinet positions to <strong>Auto-Approve</strong>.
+                </p>
+                <div class="p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10 text-[11px] text-emerald-400 max-w-sm mx-auto">
+                    <i class="fa-solid fa-circle-check mr-1"></i> Simply claim any position inside the Sunfire Palace in-game to secure the default buff. No signup sheet required.
+                </div>
             </div>
 
             <!-- Time Slots Schedule Container -->
-            <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[650px] pr-2">
-                <!-- Dynamic schedule blocks will generate here -->
+            <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[720px] pr-2">
+                <!-- Dynamic schedule blocks generate here -->
             </div>
 
         </section>
@@ -349,7 +387,7 @@
                 </button>
             </div>
 
-            <p class="text-xs text-slate-400 mb-4">Select all competitors applying for this specific time window. The player with the highest yield score instantly locks the slot.</p>
+            <p class="text-xs text-slate-400 mb-4">Select all players scheduling activities here. The competitor with the highest yield score dynamically secures the slot.</p>
 
             <div id="drawerCompetitorList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
                 <!-- Dynamic checkable players -->
@@ -370,7 +408,7 @@
                 <i class="fa-solid fa-key text-xl"></i>
             </div>
             <h3 class="text-md font-bold text-white mb-2">Presidency Authorization</h3>
-            <p class="text-xs text-slate-400 mb-4">Enter your State Passcode to activate administrative overrides and slot locks.</p>
+            <p class="text-xs text-slate-400 mb-4">Enter State Passcode to activate administrative overriding locks.</p>
             <input type="password" id="adminPasscode" placeholder="Enter State Code" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white text-center tracking-widest focus:outline-none focus:border-brand-accent mb-4">
             <div class="flex gap-3">
                 <button onclick="closeAdminModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
@@ -390,7 +428,7 @@
                 <i class="fa-solid fa-triangle-exclamation text-xl"></i>
             </div>
             <h3 class="text-md font-bold text-white mb-2">Reset Database?</h3>
-            <p class="text-xs text-slate-400 mb-5">This action will permanently wipe out all registered competitors and booking timetables. This syncs instantly to all users.</p>
+            <p class="text-xs text-slate-400 mb-5">Wipes out structural competitor registrations and timetable blocks status permanently.</p>
             <div class="flex gap-3">
                 <button onclick="closeConfirmDialog()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
                     Cancel
@@ -403,113 +441,58 @@
     </div>
 
     <!-- Built-In Diagnostics and Troubleshooting Modal -->
-    <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200 text-left">
+    <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
         <div class="bg-brand-card border border-brand-border rounded-xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-circle-nodes text-brand-accent"></i>
-                    <h3 class="text-md font-bold text-white">Database Connection Diagnoser</h3>
-                </div>
+                <h3 class="text-md font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-circle-nodes text-brand-accent"></i> 
+                    Cloud Database Connection Diagnoser
+                </h3>
                 <button onclick="closeDiagnosticsModal()" class="text-slate-400 hover:text-white transition p-1">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-
-            <div class="space-y-4 overflow-y-auto pr-1 flex-grow">
-                <p class="text-xs text-slate-400">Use this connection log to identify exactly why your data isn't syncing or retrieving from the Google Cloud database.</p>
-
-                <!-- Step 1: SDK Load Status -->
+            <div class="space-y-4 overflow-y-auto pr-1 flex-grow text-xs text-slate-300">
                 <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
-                    <div class="mt-0.5" id="diagSdkIcon">
-                        <i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i>
-                    </div>
-                    <div class="text-xs">
-                        <h4 class="font-bold text-white">1. Firebase Web SDK Status</h4>
-                        <p class="text-slate-400" id="diagSdkText">Verifying Javascript packages...</p>
-                    </div>
+                    <div id="diagSdkIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
+                    <div><h4 class="font-bold text-white">1. Firebase Web SDK Status</h4><p class="text-slate-400" id="diagSdkText">Verifying configurations...</p></div>
                 </div>
-
-                <!-- Step 2: Auth Status -->
                 <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
-                    <div class="mt-0.5" id="diagAuthIcon">
-                        <i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i>
-                    </div>
-                    <div class="text-xs">
-                        <h4 class="font-bold text-white">2. Anonymous Authentication</h4>
-                        <p class="text-slate-400" id="diagAuthText">Attempting guest auth handshake...</p>
-                        <div id="diagAuthAction" class="mt-2 hidden">
-                            <p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg leading-relaxed">
-                                <i class="fa-solid fa-wrench"></i> <strong>How to Fix:</strong> In your Firebase Console, click on <strong>Authentication</strong> > <strong>Sign-in method</strong> tab. Under "Sign-in providers", click "Add new provider", select <strong>Anonymous</strong>, switch it to "Enable", and hit save.
-                            </p>
-                        </div>
-                    </div>
+                    <div id="diagAuthIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
+                    <div><h4 class="font-bold text-white">2. Anonymous Authentication</h4><p class="text-slate-400" id="diagAuthText">Verifying network status...</p><div id="diagAuthAction" class="mt-2 hidden"><p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg"><i class="fa-solid fa-wrench"></i> <strong>Fix:</strong> Go to Firebase Console -> Authentication -> Providers and enable <strong>Anonymous</strong>.</p></div></div>
                 </div>
-
-                <!-- Step 3: Firestore Database Connection -->
                 <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
-                    <div class="mt-0.5" id="diagDbIcon">
-                        <i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i>
-                    </div>
-                    <div class="text-xs">
-                        <h4 class="font-bold text-white">3. Firestore Database Sync</h4>
-                        <p class="text-slate-400" id="diagDbText">Testing real-time document listener...</p>
-                        <div id="diagDbAction" class="mt-2 hidden">
-                            <p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg leading-relaxed">
-                                <i class="fa-solid fa-wrench"></i> <strong>How to Fix:</strong> In your Firebase Console, make sure you created a <strong>Firestore Database</strong> (not Realtime Database). Go to the database's <strong>Rules</strong> tab and set them to:
-                                <code class="block bg-slate-950 p-1.5 rounded text-[9px] font-mono mt-1 text-slate-300 whitespace-pre-wrap">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</code>
-                            </p>
-                        </div>
-                    </div>
+                    <div id="diagDbIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
+                    <div><h4 class="font-bold text-white">3. Firestore Realtime Sync</h4><p class="text-slate-400" id="diagDbText">Listening for remote collections updates...</p><div id="diagDbAction" class="mt-2 hidden"><p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg"><i class="fa-solid fa-wrench"></i> <strong>Rules Fix:</strong> Ensure your Firestore collection rules permit read/write conditions: <code class="block text-[9px] bg-black p-1 rounded font-mono mt-1 text-slate-400">allow read, write: if request.auth != null;</code></p></div></div>
                 </div>
-
-                <!-- Live Error Logging Mirror -->
-                <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1.5">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-mono text-[10px] text-slate-400 uppercase tracking-wider">Live Captured Error Logs</h4>
-                        <button onclick="clearCapturedErrors()" class="text-[9px] font-semibold text-brand-accent hover:underline">Clear logs</button>
-                    </div>
-                    <div id="consoleLogDisplay" class="max-h-32 overflow-y-auto font-mono text-[10px] text-slate-500 p-1 bg-slate-900 rounded border border-slate-800">
-                        <div class="italic text-slate-600">> Ready. Logs will capture here if errors occur.</div>
-                    </div>
+                <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1">
+                    <h4 class="font-mono text-[10px] text-slate-400 uppercase">Live Intercepted JS Warnings/Error Outputs</h4>
+                    <div id="consoleLogDisplay" class="max-h-24 overflow-y-auto font-mono text-[10px] text-slate-500 p-1 bg-slate-900 border border-slate-800 rounded"></div>
                 </div>
             </div>
-
-            <div class="flex gap-2 mt-4 pt-2 border-t border-brand-border">
-                <button onclick="testManualDatabaseWrite()" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-bold rounded-lg text-xs transition">
-                    Test Manual Write
-                </button>
-                <button onclick="closeDiagnosticsModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
-                    Dismiss
-                </button>
-            </div>
+            <div class="flex gap-2 mt-4 pt-2 border-t border-brand-border"><button onclick="testManualDatabaseWrite()" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-bold rounded-lg text-xs transition">Test Manual Write</button><button onclick="closeDiagnosticsModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">Dismiss</button></div>
         </div>
     </div>
 
     <!-- System Toasts Container -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
-    <!-- UI Core Logic and State Management -->
+    <!-- Core Engine Scripts Logic -->
     <script>
-        // Global State variables
-        let stateData = { 
-            players: [], 
-            schedules: {}, // schedules[buffType][dayId] = { "00:00 - 00:30": { applicants: [], lockedWinner: null } }
-            locks: {}      // Dynamic manual overrides: locks[buffType][dayId][slot] = "PlayerName" or null
+        // Game mapping definition configuration links - Customized exactly for State 4336 SvS Prep Stage
+        const dayConfig = {
+            day1: { name: "Construction", buff: "architect", title: "Infrastructure Minister (+20% Build Speed)", desc: "Calculates priority based on Construction speedups + Universal speedups combined with Furnace Level.", icon: "fa-compass-drafting", color: "text-cyan-400" },
+            day2: { name: "Basic Skills Up", buff: "scientist", title: "Vice President (+20% Tech)", desc: "Calculates metric prioritization score from combined Tech Research + Universal Speedups inventories.", icon: "fa-microscope", color: "text-violet-400" },
+            day3: { name: "Beast Slay", buff: "none", title: "Beast Slay Day (No Buff Required)", desc: "Day 3 focuses entirely on Stamina expenditure hunting monsters. No speedup scheduling required.", icon: "fa-paw", color: "text-emerald-400" },
+            day4: { name: "Hero Development", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.", icon: "fa-shield-halved", color: "text-amber-400" },
+            day5: { name: "Power Boost", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Calculates priority ranking metrics for finishing pre-train batches and speeding up new troop squads.", icon: "fa-bolt", color: "text-orange-400" }
         };
-        
-        // Active selections
-        let currentBuff = 'architect';
-        let currentDay = 'day1';
+
+        let stateData = { players: [], schedules: {} };
+        let currentDay = 'day4'; // Set to Day 4 as requested for pre-selecting on load
         let activeDrawerSlot = null;
         let syncMode = 'live';
-        let timeDisplayMode = 'utc'; // 'utc' or 'local'
+        let timeDisplayMode = 'utc';
         let isAdmin = false;
 
         const timeSlots = [
@@ -527,845 +510,466 @@ service cloud.firestore {
             '22:00 - 22:30', '22:30 - 23:00', '23:00 - 23:30', '23:30 - 24:00'
         ];
 
-        // Track live connection diagnostics
-        let runDiagnostics = {
-            sdkInit: 'checking',
-            sdkError: null,
-            auth: 'checking',
-            authError: null,
-            firestore: 'checking',
-            firestoreError: null
-        };
+        let runDiagnostics = { sdkInit: 'checking', sdkError: null, auth: 'checking', authError: null, firestore: 'checking', firestoreError: null };
 
-        // Score formulation based on context with 1.5x FC Upgrade Boost modifier
-        function calculateScore(furnace, speedups, hasFcUpgrade = false) {
+        // Real-world accurate WOS first-SvS weighting logic
+        function calculateScore(furnace, speedups, fc_level = 0, hasHeavyPush = false) {
+            let normalizedFurnace = furnace;
+            let normalizedFc = fc_level;
+
+            // Normalize input if player types 31-35 directly into Furnace Level
+            if (furnace > 30) {
+                normalizedFc = Math.min(furnace - 30, 5);
+                normalizedFurnace = 30;
+            }
+
             let weight = 0.01;
-            if (furnace >= 30) {
-                weight = 1.0;
-            } else if (furnace >= 28) {
-                weight = 0.5;
+            
+            // Handle Fire Crystals 
+            if (normalizedFc > 0) {
+                weight = 1.0 + (normalizedFc * 0.1); // FC1 is 1.1, FC2 is 1.2 ... FC5 is 1.5
+            } 
+            // Handle standard furnace tiers
+            else if (normalizedFurnace === 30) {
+                weight = 1.0; 
+            } else if (normalizedFurnace >= 28) {
+                weight = 0.5; 
             } else {
-                weight = 0.01;
+                weight = 0.01; 
             }
+
             let baseScore = speedups * weight;
-            if (hasFcUpgrade) {
-                baseScore = baseScore * 1.5;
-            }
+            if (hasHeavyPush) baseScore *= 1.5;
             return parseFloat(baseScore.toFixed(2));
         }
 
-        // Live timezone parser
         function convertSlotToLocal(utcSlot) {
             try {
                 const parts = utcSlot.split(' - ');
                 const startParts = parts[0].split(':');
                 const endParts = parts[1].split(':');
-
                 const now = new Date();
                 const startUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(startParts[0]), parseInt(startParts[1]), 0));
                 const endUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(endParts[0]), parseInt(endParts[1]), 0));
-
                 const options = { hour: 'numeric', minute: '2-digit', hour12: true };
-                const startLocalStr = startUtc.toLocaleTimeString([], options);
-                const endLocalStr = endUtc.toLocaleTimeString([], options);
-                
                 const tzAbbr = startUtc.toLocaleTimeString(undefined, {timeZoneName:'short'}).split(' ').pop();
-
-                return `${startLocalStr} - ${endLocalStr} (${tzAbbr})`;
-            } catch(e) {
-                return utcSlot + " UTC";
-            }
+                return `${startUtc.toLocaleTimeString([], options)} - ${endUtc.toLocaleTimeString([], options)} (${tzAbbr})`;
+            } catch(e) { return utcSlot + " UTC"; }
         }
 
         function setTimeMode(mode) {
             timeDisplayMode = mode;
             ['utc', 'local'].forEach(m => {
-                const btn = document.getElementById(`timeBtn-${m}`);
-                if (m === mode) {
-                    btn.className = "px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent";
-                } else {
-                    btn.className = "px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white";
-                }
+                document.getElementById(`timeBtn-${m}`).className = m === mode ? "px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent" : "px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white";
             });
             refreshUI();
         }
 
-        // Live scores counter as the user types
         const fInput = document.getElementById('furnaceLevel');
         const sBuild = document.getElementById('speedups_build');
         const sResearch = document.getElementById('speedups_research');
         const sTrain = document.getElementById('speedups_train');
         const sUniversal = document.getElementById('speedups_universal');
         const sFcUpgrade = document.getElementById('fc_upgrade_push');
+        const fcDropdown = document.getElementById('fcLevel');
+
+        // Toggle dynamic dropdown based on Furnace Level typing
+        fInput.addEventListener('input', () => {
+            const level = parseInt(fInput.value) || 0;
+            const container = document.getElementById('fcDropdownContainer');
+            
+            // If the user types 30 or above (31, 32, etc. directly) unhide the crystal dropdown
+            if (level >= 30) {
+                container.classList.remove('hidden');
+                
+                // Auto-sync dropdown if they typed a value between 31-35 directly
+                if (level > 30 && level <= 35) {
+                    fcDropdown.value = (level - 30).toString();
+                }
+            } else {
+                container.classList.add('hidden');
+                if (fcDropdown) fcDropdown.value = "0";
+            }
+            updateLiveRegistrationPreviews();
+        });
 
         function updateLiveRegistrationPreviews() {
             const furnace = parseInt(fInput.value) || 0;
+            const fc_level = fcDropdown ? parseInt(fcDropdown.value) || 0 : 0;
             const sb = parseFloat(sBuild.value) || 0;
             const sr = parseFloat(sResearch.value) || 0;
             const st = parseFloat(sTrain.value) || 0;
             const su = parseFloat(sUniversal.value) || 0;
             const sFc = sFcUpgrade ? sFcUpgrade.checked : false;
 
-            document.getElementById('scorePreview-build').textContent = calculateScore(furnace, sb + su, sFc).toFixed(2);
-            document.getElementById('scorePreview-research').textContent = calculateScore(furnace, sr + su, sFc).toFixed(2);
-            document.getElementById('scorePreview-train').textContent = calculateScore(furnace, st + su, sFc).toFixed(2);
+            document.getElementById('scorePreview-build').textContent = calculateScore(furnace, sb + su, fc_level, sFc).toFixed(2);
+            document.getElementById('scorePreview-research').textContent = calculateScore(furnace, sr + su, fc_level, sFc).toFixed(2);
+            document.getElementById('scorePreview-train').textContent = calculateScore(furnace, st + su, fc_level, sFc).toFixed(2);
         }
-
-        [fInput, sBuild, sResearch, sTrain, sUniversal].forEach(input => {
-            if(input) input.addEventListener('input', updateLiveRegistrationPreviews);
-        });
-
-        // Toggle active tabs
-        function switchBuffType(buffType) {
-            currentBuff = buffType;
-            
-            // Render active button styling
-            ['architect', 'scientist', 'instructor'].forEach(b => {
-                const btn = document.getElementById(`btnBuff-${b}`);
-                if (b === buffType) {
-                    btn.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-brand-accent/20 text-brand-accent border-brand-accent";
-                } else {
-                    btn.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all border flex items-center justify-center gap-1.5 bg-slate-800 text-slate-400 border-transparent hover:text-white";
-                }
-            });
-
-            // Update formula card information block
-            const label = document.getElementById('infoBuffLabel');
-            const desc = document.getElementById('infoBuffDescription');
-            if (buffType === 'architect') {
-                label.textContent = "Architect";
-                desc.textContent = "Calculates priority based on (Construction + Universal Speedups) combined with your Furnace Level.";
-            } else if (buffType === 'scientist') {
-                label.textContent = "Scientist";
-                desc.textContent = "Calculates priority based on (Research + Universal Speedups) combined with your Furnace Level.";
-            } else {
-                label.textContent = "Instructor";
-                desc.textContent = "Calculates priority based on (Troop Training + Universal Speedups) combined with your Furnace Level.";
-            }
-
-            refreshUI();
-        }
+        [sBuild, sResearch, sTrain, sUniversal].forEach(el => el && el.addEventListener('input', updateLiveRegistrationPreviews));
 
         function switchDay(dayId) {
             currentDay = dayId;
+            const config = dayConfig[dayId];
+            
+            // Dynamic Header Updates
+            document.getElementById('infoBuffLabel').textContent = config.title;
+            document.getElementById('infoBuffDescription').textContent = config.desc;
 
-            // Render active day button styling
-            ['day1', 'day2', 'day3', 'day4', 'day5', 'day6'].forEach(d => {
-                const btn = document.getElementById(`btnDay-${d}`);
-                if (d === dayId) {
-                    btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-brand-accent bg-brand-accent/10 border border-brand-accent/20";
+            // Handle Special Day 3 (Beast Slay) Layout Switches
+            const scheduleList = document.getElementById('scheduleContainer');
+            const beastSlayCard = document.getElementById('beastSlayAlert');
+            const registrationCard = document.getElementById('registrationCard');
+            const promotionGuideCard = document.getElementById('promotionGuideCard');
+
+            if (dayId === 'day3') {
+                scheduleList.classList.add('hidden');
+                registrationCard.classList.add('hidden');
+                promotionGuideCard.classList.add('hidden');
+                beastSlayCard.classList.remove('hidden');
+            } else {
+                scheduleList.classList.remove('hidden');
+                registrationCard.classList.remove('hidden');
+                beastSlayCard.classList.add('hidden');
+                
+                // Show Promotion Guide Card strictly on Day 4 & 5
+                if (dayId === 'day4' || dayId === 'day5') {
+                    promotionGuideCard.classList.remove('hidden');
                 } else {
-                    btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-white";
+                    promotionGuideCard.classList.add('hidden');
+                }
+            }
+
+            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => {
+                const btn = document.getElementById(`btnDay-${d}`);
+                if (btn) {
+                    btn.className = d === dayId 
+                        ? "px-3 py-2 text-xs font-bold rounded-lg transition border bg-brand-accent/20 text-brand-accent border-brand-accent flex-grow" 
+                        : "px-3 py-2 text-xs font-bold rounded-lg transition border bg-slate-800 text-slate-400 border-transparent hover:text-white flex-grow";
                 }
             });
-
             refreshUI();
         }
 
-        // Add player to system
+        function getPlayerScore(p, day) {
+            const config = dayConfig[day];
+            if (!config) return 0;
+            const buffType = config.buff;
+            const f = parseInt(p.furnace) || 0;
+            const fc_level = parseInt(p.fc_level) || 0;
+            const uVal = parseFloat(p.speedups_universal) || 0;
+            const hasFc = p.fc_upgrade || false;
+            
+            let targetSpeedup = 0;
+            if (buffType === 'architect') targetSpeedup = parseFloat(p.speedups_build) || 0;
+            else if (buffType === 'scientist') targetSpeedup = parseFloat(p.speedups_research) || 0;
+            else if (buffType === 'instructor') targetSpeedup = parseFloat(p.speedups_train) || 0;
+            else if (buffType === 'universal') targetSpeedup = Math.max(parseFloat(p.speedups_build)||0, parseFloat(p.speedups_research)||0, parseFloat(p.speedups_train)||0);
+
+            return calculateScore(f, targetSpeedup + uVal, fc_level, hasFc);
+        }
+
         function handleAddPlayer(event) {
             event.preventDefault();
             const nameField = document.getElementById('playerName');
             const furnaceField = document.getElementById('furnaceLevel');
-
             const name = nameField.value.trim();
-            const furnace = parseInt(furnaceField.value);
-            const buildVal = parseFloat(sBuild.value) || 0;
-            const techVal = parseFloat(sResearch.value) || 0;
-            const troopVal = parseFloat(sTrain.value) || 0;
-            const universalVal = parseFloat(sUniversal.value) || 0;
-            const fcPushVal = sFcUpgrade ? sFcUpgrade.checked : false;
+            let furnace = parseInt(furnaceField.value);
+            let fc_level = furnace === 30 ? parseInt(fcDropdown.value) || 0 : 0;
 
-            if (!name || isNaN(furnace)) {
-                showToast("Please provide a name and valid furnace level.", "warning");
-                return;
+            // If they entered 31-35 directly, normalize it
+            if (furnace > 30) {
+                fc_level = Math.min(furnace - 30, 5);
+                furnace = 30;
             }
 
-            // Check duplicate
+            if (!name || isNaN(furnace)) return;
             if (stateData.players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-                showToast("This competitor already exists in the registry.", "warning");
+                showToast("This competitor profile already exists in the State Registry.", "warning");
                 return;
             }
 
             stateData.players.push({
-                name,
-                furnace,
-                speedups_build: buildVal,
-                speedups_research: techVal,
-                speedups_train: troopVal,
-                speedups_universal: universalVal,
-                fc_upgrade: fcPushVal
+                name, furnace, fc_level,
+                speedups_build: parseFloat(sBuild.value) || 0,
+                speedups_research: parseFloat(sResearch.value) || 0,
+                speedups_train: parseFloat(sTrain.value) || 0,
+                speedups_universal: parseFloat(sUniversal.value) || 0,
+                fc_upgrade: sFcUpgrade ? sFcUpgrade.checked : false
             });
-            
+
             saveCloudData();
             showToast(`Added profile: ${name}`, "success");
-
-            // Reset inputs
-            nameField.value = '';
-            furnaceField.value = '';
-            sBuild.value = '';
-            sResearch.value = '';
-            sTrain.value = '';
-            sUniversal.value = '';
+            
+            nameField.value = ''; furnaceField.value = '';
+            if (fcDropdown) fcDropdown.value = "0";
+            document.getElementById('fcDropdownContainer').classList.add('hidden');
+            sBuild.value = ''; sResearch.value = ''; sTrain.value = ''; sUniversal.value = '';
             if (sFcUpgrade) sFcUpgrade.checked = false;
             updateLiveRegistrationPreviews();
         }
 
-        // Delete player
         function removePlayer(name) {
             stateData.players = stateData.players.filter(p => p.name !== name);
-            
-            // Clean references across all buffs, days and slots
-            Object.keys(stateData.schedules).forEach(bType => {
-                Object.keys(stateData.schedules[bType] || {}).forEach(day => {
-                    Object.keys(stateData.schedules[bType][day] || {}).forEach(slot => {
-                        let currentSlot = stateData.schedules[bType][day][slot];
-                        if (currentSlot) {
-                            if (Array.isArray(currentSlot)) {
-                                stateData.schedules[bType][day][slot] = currentSlot.filter(pName => pName !== name);
-                            } else if (typeof currentSlot === 'object') {
-                                stateData.schedules[bType][day][slot].applicants = (currentSlot.applicants || []).filter(pName => pName !== name);
-                                if (currentSlot.lockedWinner === name) {
-                                    stateData.schedules[bType][day][slot].lockedWinner = null;
-                                }
-                            }
-                        }
-                    });
+            Object.keys(stateData.schedules).forEach(day => {
+                Object.keys(stateData.schedules[day] || {}).forEach(slot => {
+                    let sData = stateData.schedules[day][slot];
+                    if (sData && typeof sData === 'object') {
+                        sData.applicants = (sData.applicants || []).filter(n => n !== name);
+                        if (sData.lockedWinner === name) sData.lockedWinner = null;
+                    }
                 });
             });
-
             saveCloudData();
-            showToast(`Removed player profile: ${name}`, "info");
+            showToast(`Removed entry: ${name}`, "info");
         }
 
-        // Live Toggle FC Upgrade status from the roster card directly
         function togglePlayerFcStatus(playerName) {
             const player = stateData.players.find(p => p.name === playerName);
             if (player) {
                 player.fc_upgrade = !player.fc_upgrade;
                 saveCloudData();
-                showToast(`${playerName} FC priority boost turned ${player.fc_upgrade ? 'ON 🟢' : 'OFF 🔴'}`, "success");
+                showToast(`${playerName} upgrade priority modifier toggled ${player.fc_upgrade ? 'ON' : 'OFF'}`, "success");
             }
         }
 
-        // Safe parser for scoring based on active state context
-        function getPlayerScore(p, targetBuff) {
-            const f = parseInt(p.furnace) || 0;
-            let speedupsVal = 0;
-            const universalVal = parseFloat(p.speedups_universal !== undefined ? p.speedups_universal : 0) || 0;
-            const hasFcUpgrade = p.fc_upgrade || false;
-            
-            if (targetBuff === 'architect') {
-                speedupsVal = parseFloat(p.speedups_build !== undefined ? p.speedups_build : p.speedups) || 0;
-            } else if (targetBuff === 'scientist') {
-                speedupsVal = parseFloat(p.speedups_research !== undefined ? p.speedups_research : 0) || 0;
-            } else {
-                speedupsVal = parseFloat(p.speedups_train !== undefined ? p.speedups_train : 0) || 0;
-            }
-            return calculateScore(f, speedupsVal + universalVal, hasFcUpgrade);
-        }
-
-        // Toggle state sync mode
         function toggleSyncMode() {
             const btn = document.getElementById('syncModeBtn');
             const txt = document.getElementById('syncModeText');
-
             if (syncMode === 'live') {
                 syncMode = 'offline';
-                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20";
+                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-amber-500/10 text-amber-400 border border-amber-500/30";
                 txt.textContent = "Offline Sandbox";
-                showToast("Switched to Offline Sandbox. Sync paused.", "warning");
+                showToast("Switched to Offline Sandbox. Data saving suspended.", "warning");
             } else {
                 syncMode = 'live';
-                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20";
+                btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
                 txt.textContent = "Live State Sync";
-                showToast("Reconnected to real-time sync database.", "success");
                 subscribeToData();
+                showToast("Reconnected to Live State Sync database.", "success");
             }
+            refreshUI();
         }
 
-        // Reset system conformation
-        function confirmResetData() {
-            const dialog = document.getElementById('confirmDialog');
-            dialog.classList.remove('opacity-0', 'pointer-events-none');
-            dialog.querySelector('div').classList.remove('scale-95');
-        }
-
-        function closeConfirmDialog() {
-            const dialog = document.getElementById('confirmDialog');
-            dialog.classList.add('opacity-0', 'pointer-events-none');
-            dialog.querySelector('div').classList.add('scale-95');
-        }
-
+        function confirmResetData() { document.getElementById('confirmDialog').classList.remove('opacity-0', 'pointer-events-none'); }
+        function closeConfirmDialog() { document.getElementById('confirmDialog').classList.add('opacity-0', 'pointer-events-none'); }
         function executeResetData() {
             stateData = { players: [], schedules: {} };
             saveCloudData();
             closeConfirmDialog();
-            showToast("Database has been completely wiped.", "danger");
+            showToast("System database completely reset.", "danger");
         }
 
-        // Presidency Overrides / Lock Engine
         function toggleAdminPanel() {
             if (isAdmin) {
                 isAdmin = false;
-                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
+                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700";
                 document.getElementById('adminBtnText').textContent = "Presidency Login";
-                showToast("Presidency admin mode deactivated.", "info");
                 refreshUI();
             } else {
-                const modal = document.getElementById('adminModal');
-                modal.classList.remove('opacity-0', 'pointer-events-none');
+                document.getElementById('adminModal').classList.remove('opacity-0', 'pointer-events-none');
                 document.getElementById('adminPasscode').focus();
             }
         }
-
-        function closeAdminModal() {
-            const modal = document.getElementById('adminModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            document.getElementById('adminPasscode').value = '';
-        }
-
+        function closeAdminModal() { document.getElementById('adminModal').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('adminPasscode').value=''; }
         function authenticateAdmin() {
-            const passcode = document.getElementById('adminPasscode').value;
-            if (passcode === '4336') {
+            if (document.getElementById('adminPasscode').value === '4336') {
                 isAdmin = true;
-                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition-all bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 animate-pulse";
+                document.getElementById('adminBtn').className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
                 document.getElementById('adminBtnText').textContent = "Presidency Active";
-                showToast("Authorized successfully! Overrides unlocked.", "success");
                 closeAdminModal();
                 refreshUI();
-            } else {
-                showToast("Incorrect State Passcode. Authorization denied.", "danger");
-            }
+                showToast("Administrative overriding privileges enabled.", "success");
+            } else { showToast("Invalid State Passcode.", "danger"); }
         }
 
         function toggleSlotPresidencyLock(slot) {
-            if (!isAdmin) {
-                showToast("Presidency authorization required to lock slots.", "warning");
-                return;
-            }
+            if (!isAdmin) return;
+            if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+            let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
 
-            if (!stateData.schedules[currentBuff]) stateData.schedules[currentBuff] = {};
-            if (!stateData.schedules[currentBuff][currentDay]) stateData.schedules[currentBuff][currentDay] = {};
-            
-            let slotData = stateData.schedules[currentBuff][currentDay][slot];
-            
-            // Normalize schema
-            let applicants = [];
-            let currentLock = null;
-            if (Array.isArray(slotData)) {
-                applicants = slotData;
-            } else if (slotData && typeof slotData === 'object') {
-                applicants = slotData.applicants || [];
-                currentLock = slotData.lockedWinner || null;
-            }
-
-            if (currentLock) {
-                // Unlock
-                stateData.schedules[currentBuff][currentDay][slot] = {
-                    applicants: applicants,
-                    lockedWinner: null
-                };
-                showToast(`Slot ${slot} unlocked. Auto-bumping resumed.`, "info");
+            if (sData.lockedWinner) {
+                sData.lockedWinner = null;
+                showToast("Slot dynamic auto-bumping enabled.", "info");
             } else {
-                // Find high scorer to lock
-                let winner = null;
-                let maxScore = -1;
-                applicants.forEach(name => {
-                    const pData = stateData.players.find(p => p.name === name);
-                    if (pData) {
-                        const score = getPlayerScore(pData, currentBuff);
-                        if (score > maxScore) {
-                            maxScore = score;
-                            winner = name;
-                        }
-                    }
+                let winner = null, maxScore = -1;
+                (sData.applicants || []).forEach(n => {
+                    let p = stateData.players.find(pl => pl.name === n);
+                    if (p && getPlayerScore(p, currentDay) > maxScore) { winner = n; maxScore = getPlayerScore(p, currentDay); }
                 });
-
                 if (!winner) {
-                    showToast("No applicants in this slot to lock in.", "warning");
+                    showToast("No active applicants in this slot to lock in.", "warning");
                     return;
                 }
-
-                stateData.schedules[currentBuff][currentDay][slot] = {
-                    applicants: applicants,
-                    lockedWinner: winner
-                };
-                showToast(`Slot ${slot} permanently locked for ${winner}!`, "success");
+                sData.lockedWinner = winner;
+                showToast(`Slot permanently assigned to ${winner}!`, "success");
             }
-
+            stateData.schedules[currentDay][slot] = sData;
             saveCloudData();
         }
 
-        // Drawer operations
         function openSlotDrawer(slot) {
             activeDrawerSlot = slot;
-            const slotNameDisplay = document.getElementById('drawerSlotTime');
-            slotNameDisplay.textContent = `${slot} (${currentBuff.toUpperCase()} - ${currentDay.toUpperCase()})`;
+            document.getElementById('drawerSlotTime').textContent = `${slot} (${currentDay.toUpperCase()})`;
+            const list = document.getElementById('drawerCompetitorList');
+            list.innerHTML = '';
 
-            const listContainer = document.getElementById('drawerCompetitorList');
-            listContainer.innerHTML = '';
-
-            // Guard paths in schedule structure
-            if (!stateData.schedules[currentBuff]) stateData.schedules[currentBuff] = {};
-            if (!stateData.schedules[currentBuff][currentDay]) stateData.schedules[currentBuff][currentDay] = {};
-            
-            const slotData = stateData.schedules[currentBuff][currentDay][slot];
-            let selectedPeople = [];
-            let isLocked = false;
-
-            if (Array.isArray(slotData)) {
-                selectedPeople = slotData;
-            } else if (slotData && typeof slotData === 'object') {
-                selectedPeople = slotData.applicants || [];
-                isLocked = !!slotData.lockedWinner;
-            }
+            if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+            let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
+            let isLocked = !!sData.lockedWinner;
 
             if (isLocked && !isAdmin) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-6 text-amber-500 text-xs">
-                        <i class="fa-solid fa-lock block mb-1 text-base text-amber-500 animate-bounce"></i>
-                        This slot is locked by the Presidency. You cannot change applicants.
-                    </div>`;
+                list.innerHTML = `<div class="text-center py-6 text-amber-500 text-xs"><i class="fa-solid fa-lock block mb-1 text-base animate-bounce"></i>Slot locked by Presidency authorization guidelines. Only officers can edit.</div>`;
+                document.getElementById('slotDrawer').classList.remove('opacity-0', 'pointer-events-none');
                 return;
             }
 
             if (stateData.players.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="text-center py-6 text-slate-500 text-xs">
-                        <i class="fa-solid fa-user-slash block mb-1 text-base"></i>
-                        Please register players in the roster database first.
-                    </div>`;
+                list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">No entries available in State Registry yet.</div>`;
             } else {
                 stateData.players.forEach(p => {
-                    const isChecked = selectedPeople.includes(p.name);
-                    const score = getPlayerScore(p, currentBuff);
-                    const hasFc = p.fc_upgrade || false;
-                    
-                    listContainer.innerHTML += `
+                    let isChecked = (sData.applicants || []).includes(p.name);
+                    let sc = getPlayerScore(p, currentDay);
+                    let hasFcBadge = parseInt(p.fc_level) > 0;
+                    list.innerHTML += `
                         <label class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-brand-border cursor-pointer hover:bg-slate-800 transition">
                             <div class="flex items-center gap-2.5">
-                                <input type="checkbox" 
-                                       value="${p.name}" 
-                                       ${isChecked ? 'checked' : ''} 
-                                       onchange="toggleSlotApplicant('${slot}', '${p.name}', this.checked)"
-                                       class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-accent focus:ring-brand-accent/30 focus:ring-offset-slate-900">
-                                <div>
-                                    <span class="text-xs font-semibold text-white flex items-center gap-1.5">
-                                        ${p.name}
-                                        ${hasFc ? `<span class="bg-amber-500/20 text-amber-400 text-[8px] font-extrabold px-1.5 rounded border border-amber-500/20"><i class="fa-solid fa-fire text-[6px]"></i> FC PUSH</span>` : ''}
-                                    </span>
-                                    <span class="block text-[10px] text-slate-400">F${p.furnace} • Score: ${score.toFixed(2)}</span>
-                                </div>
+                                <input type="checkbox" ${isChecked?'checked':''} onchange="toggleSlotApplicant('${slot}', '${p.name}', this.checked)" class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-accent focus:ring-offset-slate-900">
+                                <span class="text-xs font-semibold text-white">
+                                    ${p.name} 
+                                    ${hasFcBadge ?`<span class="text-cyan-400 text-[8px] ml-1 bg-cyan-500/10 px-1 py-0.5 rounded border border-cyan-500/20">💎 FC${p.fc_level}</span>`:''}
+                                    ${p.fc_upgrade ?'<span class="text-amber-400 text-[8px] ml-1 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20">⚡ PUSH</span>':''}
+                                </span>
                             </div>
-                            <span class="text-[10px] font-bold text-emerald-400">Score: ${score.toFixed(2)}</span>
+                            <span class="text-[10px] font-bold text-emerald-400">${sc.toFixed(2)}</span>
                         </label>`;
                 });
             }
-
-            const drawer = document.getElementById('slotDrawer');
-            drawer.classList.remove('opacity-0', 'pointer-events-none');
-            document.getElementById('slotDrawerPanel').classList.remove('scale-95');
+            document.getElementById('slotDrawer').classList.remove('opacity-0', 'pointer-events-none');
         }
 
-        function closeSlotDrawer() {
-            const drawer = document.getElementById('slotDrawer');
-            drawer.classList.add('opacity-0', 'pointer-events-none');
-            document.getElementById('slotDrawerPanel').classList.add('scale-95');
-            activeDrawerSlot = null;
-        }
+        function closeSlotDrawer() { document.getElementById('slotDrawer').classList.add('opacity-0', 'pointer-events-none'); activeDrawerSlot = null; }
 
         function toggleSlotApplicant(slot, playerName, isChecked) {
-            if (!stateData.schedules[currentBuff]) stateData.schedules[currentBuff] = {};
-            if (!stateData.schedules[currentBuff][currentDay]) stateData.schedules[currentBuff][currentDay] = {};
-            
-            let slotData = stateData.schedules[currentBuff][currentDay][slot];
-            let applicants = [];
-            let lockedWinner = null;
-
-            if (Array.isArray(slotData)) {
-                applicants = slotData;
-            } else if (slotData && typeof slotData === 'object') {
-                applicants = slotData.applicants || [];
-                lockedWinner = slotData.lockedWinner || null;
-            }
-
-            if (isChecked) {
-                if (!applicants.includes(playerName)) {
-                    applicants.push(playerName);
-                }
-            } else {
-                applicants = applicants.filter(name => name !== playerName);
-                if (lockedWinner === playerName) {
-                    lockedWinner = null;
-                }
-            }
-
-            stateData.schedules[currentBuff][currentDay][slot] = {
-                applicants: applicants,
-                lockedWinner: lockedWinner
-            };
-
+            if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+            let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
+            if (isChecked) { if(!sData.applicants.includes(playerName)) sData.applicants.push(playerName); }
+            else { sData.applicants = sData.applicants.filter(n => n !== playerName); if(sData.lockedWinner===playerName) sData.lockedWinner=null; }
+            stateData.schedules[currentDay][slot] = sData;
             saveCloudData();
         }
 
-        // Toast notifications
-        function showToast(message, type = "info") {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            
-            let bgClass = "bg-slate-800 border-slate-700 text-slate-200";
-            let iconClass = "fa-circle-info text-blue-400";
-            
-            if (type === "success") {
-                bgClass = "bg-emerald-950/90 border-emerald-500/40 text-emerald-200";
-                iconClass = "fa-circle-check text-emerald-400";
-            } else if (type === "warning") {
-                bgClass = "bg-amber-950/90 border-amber-500/40 text-amber-200";
-                iconClass = "fa-circle-exclamation text-amber-400";
-            } else if (type === "danger" || type === "error") {
-                bgClass = "bg-rose-950/90 border-rose-500/40 text-rose-200";
-                iconClass = "fa-triangle-exclamation text-rose-400";
-            }
-
-            toast.className = `flex items-center gap-3 p-3.5 rounded-lg border shadow-xl ${bgClass} transition duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
-            toast.innerHTML = `
-                <i class="fa-solid ${iconClass} text-base flex-shrink-0"></i>
-                <span class="text-xs font-semibold flex-grow">${message}</span>
-                <button class="text-slate-400 hover:text-white transition text-xs pl-2" onclick="this.parentElement.remove()">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            `;
-
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
-            setTimeout(() => {
-                toast.classList.add('translate-y-2', 'opacity-0');
-                setTimeout(() => { toast.remove(); }, 300);
-            }, 4500);
-        }
-
-        // Render Competitors list based on active tab
+        // Custom renderer for player profiles
         function renderPlayers() {
             const container = document.getElementById('playerList');
             if(!container) return;
-            const searchVal = document.getElementById('rosterSearch').value.toLowerCase().trim();
-            
-            const playersList = stateData.players || [];
-            const filteredPlayers = playersList.filter(p => p.name.toLowerCase().includes(searchVal));
+            const search = document.getElementById('rosterSearch').value.toLowerCase().trim();
+            const filtered = stateData.players.filter(p => p.name.toLowerCase().includes(search));
+            document.getElementById('playerCount').textContent = stateData.players.length;
 
-            document.getElementById('playerCount').textContent = playersList.length;
-
-            if (filteredPlayers.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-10 text-slate-500 text-xs">
-                        <i class="fa-solid fa-users-slash text-2xl mb-2 block opacity-40"></i>
-                        No matching players found.
-                    </div>`;
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No matching profiles found.</div>`;
                 return;
             }
-
             container.innerHTML = '';
-            filteredPlayers.sort((a,b) => getPlayerScore(b, currentBuff) - getPlayerScore(a, currentBuff)).forEach((p) => {
-                const score = getPlayerScore(p, currentBuff);
-                const hasFc = p.fc_upgrade || false;
-                
-                let badgeColor = "bg-slate-800 text-slate-300 border-slate-700";
-                if (p.furnace >= 30) {
-                    badgeColor = "bg-blue-950 text-blue-400 border-blue-800";
-                } else if (p.furnace >= 28) {
-                    badgeColor = "bg-amber-950 text-amber-400 border-amber-800";
-                }
-
-                let daysLabel = "Build";
-                let daysVal = p.speedups_build || 0;
-                if (currentBuff === 'scientist') {
-                    daysLabel = "Research";
-                    daysVal = p.speedups_research || 0;
-                } else if (currentBuff === 'instructor') {
-                    daysLabel = "Train";
-                    daysVal = p.speedups_train || 0;
-                }
-
-                const uVal = p.speedups_universal || 0;
-
+            filtered.sort((a,b)=> getPlayerScore(b, currentDay) - getPlayerScore(a, currentDay)).forEach(p => {
+                let sc = getPlayerScore(p, currentDay);
+                let isFc = parseInt(p.fc_level) > 0;
+                let lvlDisplay = isFc ? `FC${p.fc_level}` : `F${p.furnace}`;
                 container.innerHTML += `
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/40 border border-brand-border hover:border-slate-700 transition">
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded border ${badgeColor}">F${p.furnace}</span>
-                            <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-white block">${p.name}</span>
-                                    <button onclick="togglePlayerFcStatus('${p.name}')" class="focus:outline-none transition-all scale-95 hover:scale-100" title="Click to toggle FC Push multiplier status">
-                                        ${hasFc 
-                                            ? `<span class="bg-amber-500/20 text-amber-400 text-[8px] font-extrabold px-1.5 py-0.5 rounded border border-amber-500/30 flex items-center gap-0.5"><i class="fa-solid fa-fire text-amber-500 animate-pulse"></i> FC PUSH ON</span>` 
-                                            : `<span class="bg-slate-850 text-slate-500 hover:text-slate-300 hover:bg-slate-800 text-[8px] font-bold px-1.5 py-0.5 rounded border border-slate-800 flex items-center gap-0.5"><i class="fa-solid fa-fire text-slate-600"></i> FC Push Off</span>`
-                                        }
-                                    </button>
-                                </div>
-                                <span class="text-[10px] text-slate-400 block mt-0.5">${daysVal} ${daysLabel} Days ${uVal > 0 ? `(+${uVal} Gen)` : ''}</span>
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40 border border-brand-border text-xs">
+                        <div>
+                            <div class="flex items-center gap-1.5 font-bold text-white">
+                                <span class="px-1.5 py-0.2 bg-slate-800 text-[10px] rounded text-slate-400">${lvlDisplay}</span>
+                                <span>${p.name}</span>
+                                <button onclick="togglePlayerFcStatus('${p.name}')">${p.fc_upgrade?'<span class="text-[9px] text-amber-400 font-extrabold bg-amber-500/10 px-1 rounded">⚡ Push</span>':'<span class="text-[9px] text-slate-600 px-1 rounded">Off</span>'}</button>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <span class="text-xs font-bold text-brand-success block">${score.toFixed(2)}</span>
-                                <span class="text-[8px] text-slate-400 uppercase tracking-widest block">Yield Score</span>
-                            </div>
-                            <button onclick="removePlayer('${p.name}')" class="text-xs text-brand-danger bg-brand-danger/10 hover:bg-brand-danger hover:text-white p-1.5 rounded transition" title="Delete Profile">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-brand-success font-bold">${sc.toFixed(2)}</span>
+                            <button onclick="removePlayer('${p.name}')" class="text-brand-danger hover:bg-brand-danger/20 p-1 rounded"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>`;
             });
         }
 
-        // Render schedule list based on active buff + active day
+        // Custom timeline scheduler blocks renderer
         function renderSchedule() {
             const container = document.getElementById('scheduleContainer');
             if(!container) return;
             container.innerHTML = '';
+            const activeDaySched = stateData.schedules[currentDay] || {};
 
-            const activeSchedules = stateData.schedules[currentBuff]?.[currentDay] || {};
-
-            timeSlots.forEach(utcSlot => {
-                const slotData = activeSchedules[utcSlot];
-                
-                // Safe Schema parsing
-                let applicants = [];
-                let lockedWinner = null;
-                if (Array.isArray(slotData)) {
-                    applicants = slotData;
-                } else if (slotData && typeof slotData === 'object') {
-                    applicants = slotData.applicants || [];
-                    lockedWinner = slotData.lockedWinner || null;
-                }
-
-                let winner = null;
+            timeSlots.forEach(slot => {
+                let sData = activeDaySched[slot] || { applicants: [], lockedWinner: null };
+                let apps = sData.applicants || [];
+                let winner = sData.lockedWinner || null;
                 let maxScore = -1;
-                let nextInLine = [];
 
-                if (lockedWinner) {
-                    winner = lockedWinner;
-                    const wData = stateData.players.find(p => p.name === winner);
-                    if (wData) {
-                        maxScore = getPlayerScore(wData, currentBuff);
-                    }
-                    // Sort queue of others
-                    nextInLine = applicants
-                        .filter(name => name !== winner)
-                        .map(name => {
-                            const pData = stateData.players.find(p => p.name === name);
-                            return { name, score: pData ? getPlayerScore(pData, currentBuff) : 0 };
-                        })
-                        .sort((a,b) => b.score - a.score);
-                } else {
-                    // Standard Dynamic Calc
-                    applicants.forEach(name => {
-                        const pData = stateData.players.find(p => p.name === name);
-                        if (pData) {
-                            const score = getPlayerScore(pData, currentBuff);
-                            if (score > maxScore) {
-                                maxScore = score;
-                                winner = name;
-                            }
-                        }
+                if (!winner) {
+                    apps.forEach(n => {
+                        let p = stateData.players.find(pl => pl.name === n);
+                        if(p && getPlayerScore(p, currentDay) > maxScore) { winner = n; maxScore = getPlayerScore(p, currentDay); }
                     });
-
-                    // Pull everyone except the temporary winner into queue
-                    nextInLine = applicants
-                        .filter(name => name !== winner)
-                        .map(name => {
-                            const pData = stateData.players.find(p => p.name === name);
-                            return { name, score: pData ? getPlayerScore(pData, currentBuff) : 0 };
-                        })
-                        .sort((a,b) => b.score - a.score);
-                }
-
-                const isVacant = !winner;
-                const winnerProfile = winner ? stateData.players.find(p => p.name === winner) : null;
-                const winnerHasFc = winnerProfile ? winnerProfile.fc_upgrade : false;
-
-                // Status Badge rendering
-                let statusBadge = "";
-                if (isVacant) {
-                    statusBadge = `<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full"><i class="fa-solid fa-circle text-[6px]"></i> Vacant</span>`;
-                } else if (lockedWinner) {
-                    statusBadge = `<span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 rounded-full shadow-lg shadow-amber-500/5 animate-pulse">
-                        <i class="fa-solid fa-lock text-[8px]"></i> PRESIDENCY LOCKED: ${winner} (Yield: ${maxScore.toFixed(2)})
-                       </span>`;
                 } else {
-                    statusBadge = `<span class="inline-flex items-center gap-1.5 text-[10px] font-bold text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2 py-0.5 rounded-full">
-                        <i class="fa-solid fa-lock text-[8px]"></i> Secured: ${winner} (Yield: ${maxScore.toFixed(2)})
-                        ${winnerHasFc ? `<span class="text-amber-500 animate-pulse"><i class="fa-solid fa-fire text-[8px]"></i> FC BOOST</span>` : ''}
-                       </span>`;
+                    let p = stateData.players.find(pl => pl.name === winner);
+                    if(p) maxScore = getPlayerScore(p, currentDay);
                 }
 
-                // Display local time conversion if active
-                const displayTime = timeDisplayMode === 'local' ? convertSlotToLocal(utcSlot) : `${utcSlot} UTC`;
+                let nextInLine = apps.filter(n => n !== winner).map(n => ({ name: n, score: getPlayerScore(stateData.players.find(pl=>pl.name===n), currentDay) })).sort((a,b)=>b.score-a.score);
+                let timeStr = timeDisplayMode === 'local' ? convertSlotToLocal(slot) : `${slot} UTC`;
 
-                // Queue/Next In Line badges rendering
-                let queueSection = "";
-                if (nextInLine.length > 0) {
-                    queueSection = `
-                        <div class="mt-2 pt-2 border-t border-brand-border/40 text-[10px] text-slate-400 flex flex-wrap items-center gap-2">
-                            <span class="uppercase font-bold tracking-wider text-slate-500 text-[9px] flex items-center gap-1"><i class="fa-solid fa-arrow-down-9-1"></i> Next in Line (Queue):</span>
-                            ${nextInLine.map((p, idx) => {
-                                const competitorProfile = stateData.players.find(pl => pl.name === p.name);
-                                const competitorHasFc = competitorProfile ? competitorProfile.fc_upgrade : false;
-                                return `<span class="inline-flex items-center gap-1 bg-slate-900 border border-brand-border rounded px-2 py-0.5 text-slate-300 font-medium">
-                                    <strong class="text-slate-500 font-bold">#${idx + 1}</strong> ${p.name} (${p.score.toFixed(2)})
-                                    ${competitorHasFc ? `<i class="fa-solid fa-fire text-amber-500 text-[8px]"></i>` : ''}
-                                </span>`;
-                            }).join('')}
-                        </div>`;
-                }
+                let statusBadge = !winner ? `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">Vacant</span>`
+                    : (sData.lockedWinner ? `<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">🔒 Locked: ${winner} (${maxScore.toFixed(2)})</span>`
+                    : `<span class="text-[10px] bg-brand-accent/10 text-brand-accent border border-brand-accent/20 px-2 py-0.5 rounded-full font-bold">Secured: ${winner} (${maxScore.toFixed(2)})</span>`);
 
-                // Admin Controls rendering
-                let adminControlBtn = "";
-                if (isAdmin) {
-                    const isSlotLocked = !!lockedWinner;
-                    adminControlBtn = `
-                        <button onclick="toggleSlotPresidencyLock('${utcSlot}')" class="py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20" title="${isSlotLocked ? 'Unlock slot' : 'Lock current winner'}">
-                            <i class="fa-solid ${isSlotLocked ? 'fa-unlock' : 'fa-lock'}"></i>
-                            ${isSlotLocked ? 'Presidency Unlock' : 'Presidency Lock'}
-                        </button>`;
+                let queue = '';
+                if(nextInLine.length > 0) {
+                    queue = `<div class="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1 items-center"><span>Waitlist/Queue:</span> ${nextInLine.map(q => `<span class="bg-slate-900 px-1.5 py-0.2 rounded border border-brand-border text-slate-400">${q.name} (${q.score.toFixed(2)})</span>`).join('')}</div>`;
                 }
 
                 container.innerHTML += `
-                    <div class="p-3.5 rounded-xl bg-slate-900/40 border border-brand-border hover:border-slate-800 transition flex flex-col space-y-3">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-xs font-extrabold tracking-tight text-white">${displayTime}</span>
-                                    ${statusBadge}
-                                </div>
-                                <div class="text-[9px] text-slate-500 font-semibold tracking-wider flex items-center gap-1">
-                                    <i class="fa-regular fa-user"></i> Active Applicant Total: ${applicants.length}
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 self-start md:self-auto flex-wrap">
-                                ${adminControlBtn}
-                                <button onclick="openSlotDrawer('${utcSlot}')" class="py-1.5 px-3 bg-brand-card hover:bg-slate-800 text-slate-300 border border-brand-border hover:border-slate-700 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5">
-                                    <i class="fa-solid fa-user-pen"></i> Select Applicants
-                                </button>
+                    <div class="p-3 bg-slate-900/40 border border-brand-border rounded-xl flex flex-col space-y-2 hover:border-slate-800 transition">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div><div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-bold text-white">${timeStr}</span> ${statusBadge}</div></div>
+                            <div class="flex items-center gap-1">
+                                ${isAdmin ? `<button onclick="toggleSlotPresidencyLock('${slot}')" class="text-[11px] bg-amber-500/10 text-amber-400 px-2 py-1 rounded border border-amber-500/20 hover:bg-amber-500/20"><i class="fa-solid fa-lock"></i> Lock</button>` : ''}
+                                <button onclick="openSlotDrawer('${slot}')" class="text-[11px] bg-brand-card hover:bg-slate-800 text-slate-300 px-2 py-1 rounded border border-brand-border"><i class="fa-solid fa-user-pen"></i> Select</button>
                             </div>
                         </div>
-                        ${queueSection}
+                        ${queue}
                     </div>`;
             });
         }
 
-        // Render Diagnostics Window log entries
-        function openDiagnosticsModal() {
-            const modal = document.getElementById('diagnosticsModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            
-            const sdkIcon = document.getElementById('diagSdkIcon');
-            const sdkText = document.getElementById('diagSdkText');
-            const authIcon = document.getElementById('diagAuthIcon');
-            const authText = document.getElementById('diagAuthText');
-            const authAction = document.getElementById('diagAuthAction');
-            const dbIcon = document.getElementById('diagDbIcon');
-            const dbText = document.getElementById('diagDbText');
-            const dbAction = document.getElementById('diagDbAction');
-
-            if (runDiagnostics.sdkInit === 'success') {
-                sdkIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
-                sdkText.innerHTML = `<span class="text-brand-success font-semibold">Connected.</span> Firebase libraries compiled.`;
-            } else {
-                sdkIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
-                sdkText.innerHTML = `<span class="text-brand-danger font-semibold">Failed.</span> Error: ${runDiagnostics.sdkError || 'Credentials missing'}`;
-            }
-
-            if (runDiagnostics.auth === 'success') {
-                authIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
-                authText.innerHTML = `<span class="text-brand-success font-semibold">Connected.</span> Anonymous connection assigned.`;
-                authAction.classList.add('hidden');
-            } else if (runDiagnostics.auth === 'failed') {
-                authIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
-                authText.innerHTML = `<span class="text-brand-danger font-semibold">Failed.</span> Error: ${runDiagnostics.authError}`;
-                authAction.classList.remove('hidden');
-            } else {
-                authIcon.innerHTML = `<i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse text-base"></i>`;
-                authText.textContent = "Negotiating Firebase session...";
-                authAction.classList.add('hidden');
-            }
-
-            if (runDiagnostics.firestore === 'success') {
-                dbIcon.innerHTML = `<i class="fa-solid fa-circle-check text-brand-success text-base"></i>`;
-                dbText.innerHTML = `<span class="text-brand-success font-semibold">Ready.</span> Active live document sync on path: <code class="bg-slate-950 px-1 py-0.5 rounded text-[10px] text-slate-300 font-mono">state_schedulers/svs-scheduler-a1919</code>`;
-                dbAction.classList.add('hidden');
-            } else if (runDiagnostics.firestore === 'failed') {
-                dbIcon.innerHTML = `<i class="fa-solid fa-circle-xmark text-brand-danger text-base"></i>`;
-                dbText.innerHTML = `<span class="text-brand-danger font-semibold">Sync blocked or database disabled.</span> Error: ${runDiagnostics.firestoreError}`;
-                dbAction.classList.remove('hidden');
-            } else {
-                dbIcon.innerHTML = `<i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse text-base"></i>`;
-                dbText.textContent = "Listening for Cloud mutations...";
-                dbAction.classList.add('hidden');
-            }
-
-            const logDisplay = document.getElementById('consoleLogDisplay');
-            if (window.capturedErrors.length > 0) {
-                logDisplay.innerHTML = window.capturedErrors.map(err => `<div class="text-rose-400 font-mono text-[10px] p-1.5 bg-rose-950/30 border border-rose-900/30 rounded mb-1.5 break-words">> ${err}</div>`).join('');
-            }
+        function showToast(m, type="info") {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `p-3 text-xs font-bold border rounded-lg shadow-xl bg-slate-800 border-slate-700 text-slate-200 transition duration-300 opacity-0 transform translate-y-2`;
+            if (type === "success") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-emerald-950 border-emerald-500 text-emerald-200";
+            if (type === "danger" || type === "error") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-rose-950 border-rose-500 text-rose-200";
+            t.textContent = m;
+            c.appendChild(t);
+            setTimeout(() => t.classList.remove('opacity-0', 'translate-y-2'), 20);
+            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 4000);
         }
 
-        function closeDiagnosticsModal() {
-            const modal = document.getElementById('diagnosticsModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-        }
-
-        function clearCapturedErrors() {
-            window.capturedErrors = [];
-            const logDisplay = document.getElementById('consoleLogDisplay');
-            if (logDisplay) {
-                logDisplay.innerHTML = `<div class="italic text-slate-600">> Logs cleared. Ready.</div>`;
-            }
-        }
-
+        function openDiagnosticsModal() { document.getElementById('diagnosticsModal').classList.remove('opacity-0', 'pointer-events-none'); }
+        function closeDiagnosticsModal() { document.getElementById('diagnosticsModal').classList.add('opacity-0', 'pointer-events-none'); }
+        
         function updateHeaderStatusPill() {
-            const pill = document.getElementById('dbStatusPill');
-            const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-
-            if (syncMode === 'offline') {
-                if(dot) dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-pulse";
-                if(txt) txt.textContent = "Sandbox Mode";
-                return;
-            }
-
-            if (runDiagnostics.firestore === 'success') {
-                if(dot) dot.className = "h-2 w-2 rounded-full bg-emerald-500 animate-pulse";
-                if(txt) txt.textContent = "Online";
-                if(pill) pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20";
-            } else if (runDiagnostics.auth === 'failed' || runDiagnostics.firestore === 'failed') {
-                if(dot) dot.className = "h-2 w-2 rounded-full bg-rose-500 animate-pulse";
-                if(txt) txt.textContent = "Setup Required";
-                if(pill) pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-rose-500/10 text-rose-400 border border-rose-500/30 hover:bg-rose-500/20";
-            } else {
-                if(dot) dot.className = "h-2 w-2 rounded-full bg-slate-500 animate-pulse";
-                if(txt) txt.textContent = "Connecting...";
-                if(pill) pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
-            }
+            let dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
+            if(syncMode==='offline') { dot.className="h-2 w-2 rounded-full bg-amber-500"; txt.textContent="Sandbox"; return; }
+            if(runDiagnostics.firestore==='success') { dot.className="h-2 w-2 rounded-full bg-emerald-500"; txt.textContent="Online"; }
+            else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
         }
 
-        function refreshUI() {
-            renderPlayers();
-            renderSchedule();
-            updateHeaderStatusPill();
-
-            if (activeDrawerSlot) {
-                openSlotDrawer(activeDrawerSlot);
-            }
-        }
+        function refreshUI() { renderPlayers(); renderSchedule(); updateHeaderStatusPill(); if(activeDrawerSlot) openSlotDrawer(activeDrawerSlot); }
     </script>
 
-    <!-- Firebase Integration Pipeline with your Exact Configuration Details -->
+    <!-- Database Integration Framework Pipeline (Rule 1 Compliant) -->
     <script>
-        // Official Production State Database ID
         const appId = 'svs-scheduler-a1919';
-        
         const firebaseConfig = {
           apiKey: "AIzaSyDQuzprhL2M3hrR585iyHeLr0BtUTMfCxA",
           authDomain: "svs-scheduler-a1919.firebaseapp.com",
@@ -1373,201 +977,111 @@ service cloud.firestore {
           projectId: "svs-scheduler-a1919",
           storageBucket: "svs-scheduler-a1919.firebasestorage.app",
           messagingSenderId: "1070850863206",
-          appId: "1:1070850863206:web:a2de4c38691fd0c89ebda7",
-          measurementId: "G-W0DFYH7M9Q"
+          appId: "1:1070850863206:web:a2de4c38691fd0c89ebda7"
         };
 
-        let appInstance, db, auth;
+        let db, auth, unsubscribeState = null;
         try {
-            appInstance = firebase.initializeApp(firebaseConfig);
+            firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
             auth = firebase.auth();
             runDiagnostics.sdkInit = 'success';
-        } catch (err) {
-            runDiagnostics.sdkInit = 'failed';
-            runDiagnostics.sdkError = err.message;
-            console.error("Firebase initialization failed", err);
+        } catch(e) { runDiagnostics.sdkInit='failed'; }
+
+        // Restoring original document references to ensure immediate data retrieval
+        function getCollectionRef() {
+            return db.collection('state_schedulers').doc(appId);
         }
 
-        let unsubscribeState = null;
-
-        // Subscribing to database updates on custom table reference
         function subscribeToData() {
             if (!db || !auth.currentUser || syncMode === 'offline') return;
-
             if (unsubscribeState) unsubscribeState();
-
-            const docRef = db.collection('state_schedulers').doc(appId);
-
-            unsubscribeState = docRef.onSnapshot((doc) => {
+            
+            // Subscribing to public data collection in compliance with strict paths
+            unsubscribeState = getCollectionRef().onSnapshot(doc => {
                 runDiagnostics.firestore = 'success';
-                updateHeaderStatusPill();
                 if (doc.exists) {
                     const data = doc.data();
+                    stateData.players = data.players || [];
                     
-                    // Run Schema Safe Migrations for old players
-                    const rawPlayers = data.players || [];
-                    stateData.players = rawPlayers.map(p => {
-                        return {
-                            name: p.name,
-                            furnace: parseInt(p.furnace) || 30,
-                            speedups_build: p.speedups_build !== undefined ? parseFloat(p.speedups_build) : parseFloat(p.speedups || 0),
-                            speedups_research: p.speedups_research !== undefined ? parseFloat(p.speedups_research) : 0,
-                            speedups_train: p.speedups_train !== undefined ? parseFloat(p.speedups_train) : 0,
-                            speedups_universal: p.speedups_universal !== undefined ? parseFloat(p.speedups_universal) : 0,
-                            fc_upgrade: p.fc_upgrade !== undefined ? p.fc_upgrade : false
-                        };
-                    });
-
-                    // Safeguard schedules tree structures mapping
+                    // --- MIGRATION COMPATIBILITY ADAPTER ---
                     const rawSchedules = data.schedules || {};
-                    stateData.schedules = {};
+                    const oldBuffKeys = ['architect', 'scientist', 'instructor'];
+                    const hasOldStructure = oldBuffKeys.some(key => rawSchedules[key] !== undefined);
                     
-                    // Standard multi-buff, multi-day schedule structure
-                    ['architect', 'scientist', 'instructor'].forEach(bType => {
-                        stateData.schedules[bType] = {};
-                        ['day1', 'day2', 'day3', 'day4', 'day5', 'day6'].forEach(day => {
-                            stateData.schedules[bType][day] = {};
-                        });
+                    stateData.schedules = {};
+                    ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(day => {
+                        stateData.schedules[day] = {};
                     });
 
-                    // Migrate previous simple schedule structure if detected
-                    if (rawSchedules && !rawSchedules['architect'] && !rawSchedules['scientist']) {
-                        // Normalize flat structure to Day 1 Architect
-                        Object.keys(rawSchedules).forEach(slotKey => {
-                            let slotValue = rawSchedules[slotKey];
-                            if (Array.isArray(slotValue)) {
-                                stateData.schedules['architect']['day1'][slotKey] = {
-                                    applicants: slotValue,
-                                    lockedWinner: null
-                                };
-                            } else {
-                                stateData.schedules['architect']['day1'][slotKey] = slotValue;
+                    if (hasOldStructure) {
+                        // Map old buff keys to modern live schedule tracks
+                        const mapping = {
+                            day1: 'architect',
+                            day2: 'scientist',
+                            day4: 'instructor',
+                            day5: 'instructor'
+                        };
+                        Object.keys(mapping).forEach(dayId => {
+                            const buffType = mapping[dayId];
+                            if (rawSchedules[buffType] && rawSchedules[buffType][dayId]) {
+                                stateData.schedules[dayId] = rawSchedules[buffType][dayId];
                             }
                         });
                     } else {
-                        // Map multi-day tree structure
-                        Object.keys(rawSchedules).forEach(bType => {
-                            if (stateData.schedules[bType]) {
-                                Object.keys(rawSchedules[bType] || {}).forEach(day => {
-                                    let dayData = rawSchedules[bType][day] || {};
-                                    Object.keys(dayData).forEach(slotKey => {
-                                        let val = dayData[slotKey];
-                                        if (Array.isArray(val)) {
-                                            stateData.schedules[bType][day][slotKey] = {
-                                                applicants: val,
-                                                lockedWinner: null
-                                            };
-                                        } else {
-                                            stateData.schedules[bType][day][slotKey] = val;
-                                        }
-                                    });
-                                });
+                        // Directly assign schedules structured under dayId keys
+                        Object.keys(rawSchedules).forEach(dayId => {
+                            if (stateData.schedules[dayId]) {
+                                stateData.schedules[dayId] = rawSchedules[dayId];
                             }
                         });
                     }
-
-                    refreshUI();
-                } else {
-                    stateData.players = [];
-                    stateData.schedules = {};
-                    refreshUI();
                 }
-            }, (error) => {
-                runDiagnostics.firestore = 'failed';
-                runDiagnostics.firestoreError = error.message;
-                updateHeaderStatusPill();
-                console.error("Firestore sync error:", error);
-                showToast("Connection Sync Error. Click Database Status to check logs.", "error");
+                refreshUI();
+            }, err => { 
+                runDiagnostics.firestore = 'failed'; 
+                runDiagnostics.firestoreError = err.message;
+                refreshUI(); 
             });
         }
 
-        // Write live state to cloud database
         async function saveCloudData() {
             refreshUI();
-
-            if (!db || !auth.currentUser || syncMode === 'offline') {
-                return;
-            }
-
+            if(!db || !auth.currentUser || syncMode==='offline') return;
             try {
-                const docRef = db.collection('state_schedulers').doc(appId);
-                await docRef.set({
+                await getCollectionRef().set({
                     players: stateData.players,
                     schedules: stateData.schedules
                 }, { merge: true });
-                
-                runDiagnostics.firestore = 'success';
-                updateHeaderStatusPill();
-            } catch (e) {
-                runDiagnostics.firestore = 'failed';
+            } catch(e) { 
+                runDiagnostics.firestore='failed'; 
                 runDiagnostics.firestoreError = e.message;
                 updateHeaderStatusPill();
-                console.error("Cloud save failed:", e);
-                showToast("Save failed. Check diagnostics logs.", "error");
             }
         }
 
-        // Test manual Firestore write operation
         async function testManualDatabaseWrite() {
-            if (!db || !auth.currentUser) {
-                showToast("Not authenticated to test database.", "warning");
-                return;
-            }
             try {
-                showToast("Testing write operation...", "info");
-                const docRef = db.collection('state_schedulers').doc('test-connection-doc');
-                await docRef.set({
-                    lastTest: new Date().toISOString(),
-                    testStatus: "Operational"
-                });
-                showToast("Database is fully operational!", "success");
-            } catch (e) {
-                console.error("Manual Write Failed:", e);
-                showToast("Manual write failed. Check logs.", "error");
-            }
-        }
-
-        // Init anonymous session credentials
-        async function initAuth() {
-            if (!auth) {
-                showToast("Configuration missing. Sandbox mode active.", "warning");
-                toggleSyncMode();
-                return;
-            }
-
-            const uidDisplay = document.getElementById('userUidDisplay');
-            if(uidDisplay) document.getElementById('userIdTag').classList.remove('hidden');
-
-            try {
-                await auth.signInAnonymously();
-                runDiagnostics.auth = 'success';
-                updateHeaderStatusPill();
-            } catch (err) {
-                runDiagnostics.auth = 'failed';
-                runDiagnostics.authError = err.message;
-                updateHeaderStatusPill();
-                console.error("Auth flow failed:", err);
-                showToast("Online connection failed. Running offline.", "info");
-                toggleSyncMode();
-            }
-        }
-
-        if (auth) {
-            auth.onAuthStateChanged((user) => {
-                const uidDisplay = document.getElementById('userUidDisplay');
-                if (user) {
-                    if(uidDisplay) uidDisplay.textContent = user.uid.substring(0, 8) + "...";
-                    subscribeToData();
-                } else {
-                    if(uidDisplay) uidDisplay.textContent = "Offline User";
-                }
-            });
+                await getCollectionRef().set({ lastTestWrite: new Date().toISOString() }, { merge: true });
+                showToast("Write test successful!", "success");
+            } catch(e) { showToast("Write test failure.", "error"); }
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
-            refreshUI();
-            await initAuth();
+            switchDay('day4'); // Default set directly to Day 4 (Hero Development) on page load
+            if (auth) {
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        document.getElementById('userIdTag').classList.remove('hidden');
+                        document.getElementById('userUidDisplay').textContent = user.uid.substring(0,6)+"...";
+                        subscribeToData();
+                    }
+                });
+                try { 
+                    // Rule 3: Auth handshake priority before executing any queries
+                    await auth.signInAnonymously(); 
+                } catch(e){}
+            }
         });
     </script>
 </body>
