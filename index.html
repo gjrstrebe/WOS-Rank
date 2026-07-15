@@ -1,90 +1,99 @@
-// FIX 1: Prevent remote re-renders from hijacking open menus by saving locally first
-function toggleSlotApplicant(slot, playerName, isChecked) {
-    if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
-    let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
-    
-    if (isChecked) { 
-        if (!sData.applicants.includes(playerName)) {
-            sData.applicants.push(playerName); 
+<!DOCTYPE html>
+<html lang="en" class="dark h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State 4336 SvS Ministerial Scheduler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0F19',
+                            card: '#161F30',
+                            accent: '#38BDF8',
+                            success: '#10B981',
+                            warning: '#F59E0B',
+                            danger: '#EF4444',
+                            border: '#1E293B'
+                        }
+                    }
+                }
+            }
         }
-    } else { 
-        sData.applicants = sData.applicants.filter(n => n !== playerName); 
-        if (sData.lockedWinner === playerName) sData.lockedWinner = null; 
-    }
-    
-    stateData.schedules[currentDay][slot] = sData;
-    
-    // Critically save, but DO NOT let the remote sync wipe out the user's open modal checkmarks
-    saveCloudData();
-}
+    </script>
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38BDF8;
+        }
+    </style>
+</head>
+<body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-accent/30 selection:text-brand-accent">
 
-// FIX 2: Re-render the drawer list safely without breaking multi-checkbox states
-function openSlotDrawer(slot) {
-    activeDrawerSlot = slot;
-    document.getElementById('drawerSlotTime').textContent = `${slot} (${currentDay.toUpperCase()})`;
-    const list = document.getElementById('drawerCompetitorList');
-    list.innerHTML = '';
-
-    if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
-    let sData = stateData.schedules[currentDay][slot] || { applicants: [], lockedWinner: null };
-    let isLocked = !!sData.lockedWinner;
-
-    if (isLocked && !isAdmin) {
-        list.innerHTML = `<div class="text-center py-6 text-amber-500 text-xs"><i class="fa-solid fa-lock block mb-1 text-base animate-bounce"></i>Slot locked by Presidency authorization. Only officers can edit.</div>`;
-        document.getElementById('slotDrawer').classList.remove('opacity-0', 'pointer-events-none');
-        return;
-    }
-
-    if (stateData.players.length === 0) {
-        list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">No entries available in State Registry yet.</div>`;
-    } else {
-        stateData.players.forEach(p => {
-            // Check if this specific player is already saved in the applicants list for this slot
-            let isChecked = (sData.applicants || []).includes(p.name);
-            let sc = getPlayerScore(p, currentDay);
-            let hasFaceBadge = parseInt(p.fc_level) > 0;
+    <script>
+        window.capturedErrors = [];
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            const errorMsg = args.map(arg => {
+                if (typeof arg === 'object') {
+                    try { return JSON.stringify(arg); } catch(e) { return arg.toString(); }
+                }
+                return arg.toString();
+            }).join(' ');
+            window.capturedErrors.push(errorMsg);
             
-            // Note: Explicitly using standalone checkboxes without matching "name" groups to allow true multi-selection
-            list.innerHTML += `
-                <label class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-brand-border cursor-pointer hover:bg-slate-800 transition">
-                    <div class="flex items-center gap-2.5">
-                        <input type="checkbox" ${isChecked ? 'checked' : ''} 
-                            onchange="toggleSlotApplicant('${slot}', '${p.name}', this.checked)" 
-                            class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-accent focus:ring-offset-slate-900">
-                        <span class="text-xs font-semibold text-white">
-                            ${p.name} 
-                            ${hasFaceBadge ? `<span class="text-cyan-400 text-[8px] ml-1 bg-cyan-500/10 px-1 py-0.5 rounded border border-cyan-500/20">💎 FC${p.fc_level}</span>` : ''}
-                            ${p.fc_upgrade ? '<span class="text-amber-400 text-[8px] ml-1 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20">⚡ PUSH</span>' : ''}
-                        </span>
-                    </div>
-                    <span class="text-[10px] font-bold text-emerald-400">${sc.toFixed(2)}</span>
-                </label>`;
-        });
-    }
-    document.getElementById('slotDrawer').classList.remove('opacity-0', 'pointer-events-none');
-}
+            // Live update troubleshooter panel if open
+            const logDisplay = document.getElementById('consoleLogDisplay');
+            if (logDisplay) {
+                logDisplay.innerHTML += `<div class="text-rose-400 font-mono text-[10px] p-1.5 bg-rose-950/30 border border-rose-900/30 rounded mb-1.5 break-words">> ${errorMsg}</div>`;
+            }
+            originalConsoleError.apply(console, args);
+        };
+    </script>
 
-// FIX 3: Force Firestore to accept deep nested object maps reliably
-async function saveCloudData() {
-    // Force immediate local UI updates so it feels lightning fast
-    renderPlayers();
-    renderSchedule();
-    updateHeaderStatusPill();
-    
-    if (!db || !auth.currentUser || syncMode === 'offline') return;
-    
-    try {
-        // Converting to pure, deep JSON payloads ensuring Firestore parses the sub-maps perfectly
-        const payload = JSON.parse(JSON.stringify({
-            players: stateData.players,
-            schedules: stateData.schedules
-        }));
-        
-        await getCollectionRef().set(payload, { merge: true });
-    } catch(e) { 
-        console.error("Cloud Write Error: ", e.message);
-        runDiagnostics.firestore = 'failed'; 
-        runDiagnostics.firestoreError = e.message;
-        updateHeaderStatusPill();
-    }
-}
+    <header class="border-b border-brand-border bg-brand-card/70 backdrop-blur sticky top-0 z-40 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20">
+                    <i class="fa-solid fa-crown text-xl text-amber-400"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        State 4336 Command Center
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">SvS Prep Stage Ministerial Speedup Scheduler</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
+                <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                    <i class="fa-solid fa-key text-[10px]"></i>
+                    <span id="adminBtnText">Presidency Login</span>
+                </button>
+
+                <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                    <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
+                    <span>Database Status: <strong id="statusText">Checking...</strong></span>
+                </button>
+
+                <button onclick="toggleSyncMode()" id="syncModeBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border
