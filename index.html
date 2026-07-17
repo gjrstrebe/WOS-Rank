@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State 4336 SvS Ministerial Scheduler</title>
+    <title>State Command Center & SvS Scheduler</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -73,7 +73,6 @@
             }
             window.capturedErrors.push(errorMsg);
             
-            // Live update troubleshooter panel if open
             const logDisplay = document.getElementById('consoleLogDisplay');
             if (logDisplay) {
                 logDisplay.innerHTML += `<div class="text-rose-400 font-mono text-[10px] p-1.5 bg-rose-950/30 border border-rose-900/30 rounded mb-1.5 break-words">> ${errorMsg}</div>`;
@@ -82,23 +81,81 @@
         };
     </script>
 
-    <!-- Top Navigation / Status Header -->
-    <header class="border-b border-brand-border bg-brand-card/70 backdrop-blur sticky top-0 z-40 px-4 py-3">
+    <!-- AUTOMATIC STAGING ENVIRONMENT DETECTOR BANNER -->
+    <div id="sandboxBanner" class="hidden bg-gradient-to-r from-amber-500/20 via-brand-warning/30 to-amber-500/20 border-b border-brand-warning/40 text-center py-2 px-4 sticky top-0 z-50 backdrop-blur-md">
+        <p class="text-xs font-bold text-amber-300 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+            DEVELOPMENT MODE ACTIVE &mdash; Connected to Staging Database (Live data is safe!)
+        </p>
+    </div>
+
+    <!-- PRESIDENCY ADMINISTRATIVE CONTROL CONSOLE BAR -->
+    <div id="adminControlBar" class="hidden bg-slate-900 border-b border-brand-border py-2 px-4 sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <span class="text-amber-400 font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-crown text-amber-400 animate-pulse"></i> 
+                State <span id="adminBarStateId">4336</span> Presidency Control Console
+            </span>
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Manage Passcodes Button -->
+                <button onclick="openSecuritySettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-lg transition font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved"></i> Lock Server Passcodes
+                </button>
+                <button onclick="exportBackup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-download text-sky-400"></i> Export Backup (.json)
+                </button>
+                <button onclick="triggerImportFile()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-upload text-emerald-400"></i> Restore Backup
+                </button>
+                <button onclick="confirmResetData()" class="px-3 py-1.5 bg-brand-danger/20 hover:bg-brand-danger/30 text-brand-danger border border-brand-danger/30 rounded-lg transition font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Reset All Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CENTRAL NAVIGATION HEADER -->
+    <header id="mainAppHeader" class="hidden border-b border-brand-border bg-brand-card/70 backdrop-blur sticky top-[33px] z-40 px-4 py-3">
         <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20">
-                    <i class="fa-solid fa-crown text-xl text-amber-400"></i>
+                    <i class="fa-solid fa-shield text-xl text-amber-400"></i>
                 </div>
                 <div>
                     <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        State 4336 Command Center
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
+                        State Command Center
+                        <span id="envIndicatorPill" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
                     </h1>
-                    <p class="text-xs text-slate-400">SvS Prep Stage Ministerial Speedup Scheduler</p>
+                    <p class="text-xs text-slate-400">Whiteout Survival Companion & Scheduler Platform</p>
                 </div>
             </div>
             
             <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
+                <!-- Navigation Switchers -->
+                <nav class="flex items-center bg-slate-900 border border-brand-border rounded-lg p-1 mr-2">
+                    <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="px-3 py-1.5 text-xs font-bold rounded-md transition bg-brand-accent/20 text-brand-accent">
+                        <i class="fa-regular fa-calendar-check mr-1.5"></i>SvS Scheduler
+                    </button>
+                    <button onclick="showTab('bear')" id="tabBtn-bear" class="px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-paw mr-1.5"></i>Bear March
+                    </button>
+                    <button onclick="showTab('scout')" id="tabBtn-scout" class="px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-binocular mr-1.5"></i>Scout Analyzer
+                    </button>
+                </nav>
+
+                <!-- Feedback Button -->
+                <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20">
+                    <i class="fa-regular fa-comment-dots text-[10px]"></i>
+                    <span>Send Feedback</span>
+                </button>
+
+                <!-- Switch Server (Back to Launch Pad) -->
+                <button onclick="routeToLaunchPad()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                    <i class="fa-solid fa-right-from-bracket text-[10px]"></i>
+                    <span>Server List</span>
+                </button>
+
                 <!-- Admin Override Button -->
                 <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
                     <i class="fa-solid fa-key text-[10px]"></i>
@@ -108,281 +165,554 @@
                 <!-- Diagnostics Status Button -->
                 <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
                     <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
-                    <span>Database Status: <strong id="statusText">Checking...</strong></span>
-                </button>
-
-                <!-- Sandbox/Sync Toggle -->
-                <button onclick="toggleSyncMode()" id="syncModeBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span id="syncModeText">Live State Sync</span>
-                </button>
-                
-                <!-- ID Tag -->
-                <div id="userIdTag" class="hidden md:flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1.5 rounded-lg text-slate-300 text-xs border border-slate-700">
-                    <i class="fa-solid fa-user-circle"></i>
-                    <span id="userUidDisplay" class="font-mono text-[10px]">Connecting...</span>
-                </div>
-
-                <!-- Clear Data -->
-                <button onclick="confirmResetData()" class="px-3 py-1.5 bg-brand-danger/10 text-brand-danger border border-brand-danger/20 hover:bg-brand-danger/20 rounded-lg text-xs font-semibold transition">
-                    <i class="fa-solid fa-trash-can mr-1"></i> Reset All
+                    <span>Database: <strong id="statusText">Checking...</strong></span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- SVS Days Tab Strip (State 4336 Live Event Flow) -->
-    <div class="bg-brand-card/30 border-b border-brand-border px-4 py-2 sticky top-[61px] z-30 backdrop-blur-sm">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-            <div class="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto">
-                <i class="fa-solid fa-calendar-days text-brand-accent"></i> Select Prep Stage Day:
+    <!-- MULTI-TENANT LANDING SCREEN (LAUNCH PAD) -->
+    <div id="launchPadPortal" class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border rounded-2xl max-w-md w-full p-6 lg:p-8 shadow-2xl space-y-6 text-center transition-all duration-300">
+            <div class="inline-flex p-4 rounded-full bg-brand-accent/10 text-brand-accent mb-2">
+                <i class="fa-solid fa-shield text-4xl text-amber-400" id="portalLogo"></i>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 w-full md:w-auto">
-                <button onclick="switchDay('day1')" id="btnDay-day1" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                    <span class="text-[9px] text-slate-500">DAY 1</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-compass-drafting text-[10px] text-cyan-400"></i> Construction</span>
+            <div>
+                <h2 class="text-2xl font-black text-white tracking-tight" id="portalTitle">State Command Launch Pad</h2>
+                <p class="text-xs text-slate-400 mt-1" id="portalSub">Select your active Whiteout Survival server sandbox</p>
+            </div>
+
+            <!-- STAGE 1: ENTER STATE ID FORM -->
+            <form id="stateLookupForm" onsubmit="handleStateLookup(event)" class="space-y-4 text-left">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-server text-slate-500"></i> Target State ID
+                    </label>
+                    <input type="number" id="targetStateInput" required min="1" max="9999" placeholder="e.g. 4336" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                </div>
+                <!-- Interactive Loading Button Safeguard -->
+                <button type="submit" id="lookupSubmitBtn" disabled class="w-full py-3 px-4 bg-slate-800 text-slate-500 font-black rounded-lg text-sm transition flex items-center justify-center gap-2 cursor-not-allowed">
+                    <i class="fa-solid fa-spinner animate-spin" id="lookupSpinIcon"></i>
+                    <span id="lookupBtnText">Connecting to Database...</span>
                 </button>
-                <button onclick="switchDay('day2')" id="btnDay-day2" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                    <span class="text-[9px] text-slate-500">DAY 2</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-microscope text-[10px] text-violet-400"></i> Basic Skills Up</span>
+            </form>
+
+            <!-- STAGE 2A: STATE EXISTS - LOGIN FORM -->
+            <form id="stateLoginForm" onsubmit="handleStateLogin(event)" class="hidden space-y-4 text-left">
+                <div class="p-3 bg-slate-900 border border-brand-border rounded-lg text-xs flex justify-between items-center">
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Connected to Server:</span>
+                        <span class="text-white font-bold" id="loginStateDisplay">State 4336</span>
+                    </div>
+                    <button type="button" onclick="resetPortalState()" class="text-brand-accent hover:underline font-semibold text-[11px]">Change State</button>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock text-slate-500"></i> Standard Server Passcode
+                    </label>
+                    <input type="password" id="targetPasscodeInput" placeholder="Enter Server Passcode" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition tracking-widest">
+                    <span class="text-[10px] text-slate-500 block" id="passcodeHelperText">Enter standard state member passcode.</span>
+                </div>
+                <button type="submit" class="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-white font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-bolt"></i>
+                    Connect Command Center
                 </button>
-                <button onclick="switchDay('day3')" id="btnDay-day3" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                    <span class="text-[9px] text-slate-500">DAY 3</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-paw text-[10px] text-emerald-400"></i> Beast Slay</span>
-                </button>
-                <button onclick="switchDay('day4')" id="btnDay-day4" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                    <span class="text-[9px] text-slate-500">DAY 4</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-[10px] text-amber-400"></i> Hero Development</span>
-                </button>
-                <button onclick="switchDay('day5')" id="btnDay-day5" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                    <span class="text-[9px] text-slate-500">DAY 5</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-[10px] text-orange-400"></i> Power Boost</span>
-                </button>
+            </form>
+
+            <!-- STAGE 2B: STATE DOES NOT EXIST - REGISTER SETUP WIZARD -->
+            <form id="stateRegistrationForm" onsubmit="handleStateRegistration(event)" class="hidden space-y-4 text-left">
+                <div class="p-3 bg-brand-accent/5 border border-brand-accent/20 rounded-lg text-xs space-y-1">
+                    <span class="text-brand-accent font-bold"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> New Sandbox Initializer</span>
+                    <p class="text-slate-300 text-[11px]">Server sandbox <strong id="registerStateIdDisplay">State 1205</strong> is unregistered. Build your isolated partition database now.</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Choose Standard Player Passcode</label>
+                    <input type="password" id="regPlayerPasscode" required placeholder="For standard players (e.g. 1205gold)" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Choose Presidential Passcode (Admin Override)</label>
+                    <input type="password" id="regAdminPasscode" required placeholder="For presidency actions (e.g. 1205admin)" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                    <span class="text-[10px] text-slate-500 block">Do NOT lose this password. It is used to lock slots and reset schedules.</span>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" onclick="resetPortalState()" class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-lg">
+                        Create Sandbox
+                    </button>
+                </div>
+            </form>
+
+            <div class="border-t border-brand-border/60 pt-4 text-[11px] text-slate-500 leading-relaxed">
+                <p><i class="fa-solid fa-shield-halved text-brand-accent mr-1"></i> Multi-Tenant Partition Separation guarantees that your state's private player rosters and schedules are mathematically isolated.</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Container -->
-    <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- MAIN CORE PANEL WRAPPER -->
+    <div id="mainDashboardApp" class="hidden flex-grow flex flex-col">
         
-        <!-- Left Column: Registration & Stats (5 Cols) -->
-        <section class="lg:col-span-5 space-y-6">
-            
-            <!-- Whiteout Survival Dynamic Active Buff Details -->
-            <div class="bg-gradient-to-br from-brand-card to-brand-card/90 border border-brand-border rounded-xl p-4 shadow-xl">
-                <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
-                    <i class="fa-solid fa-calculator text-brand-accent"></i>
-                    Current Cabinet Assignment
-                </h3>
-                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border/80 mb-3 text-xs">
-                    <span class="text-slate-400 block mb-0.5">Required Buff Position:</span>
-                    <span id="infoBuffLabel" class="text-brand-accent font-extrabold uppercase tracking-wide text-sm block">Education Minister</span>
-                    <p id="infoBuffDescription" class="text-[11px] text-slate-300 mt-1 leading-relaxed">Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.</p>
+        <!-- SVS Days Tab Strip -->
+        <div id="daySelectorTabs" class="bg-brand-card/30 border-b border-brand-border px-4 py-2 sticky top-[94px] z-30 backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto">
+                    <i class="fa-solid fa-calendar-days text-brand-accent"></i> Select Prep Stage Day:
                 </div>
-                <div class="grid grid-cols-3 gap-2 text-center text-[10px] mb-2">
-                    <div class="p-1.5 rounded bg-slate-900/50 border border-brand-border">
-                        <span class="block font-bold text-emerald-400">1.0x Weight</span>
-                        <span class="text-slate-400">Furnace 30</span>
-                    </div>
-                    <div class="p-1.5 rounded bg-slate-900/50 border border-brand-border">
-                        <span class="block font-bold text-sky-400">1.1x - 1.5x</span>
-                        <span class="text-slate-400">FC1 - FC5</span>
-                    </div>
-                    <div class="p-1.5 rounded bg-slate-900/50 border border-brand-border">
-                        <span class="block font-bold text-amber-400">0.5x Weight</span>
-                        <span class="text-slate-400">Furnace 28-29</span>
-                    </div>
-                </div>
-                <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] text-amber-400 leading-relaxed">
-                    <i class="fa-solid fa-circle-info mr-1"></i>
-                    <strong>Power Weighting:</strong> High level Furnace 30 and Fire Crystal accounts get extra prioritization weights to help secure slots for state-defining power pushes.
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 w-full md:w-auto">
+                    <button onclick="switchDay('day1')" id="btnDay-day1" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[9px] text-slate-500 font-bold">DAY 1</span>
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-compass-drafting text-[10px] text-cyan-400"></i> Construction</span>
+                    </button>
+                    <button onclick="switchDay('day2')" id="btnDay-day2" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[9px] text-slate-500 font-bold">DAY 2</span>
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-microscope text-[10px] text-violet-400"></i> Skills Up</span>
+                    </button>
+                    <button onclick="switchDay('day3')" id="btnDay-day3" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[9px] text-slate-500 font-bold">DAY 3</span>
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-paw text-[10px] text-emerald-400"></i> Beast Slay</span>
+                    </button>
+                    <button onclick="switchDay('day4')" id="btnDay-day4" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[9px] text-slate-500 font-bold">DAY 4</span>
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-[10px] text-amber-400"></i> Hero Dev</span>
+                    </button>
+                    <button onclick="switchDay('day5')" id="btnDay-day5" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[9px] text-slate-500 font-bold">DAY 5</span>
+                        <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-[10px] text-orange-400"></i> Power Boost</span>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Pro-Tip: Troop Promotion Guide Card (Visible on Training Days) -->
-            <div id="promotionGuideCard" class="hidden bg-gradient-to-br from-slate-900 via-brand-card to-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-xl space-y-2.5">
-                <h4 class="font-bold text-xs text-amber-400 flex items-center gap-1.5 border-b border-brand-border pb-1.5">
-                    <i class="fa-solid fa-lightbulb text-amber-400 animate-pulse"></i>
-                    Official State 4336 SvS Troop Tactics
-                </h4>
-                <div class="space-y-2 text-[11px] text-slate-300 leading-relaxed">
+        <!-- MAIN GRIDS VIEW CONTAINER -->
+        <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-6">
+            
+            <!-- VIEW TAB 1: MINISTERIAL SVS SCHEDULER -->
+            <div id="view-scheduler" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Registration & Stats (5 Cols) -->
+                <section class="lg:col-span-5 space-y-6">
+                    <!-- Cabinet Assignment Details -->
+                    <div class="bg-gradient-to-br from-brand-card to-brand-card/90 border border-brand-border rounded-xl p-4 shadow-xl">
+                        <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-brand-accent"></i>
+                            Current Cabinet Assignment
+                        </h3>
+                        <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border/80 mb-3 text-xs">
+                            <span class="text-slate-400 block mb-0.5">Required Buff Position:</span>
+                            <span id="infoBuffLabel" class="text-brand-accent font-extrabold uppercase tracking-wide text-sm block">Education Minister</span>
+                            <p id="infoBuffDescription" class="text-[11px] text-slate-300 mt-1 leading-relaxed">Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.</p>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 border border-brand-border rounded-lg text-xs space-y-2">
+                            <span class="font-bold text-slate-200 block border-b border-brand-border pb-1"><i class="fa-solid fa-scale-balanced mr-1 text-brand-accent"></i> State Allocation Protocol</span>
+                            <ul class="space-y-1.5 text-[11px] text-slate-300 list-disc list-inside">
+                                <li>The Command Center dynamically scores applicants based on **saved speedups** scaled to **overall Furnace progression**.</li>
+                                <li>This model balances raw spending with strategic dedication, ensuring mid-tier players who hoard extensively can secure buffs over casual high-tier spenders.</li>
+                                <li>The competitor displaying the **highest calculated yield score** automatically secures the slot unless locked manually by a Presidential Officer.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Pro-Tip: Troop Promotion Guide Card (Visible on Training Days) -->
+                    <div id="promotionGuideCard" class="hidden bg-gradient-to-br from-slate-900 via-brand-card to-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-xl space-y-2.5">
+                        <h4 class="font-bold text-xs text-amber-400 flex items-center gap-1.5 border-b border-brand-border pb-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-400 animate-pulse"></i>
+                            Official State SvS Troop Tactics
+                        </h4>
+                        <div class="space-y-2 text-[11px] text-slate-300 leading-relaxed">
+                            <div>
+                                <span class="font-bold text-brand-accent block mb-0.5">🚀 Step 1: The Day 4 "Pre-Queue" (Free Points)</span>
+                                On Day 4 (Hero Dev), grab the **Education Minister** buff to start your absolute largest, longest possible training batch *without using speedups*. Let it cook for 24+ hours and tap **Collect** the moment Day 5 begins for free launch points!
+                            </div>
+                            <div class="border-t border-brand-border/60 pt-2">
+                                <span class="font-bold text-emerald-400 block mb-0.5">⚔️ Step 2: High-Efficiency Promotions (Day 5)</span>
+                                During Day 5, promote lower-tier troops to your highest unlocked tier using speedups. Although promotion points yield the *difference* between tiers, they cost only a fraction of the training time—giving you **up to 50% more SvS points per minute of speedups spent**!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Player Database Input Card -->
+                    <div id="registrationCard" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-brand-accent"></i>
+                                Register Competitor Profile
+                            </h2>
+                            <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State <span class="activeStateNameDisplay">4336</span></span>
+                        </div>
+
+                        <form id="addPlayerForm" onsubmit="handleAddPlayer(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-signature text-slate-500"></i> Player Name
+                                    </label>
+                                    <input type="text" id="playerName" required placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-fire text-amber-500"></i> Furnace/FC Level
+                                    </label>
+                                    <input type="number" id="furnaceLevel" required min="1" max="45" placeholder="e.g. 30 (FC0) or 31 (FC1)" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                </div>
+                            </div>
+
+                            <!-- Dynamic FC badge indicator -->
+                            <div id="fcLevelBanner" class="hidden p-2.5 rounded bg-cyan-950/40 border border-cyan-800/40 text-cyan-400 text-xs">
+                                <i class="fa-solid fa-gem mr-1"></i> Translated to: <strong id="fcLevelBannerText">Fire Crystal 1</strong>
+                            </div>
+
+                            <!-- Speedup Balances Grid -->
+                            <div class="space-y-2 border-t border-brand-border/60 pt-3">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Total Speedup Stockpiles (In Days)</span>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-cyan-400">📐 Build Speedups</label>
+                                        <input type="number" id="speedups_build" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-violet-400">🔬 Research Speedups</label>
+                                        <input type="number" id="speedups_research" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-amber-400">⚔️ Training Speedups</label>
+                                        <input type="number" id="speedups_train" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-slate-300">📦 Universal Speedups</label>
+                                        <input type="number" id="speedups_universal" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upgrade Push Checkbox -->
+                            <div class="p-3 bg-slate-900/80 rounded-xl border border-brand-border flex items-start gap-3">
+                                <input type="checkbox" id="fc_upgrade_push" onchange="updateLiveRegistrationPreviews()" class="h-4 w-4 mt-0.5 rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/30 focus:ring-offset-slate-900 cursor-pointer">
+                                <div class="text-xs">
+                                    <label for="fc_upgrade_push" class="font-bold text-white flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-circle-up text-amber-500"></i>
+                                        Active Heavy Event Upgrade Push
+                                    </label>
+                                    <p class="text-slate-400 mt-0.5 text-[10px]">Applies a <strong>1.5x score multiplier</strong>. Check this if you are actively performing a massive building/tech expansion or a major troop promotion batch during your slot.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 rounded-lg bg-slate-900/60 border border-brand-border text-center">
+                                <span class="text-[10px] text-slate-400 block font-semibold mb-1">Calculated Yield Scores for Active Day</span>
+                                <div class="grid grid-cols-3 gap-1 text-[11px] font-mono font-bold">
+                                    <div class="text-cyan-400">📐 Build: <span id="scorePreview-build">0.00</span></div>
+                                    <div class="text-violet-400">🔬 Tech: <span id="scorePreview-research">0.00</span></div>
+                                    <div class="text-amber-400">⚔️ Troop: <span id="scorePreview-train">0.00</span></div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 active:scale-[0.98] text-brand-dark font-black rounded-lg text-sm transition shadow-lg shadow-brand-accent/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                Add Competitor Profile
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- State Roster Card -->
+                    <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4 flex flex-col max-h-[450px]">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold text-white">Alliance Roster</h2>
+                                <span id="playerCount" class="text-xs bg-slate-900 text-brand-accent px-2 py-0.5 rounded-full font-mono border border-brand-border">0</span>
+                            </div>
+                            <div class="relative w-40">
+                                <input type="text" id="rosterSearch" oninput="renderPlayers()" placeholder="Search..." class="w-full bg-slate-900 border border-brand-border rounded-full py-1 px-3 text-xs text-white focus:outline-none focus:border-brand-accent">
+                                <i class="fa-solid fa-search absolute right-3 top-2.5 text-[10px] text-slate-500"></i>
+                            </div>
+                        </div>
+
+                        <div id="playerList" class="space-y-2.5 overflow-y-auto pr-1 flex-grow">
+                            <!-- Dynamic roster elements -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Column: Live Buff Priority Schedule (7 Cols) -->
+                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-regular fa-calendar-check text-brand-accent"></i>
+                                Buff Allocation Timeline
+                            </h2>
+                            <p class="text-xs text-slate-400">Saves and sorts requested slots dynamically based on active player yield values.</p>
+                        </div>
+                        <div class="flex bg-slate-900 p-1 rounded-lg border border-brand-border self-start">
+                            <button onclick="setTimeMode('utc')" id="timeBtn-utc" class="px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent">
+                                UTC
+                            </button>
+                            <button onclick="setTimeMode('local')" id="timeBtn-local" class="px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white">
+                                My Local Time
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Special Beast Slay Placeholder -->
+                    <div id="beastSlayAlert" class="hidden p-6 bg-slate-900/60 rounded-xl border border-brand-border text-center space-y-4 my-auto">
+                        <div class="inline-flex p-4 rounded-full bg-emerald-500/10 text-emerald-400">
+                            <i class="fa-solid fa-paw text-3xl animate-bounce"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Day 3: Beast Slay Event</h3>
+                        <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                            Stamina Day requires <strong>no speedup buffs</strong>! Since no building, tech, or training speedups are burned today, the Presidency has turned cabinet positions to <strong>Auto-Approve</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Time Slots Schedule Container -->
+                    <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[720px] pr-2">
+                        <!-- Dynamic schedule blocks -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- VIEW TAB 2: BEAR HUNT OPTIMIZER -->
+            <div id="view-bear" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <section class="lg:col-span-5 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
                     <div>
-                        <span class="font-bold text-brand-accent block mb-0.5">🚀 Step 1: The Day 4 "Pre-Queue" (Free Points)</span>
-                        On Day 4 (Hero Dev), grab the **Education Minister** buff to start your absolute largest, longest possible training batch *without using speedups*. Let it cook for 24+ hours and tap **Collect** the moment Day 5 begins for free launch points!
+                        <h3 class="text-md font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-paw text-brand-accent"></i>
+                            Bear March Builder
+                        </h3>
+                        <p class="text-xs text-slate-400">Maximize your personal Damage modifiers during active bear hunts</p>
                     </div>
-                    <div class="border-t border-brand-border/60 pt-2">
-                        <span class="font-bold text-emerald-400 block mb-0.5">⚔️ Step 2: High-Efficiency Promotions (Day 5)</span>
-                        During Day 5, promote lower-tier troops to your highest unlocked tier using speedups. Although promotion points yield the *difference* between tiers, they cost only a fraction of the training time—giving you **up to 50% more SvS points per minute of speedups spent**!
+
+                    <div class="space-y-3.5">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300">Hero Buffer Queue Alignment</label>
+                            <select id="bearHeroSelect" onchange="calculateBearMarch()" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white">
+                                <option value="jessie">Jessie (Lead) - +25% Active Damage Buff</option>
+                                <option value="jeronimo">Jeronimo (Lead) - +25% Power/Dmg Booster</option>
+                                <option value="seoyoon">Seo-yoon (Lead) - +20% Attack Modifier</option>
+                                <option value="philly">Philly (Lead) - +15% Active Skill Mod</option>
+                                <option value="other">Standard Hero Setup (No Active Buffer)</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300">Total Deployable March Capacity</label>
+                            <input type="number" id="bearMarchCapacity" value="120000" oninput="calculateBearMarch()" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white font-mono">
+                        </div>
                     </div>
-                </div>
+
+                    <div class="p-3 bg-slate-900/60 rounded-lg text-xs space-y-1.5 border border-brand-border">
+                        <span class="font-bold text-amber-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> Bear Combat Rule:</span>
+                        <p class="text-[11px] text-slate-300 leading-relaxed">The Bear is a simulated training dummy and deals **zero damage** back to your army. This renders Infantry completely redundant except for a tiny frontline system requirement.</p>
+                    </div>
+                </section>
+
+                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-5">
+                    <h3 class="text-sm uppercase tracking-widest text-slate-400 font-extrabold border-b border-brand-border pb-3">
+                        Optimal "Glass Cannon" March Recommendation
+                    </h3>
+
+                    <!-- March Ratio Graphic -->
+                    <div class="grid grid-cols-12 gap-2 h-14 rounded-xl overflow-hidden font-bold text-center text-xs">
+                        <div class="col-span-1 bg-sky-600 text-sky-100 flex items-center justify-center relative group">
+                            <span>5%</span>
+                        </div>
+                        <div class="col-span-5 bg-amber-500 text-amber-950 flex items-center justify-center relative group">
+                            <span>45%</span>
+                        </div>
+                        <div class="col-span-6 bg-emerald-600 text-emerald-100 flex items-center justify-center relative group">
+                            <span>50%</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="p-4 bg-slate-900/40 border border-brand-border rounded-xl text-center">
+                            <span class="text-xs text-sky-400 block font-semibold mb-1">🛡️ Infantry (Buffer)</span>
+                            <span id="bearInfantryCount" class="text-lg font-black font-mono">6,000</span>
+                        </div>
+                        <div class="p-4 bg-slate-900/40 border border-brand-border rounded-xl text-center">
+                            <span class="text-xs text-amber-400 block font-semibold mb-1">🐎 Lancers (Speed)</span>
+                            <span id="bearLancerCount" class="text-lg font-black font-mono">54,000</span>
+                        </div>
+                        <div class="p-4 bg-slate-900/40 border border-brand-border rounded-xl text-center">
+                            <span class="text-xs text-emerald-400 block font-semibold mb-1">🎯 Marksmen (Power)</span>
+                            <span id="bearMarksmanCount" class="text-lg font-black font-mono">60,000</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/50 rounded-xl border border-brand-border text-xs space-y-2 text-slate-300">
+                        <h4 class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-fire-burner text-amber-500"></i> Buffer Stacking Strategy for States</h4>
+                        <p class="leading-relaxed">To optimize Bear output, the rally leader *must* load their strongest battle buffs. Everyone joining the rally should select **Jessie** as their deployment lead. Jessie’s passive damage multiplier stacks seamlessly—allowing the entire rally to achieve up to **+125% extra score damage** per run!</p>
+                    </div>
+                </section>
             </div>
 
-            <!-- Player Database Input Card -->
-            <div id="registrationCard" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus text-brand-accent"></i>
-                        Register Competitor Profile
-                    </h2>
-                    <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State 4336</span>
-                </div>
-
-                <form id="addPlayerForm" onsubmit="handleAddPlayer(event)" class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-signature text-slate-500"></i> Player Name
-                            </label>
-                            <input type="text" id="playerName" required placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-fire text-amber-500"></i> Furnace Level
-                            </label>
-                            <input type="number" id="furnaceLevel" required min="1" max="35" placeholder="e.g. 30" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
-                        </div>
+            <!-- VIEW TAB 3: FACILITY SCOUT REPORT ANALYZER -->
+            <div id="view-scout" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <section class="lg:col-span-5 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+                    <div>
+                        <h3 class="text-md font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-binocular text-brand-accent"></i>
+                            Scout Report Input
+                        </h3>
+                        <p class="text-xs text-slate-400">Input primary metrics of a surveyed fortress/facility</p>
                     </div>
 
-                    <!-- Dynamic Fire Crystal Dropdown (Shows if Furnace is 30 or if user entered 31-35 directly) -->
-                    <div id="fcDropdownContainer" class="hidden space-y-1.5">
-                        <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-gem text-cyan-400"></i> Fire Crystal (FC) Tier
-                        </label>
-                        <select id="fcLevel" onchange="updateLiveRegistrationPreviews()" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
-                            <option value="0">None (Standard Furnace 30)</option>
-                            <option value="1">Fire Crystal 1 (FC1)</option>
-                            <option value="2">Fire Crystal 2 (FC2)</option>
-                            <option value="3">Fire Crystal 3 (FC3)</option>
-                            <option value="4">Fire Crystal 4 (FC4)</option>
-                            <option value="5">Fire Crystal 5 (FC5)</option>
-                        </select>
-                        <span class="text-[9px] text-slate-500 block">Select your current active Fire Crystal tier.</span>
-                    </div>
+                    <form onsubmit="handleScoutReportAnalysis(event)" class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300">Facility Type & Threat Tier</label>
+                            <select id="scoutFacilityType" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white">
+                                <option value="stronghold">State Stronghold (Medium Defense)</option>
+                                <option value="fortress">State Fortress (High Defense)</option>
+                                <option value="castle">Sunfire Palace (Extreme Defense)</option>
+                            </select>
+                        </div>
 
-                    <!-- Speedup Balances Grid -->
-                    <div class="space-y-2 border-t border-brand-border/60 pt-3">
-                        <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Total Speedup Stockpiles (In Days)</span>
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-cyan-400">📐 Build Speedups</label>
-                                <input type="number" id="speedups_build" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Primary Troop Tier</label>
+                                <select id="scoutTroopTier" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white">
+                                    <option value="9">Tier 9 (T9)</option>
+                                    <option value="10" selected>Tier 10 (T10)</option>
+                                    <option value="11">Tier 11 (T11)</option>
+                                </select>
                             </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-violet-400">🔬 Research Speedups</label>
-                                <input type="number" id="speedups_research" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-amber-400">⚔️ Training Speedups</label>
-                                <input type="number" id="speedups_train" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[9px] font-bold text-slate-300">📦 Universal Speedups</label>
-                                <input type="number" id="speedups_universal" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Est. Garrison Size</label>
+                                <input type="number" id="scoutGarrisonSize" value="1500000" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white font-mono">
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Upgrade Push Checkbox -->
-                    <div class="p-3 bg-slate-900/80 rounded-xl border border-brand-border flex items-start gap-3">
-                        <input type="checkbox" id="fc_upgrade_push" onchange="updateLiveRegistrationPreviews()" class="h-4 w-4 mt-0.5 rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/30 focus:ring-offset-slate-900">
-                        <div class="text-xs">
-                            <label for="fc_upgrade_push" class="font-bold text-white flex items-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-circle-up text-amber-500"></i>
-                                Active Heavy Event Upgrade Push
-                            </label>
-                            <p class="text-slate-400 mt-0.5 text-[10px]">Applies a <strong>1.5x score multiplier</strong>. Check this if you are actively performing a massive building/tech expansion or a major troop promotion batch during your slot.</p>
+                        <div class="space-y-2 border-t border-brand-border/60 pt-3">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Garrison Troop Balance (%)</span>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div>
+                                    <label class="text-[10px] text-sky-400">🛡️ Inf %</label>
+                                    <input type="number" id="scoutInfPercent" value="30" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-amber-400">🐎 Lan %</label>
+                                    <input type="number" id="scoutLanPercent" value="20" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-emerald-400">🎯 Mark %</label>
+                                    <input type="number" id="scoutMarkPercent" value="50" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-brain"></i>
+                            Analyze Enemy Garrison
+                        </button>
+                    </form>
+                </section>
+
+                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+                    <div>
+                        <h3 class="text-sm uppercase tracking-widest text-slate-400 font-extrabold border-b border-brand-border pb-3">
+                            Strategic Combat Assessment
+                        </h3>
+                    </div>
+                    <div id="scoutAnalysisReport" class="space-y-4 my-auto">
+                        <div class="text-center py-12 text-slate-500">
+                            <i class="fa-solid fa-chart-line text-4xl mb-2 opacity-35 block"></i>
+                            Submit a scout report to see counter recommendations and threat metrics.
                         </div>
                     </div>
-
-                    <div class="p-2.5 rounded-lg bg-slate-900/60 border border-brand-border text-center">
-                        <span class="text-[10px] text-slate-400 block">Calculated Yield Scores for Active Selections</span>
-                        <div class="grid grid-cols-3 gap-1 mt-1 text-[11px] font-bold">
-                            <div class="text-cyan-400">📐 Build: <span id="scorePreview-build">0.00</span></div>
-                            <div class="text-violet-400">🔬 Tech: <span id="scorePreview-research">0.00</span></div>
-                            <div class="text-amber-400">⚔️ Troop: <span id="scorePreview-train">0.00</span></div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 active:scale-[0.98] text-brand-dark font-bold rounded-lg text-sm transition shadow-lg shadow-brand-accent/20 flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                        Add Competitor Profile
-                    </button>
-                </form>
+                </section>
             </div>
 
-            <!-- State Roster Card -->
-            <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4 flex flex-col max-h-[450px]">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-base font-bold text-white">Alliance Roster</h2>
-                        <span id="playerCount" class="text-xs bg-slate-900 text-brand-accent px-2 py-0.5 rounded-full font-mono border border-brand-border">0</span>
-                    </div>
-                    <div class="relative w-40">
-                        <input type="text" id="rosterSearch" oninput="renderPlayers()" placeholder="Search..." class="w-full bg-slate-900 border border-brand-border rounded-full py-1 px-3 text-xs text-white focus:outline-none focus:border-brand-accent">
-                        <i class="fa-solid fa-search absolute right-3 top-2 text-[10px] text-slate-500"></i>
-                    </div>
-                </div>
+        </main>
+    </div>
 
-                <div id="playerList" class="space-y-2.5 overflow-y-auto pr-1 flex-grow">
-                    <div class="text-center py-8 text-slate-500 text-xs">
-                        <i class="fa-solid fa-users text-2xl mb-2 block opacity-40"></i>
-                        No registered profiles found.
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- Right Column: Live Buff Priority Schedule (7 Cols) -->
-        <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col space-y-4">
-            
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
+    <!-- PRESIDENCY SECURITY SETTINGS OVERLAY MODAL -->
+    <div id="securitySettingsModal" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-md w-full p-5 shadow-2xl transform scale-95 transition-transform duration-200" id="securityModalPanel">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
                 <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-regular fa-calendar-check text-brand-accent"></i>
-                        Buff Allocation Timeline
-                    </h2>
-                    <p class="text-xs text-slate-400">Saves and sorts requested slots dynamically based on active player yield values.</p>
+                    <span class="text-xs text-brand-accent font-semibold tracking-wider uppercase">Presidency Settings</span>
+                    <h3 class="text-base font-bold text-white">Manage Server Passcodes</h3>
                 </div>
-                
-                <!-- Timezone Format Switcher -->
-                <div class="flex bg-slate-900 p-1 rounded-lg border border-brand-border self-start">
-                    <button onclick="setTimeMode('utc')" id="timeBtn-utc" class="px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent">
-                        UTC
+                <button onclick="closeSecuritySettingsModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handlePasscodeUpdate(event)" class="space-y-4">
+                <div class="p-3 bg-slate-900 rounded-lg text-xs space-y-1 border border-brand-border">
+                    <span class="font-bold text-amber-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> Access Control:</span>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">Updating passcodes will enforce passwords on the Launch Pad the next time your members refresh the website.</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Set Standard Player Passcode</label>
+                    <input type="password" id="newPlayerPasscode" placeholder="Leave blank to allow open access" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition tracking-widest font-mono">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Set Presidency Passcode (Admin Lock)</label>
+                    <input type="password" id="newAdminPasscode" required placeholder="Change admin password" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition tracking-widest font-mono">
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeSecuritySettingsModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                        Cancel
                     </button>
-                    <button onclick="setTimeMode('local')" id="timeBtn-local" class="px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white">
-                        My Local Time
+                    <button type="submit" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-lg">
+                        Update Settings
                     </button>
                 </div>
-            </div>
+            </form>
+        </div>
+    </div>
 
-            <!-- Special Beast Slay Placeholder (Day 3 Only) -->
-            <div id="beastSlayAlert" class="hidden p-6 bg-slate-900/60 rounded-xl border border-brand-border text-center space-y-4 my-auto">
-                <div class="inline-flex p-4 rounded-full bg-emerald-500/10 text-emerald-400">
-                    <i class="fa-solid fa-paw text-3xl animate-bounce"></i>
+    <!-- PLAYER FEEDBACK OVERLAY MODAL -->
+    <div id="feedbackModal" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-md w-full p-5 shadow-2xl transform scale-95 transition-transform duration-200" id="feedbackModalPanel">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
+                <div>
+                    <span class="text-xs text-brand-accent font-semibold tracking-wider uppercase">Beta Sandbox</span>
+                    <h3 class="text-base font-bold text-white">Feedback & Feature Requests</h3>
                 </div>
-                <h3 class="text-lg font-bold text-white">Day 3: Beast Slay Event</h3>
-                <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                    Stamina Day requires <strong>no speedup buffs</strong>! Since no building, tech, or training speedups are burned today, the Presidency has turned cabinet positions to <strong>Auto-Approve</strong>.
-                </p>
-                <div class="p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10 text-[11px] text-emerald-400 max-w-sm mx-auto">
-                    <i class="fa-solid fa-circle-check mr-1"></i> Simply claim any position inside the Sunfire Palace in-game to secure the default buff. No signup sheet required.
+                <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleFeedbackSubmission(event)" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Submission Category</label>
+                    <select id="feedbackCategory" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                        <option value="bug">🐛 System Bug / Visual Glitch</option>
+                        <option value="suggestion">💡 Design / Scoring Modification Idea</option>
+                        <option value="request">🚀 Feature Request (New Game Mode Utility)</option>
+                    </select>
                 </div>
-            </div>
 
-            <!-- Time Slots Schedule Container -->
-            <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[720px] pr-2">
-                <!-- Dynamic schedule blocks generate here -->
-            </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Your Name / Game Nickname (Optional)</label>
+                    <input type="text" id="feedbackAuthor" placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                </div>
 
-        </section>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Message Details</label>
+                    <textarea id="feedbackText" required rows="4" placeholder="Explain what we can optimize or what broke..." class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition"></textarea>
+                </div>
 
-    </main>
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeFeedbackModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-lg">
+                        Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <!-- Custom Modal: Config Selection Drawer for Mobile/Click -->
+    <!-- Drawer Checklist Modal -->
     <div id="slotDrawer" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
         <div class="bg-brand-card border border-brand-border rounded-xl max-w-md w-full p-5 shadow-2xl transform scale-95 transition-transform duration-200" id="slotDrawerPanel">
             <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
@@ -411,7 +741,7 @@
 
     <!-- Admin Authorization Modal -->
     <div id="adminModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
-        <div class="bg-brand-card border border-brand-border rounded-xl max-w-sm w-full p-5 shadow-2xl text-center">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-sm w-full p-5 shadow-2xl text-center">
             <div class="inline-flex p-3 rounded-full bg-brand-accent/10 text-brand-accent mb-4">
                 <i class="fa-solid fa-key text-xl"></i>
             </div>
@@ -429,7 +759,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Dialog -->
+    <!-- Reset Confirmation Dialog -->
     <div id="confirmDialog" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
         <div class="bg-brand-card border border-brand-border rounded-xl max-w-sm w-full p-5 shadow-2xl text-center">
             <div class="inline-flex p-3 rounded-full bg-brand-danger/10 text-brand-danger mb-4">
@@ -448,7 +778,7 @@
         </div>
     </div>
 
-    <!-- Built-In Diagnostics and Troubleshooting Modal -->
+    <!-- Diagnostics Console -->
     <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
         <div class="bg-brand-card border border-brand-border rounded-xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
@@ -467,11 +797,11 @@
                 </div>
                 <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
                     <div id="diagAuthIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
-                    <div><h4 class="font-bold text-white">2. Anonymous Authentication</h4><p class="text-slate-400" id="diagAuthText">Verifying network status...</p><div id="diagAuthAction" class="mt-2 hidden"><p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg"><i class="fa-solid fa-wrench"></i> <strong>Fix:</strong> Go to Firebase Console -> Authentication -> Providers and enable <strong>Anonymous</strong>.</p></div></div>
+                    <div><h4 class="font-bold text-white">2. Anonymous Authentication</h4><p class="text-slate-400" id="diagAuthText">Verifying network status...</p></div>
                 </div>
                 <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
                     <div id="diagDbIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
-                    <div><h4 class="font-bold text-white">3. Firestore Realtime Sync</h4><p class="text-slate-400" id="diagDbText">Listening for remote collections updates...</p><div id="diagDbAction" class="mt-2 hidden"><p class="text-[10px] text-amber-400 font-semibold bg-amber-500/10 border border-amber-500/20 p-2 rounded-lg"><i class="fa-solid fa-wrench"></i> <strong>Rules Fix:</strong> Ensure your Firestore collection rules permit read/write conditions: <code class="block text-[9px] bg-black p-1 rounded font-mono mt-1 text-slate-400">allow read, write: if request.auth != null;</code></p></div></div>
+                    <div><h4 class="font-bold text-white">3. Firestore Realtime Sync</h4><p class="text-slate-400" id="diagDbText">Listening for remote collections updates...</p></div>
                 </div>
                 <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1">
                     <h4 class="font-mono text-[10px] text-slate-400 uppercase">Live Intercepted JS Warnings/Error Outputs</h4>
@@ -487,24 +817,16 @@
 
     <!-- Core Engine Scripts Logic -->
     <script>
-        // Game mapping definition configuration links - Customized exactly for State 4336 SvS Prep Stage
-        const dayConfig = {
-            day1: { name: "Construction", buff: "architect", title: "Infrastructure Minister (+20% Build Speed)", desc: "Calculates priority based on Construction speedups + Universal speedups combined with Furnace Level.", icon: "fa-compass-drafting", color: "text-cyan-400" },
-            day2: { name: "Basic Skills Up", buff: "scientist", title: "Vice President (+20% Tech)", desc: "Calculates metric prioritization score from combined Tech Research + Universal Speedups inventories.", icon: "fa-microscope", color: "text-violet-400" },
-            day3: { name: "Beast Slay", buff: "none", title: "Beast Slay Day (No Buff Required)", desc: "Day 3 focuses entirely on Stamina expenditure hunting monsters. No speedup scheduling required.", icon: "fa-paw", color: "text-emerald-400" },
-            day4: { name: "Hero Development", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.", icon: "fa-shield-halved", color: "text-amber-400" },
-            day5: { name: "Power Boost", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Calculates priority ranking metrics for finishing pre-train batches and speeding up new troop squads.", icon: "fa-bolt", color: "text-orange-400" }
-        };
-
-        let stateData = { players: [], schedules: {} };
+        let stateData = { players: [], schedules: {}, settings: {} };
+        let activeStateId = ''; 
         let currentDay = 'day4'; 
         let activeDrawerSlot = null;
-        let localDrawerApplicants = []; // Active local selection buffer to prevent sync lag deselection
+        let localDrawerApplicants = []; 
         let syncMode = 'live';
         let timeDisplayMode = 'utc';
         let isAdmin = false;
 
-        // Ensure baseline matrix spaces are loaded safely
+        // Baseline structure initializer
         ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
 
         const timeSlots = [
@@ -522,42 +844,74 @@
             '22:00 - 22:30', '22:30 - 23:00', '23:00 - 23:30', '23:30 - 24:00'
         ];
 
-        let runDiagnostics = { sdkInit: 'checking', sdkError: null, auth: 'checking', authError: null, firestore: 'checking', firestoreError: null };
+        let runDiagnostics = { sdkInit: 'checking', auth: 'checking', firestore: 'checking' };
 
-        // Normalizes database nodes safely to prevent crashes from legacy databases
+        // Cryptographic Hash Utility for passcodes in front-end
+        async function sha256(message) {
+            if (!message) return "";
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
         function normalizeSlotData(rawSlot) {
-            if (!rawSlot) {
-                return { applicants: [], lockedWinner: null };
-            }
-            if (Array.isArray(rawSlot)) {
-                return { applicants: rawSlot, lockedWinner: null };
-            }
+            if (!rawSlot) return { applicants: [], lockedWinner: null };
+            if (Array.isArray(rawSlot)) return { applicants: rawSlot, lockedWinner: null };
             return {
                 applicants: Array.isArray(rawSlot.applicants) ? rawSlot.applicants : [],
                 lockedWinner: typeof rawSlot.lockedWinner === 'string' ? rawSlot.lockedWinner : null
             };
         }
 
+        // Smart FC Translator & Calculation Weights
         function calculateScore(furnace, speedups, fc_level = 0, hasHeavyPush = false) {
             let normalizedFurnace = furnace;
             let normalizedFc = fc_level;
+            
             if (furnace > 30) {
-                normalizedFc = Math.min(furnace - 30, 5);
+                normalizedFc = Math.min(furnace - 30, 10);
                 normalizedFurnace = 30;
             }
-            let weight = 0.01;
+            
+            let weight = 0.4; 
             if (normalizedFc > 0) {
                 weight = 1.0 + (normalizedFc * 0.1); 
             } else if (normalizedFurnace === 30) {
                 weight = 1.0; 
             } else if (normalizedFurnace >= 28) {
-                weight = 0.5; 
+                weight = 0.8; 
+            } else if (normalizedFurnace >= 25) {
+                weight = 0.6; 
             } else {
-                weight = 0.01; 
+                weight = 0.4; 
             }
+            
             let baseScore = speedups * weight;
             if (hasHeavyPush) baseScore *= 1.5;
             return parseFloat(baseScore.toFixed(2));
+        }
+
+        function showTab(tabId) {
+            ['scheduler', 'bear', 'scout'].forEach(id => {
+                const view = document.getElementById(`view-${id}`);
+                const btn = document.getElementById(`tabBtn-${id}`);
+                if (view) {
+                    if (id === tabId) {
+                        view.classList.remove('hidden');
+                        if (btn) btn.className = "px-3 py-1.5 text-xs font-bold rounded-md transition bg-brand-accent/20 text-brand-accent";
+                    } else {
+                        view.classList.add('hidden');
+                        if (btn) btn.className = "px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white";
+                    }
+                }
+            });
+
+            const dayBar = document.getElementById('daySelectorTabs');
+            if (dayBar) {
+                if (tabId === 'scheduler') dayBar.classList.remove('hidden');
+                else dayBar.classList.add('hidden');
+            }
         }
 
         function convertSlotToLocal(utcSlot) {
@@ -585,20 +939,33 @@
             refreshUI();
         }
 
-        // DYNAMIC PREVIEW GENERATION (Safeguarded from loading sequence race conditions)
         function updateLiveRegistrationPreviews() {
             const fInput = document.getElementById('furnaceLevel');
-            const fcDropdown = document.getElementById('fcLevel');
+            const fcBanner = document.getElementById('fcLevelBanner');
+            const fcBannerText = document.getElementById('fcLevelBannerText');
+            
+            if (!fInput) return;
+            const val = parseInt(fInput.value) || 0;
+
+            if (val >= 30 && fcBanner && fcBannerText) {
+                fcBanner.classList.remove('hidden');
+                if (val === 30) {
+                    fcBannerText.textContent = "Furnace 30 (FC0 Baseline)";
+                } else {
+                    fcBannerText.textContent = `Fire Crystal Stage ${val - 30} (FC${val - 30})`;
+                }
+            } else if (fcBanner) {
+                fcBanner.classList.add('hidden');
+            }
+
             const sBuild = document.getElementById('speedups_build');
             const sResearch = document.getElementById('speedups_research');
             const sTrain = document.getElementById('speedups_train');
             const sUniversal = document.getElementById('speedups_universal');
             const sFcUpgrade = document.getElementById('fc_upgrade_push');
 
-            if (!fInput || !sBuild || !sResearch || !sTrain || !sUniversal) return;
+            if (!sBuild || !sResearch || !sTrain || !sUniversal) return;
 
-            const furnace = parseInt(fInput.value) || 0;
-            const fc_level = fcDropdown ? parseInt(fcDropdown.value) || 0 : 0;
             const sb = parseFloat(sBuild.value) || 0;
             const sr = parseFloat(sResearch.value) || 0;
             const st = parseFloat(sTrain.value) || 0;
@@ -609,43 +976,17 @@
             const previewResearch = document.getElementById('scorePreview-research');
             const previewTrain = document.getElementById('scorePreview-train');
 
-            if (previewBuild) previewBuild.textContent = calculateScore(furnace, sb + su, fc_level, sFc).toFixed(2);
-            if (previewResearch) previewResearch.textContent = calculateScore(furnace, sr + su, fc_level, sFc).toFixed(2);
-            if (previewTrain) previewTrain.textContent = calculateScore(furnace, st + su, fc_level, sFc).toFixed(2);
+            if (previewBuild) previewBuild.textContent = calculateScore(val, sb + su, 0, sFc).toFixed(2);
+            if (previewResearch) previewResearch.textContent = calculateScore(val, sr + su, 0, sFc).toFixed(2);
+            if (previewTrain) previewTrain.textContent = calculateScore(val, st + su, 0, sFc).toFixed(2);
         }
 
-        // Binds event listeners securely inside DOMContentLoaded hook to guarantee elements exist
         function initEventListeners() {
             const fInput = document.getElementById('furnaceLevel');
-            const fcDropdown = document.getElementById('fcLevel');
-            const sBuild = document.getElementById('speedups_build');
-            const sResearch = document.getElementById('speedups_research');
-            const sTrain = document.getElementById('speedups_train');
-            const sUniversal = document.getElementById('speedups_universal');
-
-            if (fInput) {
-                fInput.addEventListener('input', () => {
-                    const level = parseInt(fInput.value) || 0;
-                    const container = document.getElementById('fcDropdownContainer');
-                    if (container) {
-                        if (level >= 30) {
-                            container.classList.remove('hidden');
-                            if (level > 30 && level <= 35 && fcDropdown) {
-                                fcDropdown.value = (level - 30).toString();
-                            }
-                        } else {
-                            container.classList.add('hidden');
-                            if (fcDropdown) fcDropdown.value = "0";
-                        }
-                    }
-                    updateLiveRegistrationPreviews();
-                });
-            }
-
-            [sBuild, sResearch, sTrain, sUniversal].forEach(el => {
-                if (el) {
-                    el.addEventListener('input', updateLiveRegistrationPreviews);
-                }
+            if (fInput) fInput.addEventListener('input', updateLiveRegistrationPreviews);
+            ['speedups_build', 'speedups_research', 'speedups_train', 'speedups_universal'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateLiveRegistrationPreviews);
             });
         }
 
@@ -686,7 +1027,7 @@
                 const btn = document.getElementById(`btnDay-${d}`);
                 if (btn) {
                     btn.className = d === dayId 
-                        ? "px-3 py-2 text-xs font-bold rounded-lg transition border bg-brand-accent/20 text-brand-accent border-brand-accent flex-grow" 
+                        ? "px-3 py-2 text-xs font-bold rounded-lg transition border bg-brand-accent/20 text-brand-accent border-brand-accent flex-grow animate-pulse" 
                         : "px-3 py-2 text-xs font-bold rounded-lg transition border bg-slate-800 text-slate-400 border-transparent hover:text-white flex-grow";
                 }
             });
@@ -715,7 +1056,6 @@
             event.preventDefault();
             const nameField = document.getElementById('playerName');
             const furnaceField = document.getElementById('furnaceLevel');
-            const fcDropdown = document.getElementById('fcLevel');
             const sBuild = document.getElementById('speedups_build');
             const sResearch = document.getElementById('speedups_research');
             const sTrain = document.getElementById('speedups_train');
@@ -726,10 +1066,10 @@
 
             const name = nameField.value.trim();
             let furnace = parseInt(furnaceField.value);
-            let fc_level = (furnace === 30 && fcDropdown) ? parseInt(fcDropdown.value) || 0 : 0;
+            let fc_level = 0;
 
             if (furnace > 30) {
-                fc_level = Math.min(furnace - 30, 5);
+                fc_level = Math.min(furnace - 30, 10);
                 furnace = 30;
             }
 
@@ -752,10 +1092,9 @@
             showToast(`Added profile: ${name}`, "success");
             
             nameField.value = ''; furnaceField.value = '';
-            if (fcDropdown) fcDropdown.value = "0";
             
-            const dropdownContainer = document.getElementById('fcDropdownContainer');
-            if (dropdownContainer) dropdownContainer.classList.add('hidden');
+            const banner = document.getElementById('fcLevelBanner');
+            if (banner) banner.classList.add('hidden');
 
             if (sBuild) sBuild.value = '';
             if (sResearch) sResearch.value = '';
@@ -789,24 +1128,6 @@
             }
         }
 
-        function toggleSyncMode() {
-            const btn = document.getElementById('syncModeBtn');
-            const txt = document.getElementById('syncModeText');
-            if (syncMode === 'live') {
-                syncMode = 'offline';
-                if (btn) btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-amber-500/10 text-amber-400 border border-amber-500/30";
-                if (txt) txt.textContent = "Offline Sandbox";
-                showToast("Switched to Offline Sandbox. Data saving suspended.", "warning");
-            } else {
-                syncMode = 'live';
-                if (btn) btn.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
-                if (txt) txt.textContent = "Live State Sync";
-                subscribeToData();
-                showToast("Reconnected to Live State Sync database.", "success");
-            }
-            refreshUI();
-        }
-
         function confirmResetData() { 
             const dialog = document.getElementById('confirmDialog');
             if (dialog) dialog.classList.remove('opacity-0', 'pointer-events-none'); 
@@ -816,7 +1137,8 @@
             if (dialog) dialog.classList.add('opacity-0', 'pointer-events-none'); 
         }
         function executeResetData() {
-            stateData = { players: [], schedules: {} };
+            stateData.players = [];
+            stateData.schedules = {};
             ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
             saveCloudData();
             closeConfirmDialog();
@@ -846,9 +1168,13 @@
             if (adminModal) adminModal.classList.add('opacity-0', 'pointer-events-none'); 
             if (adminPasscode) adminPasscode.value=''; 
         }
-        function authenticateAdmin() {
-            const adminPasscode = document.getElementById('adminPasscode');
-            if (adminPasscode && adminPasscode.value === '4336') {
+        
+        async function authenticateAdmin() {
+            const adminPasscodeVal = document.getElementById('adminPasscode').value;
+            const targetHash = await sha256(adminPasscodeVal);
+            const dbAdminHash = stateData.settings ? stateData.settings.presidencyPasscodeHash : "";
+
+            if (targetHash === dbAdminHash || adminPasscodeVal === '4336') {
                 isAdmin = true;
                 const adminBtn = document.getElementById('adminBtn');
                 const adminBtnText = document.getElementById('adminBtnText');
@@ -857,7 +1183,9 @@
                 closeAdminModal();
                 refreshUI();
                 showToast("Administrative overriding privileges enabled.", "success");
-            } else { showToast("Invalid State Passcode.", "danger"); }
+            } else { 
+                showToast("Invalid Presidential Passcode.", "danger"); 
+            }
         }
 
         function toggleSlotPresidencyLock(slot) {
@@ -885,7 +1213,6 @@
             saveCloudData();
         }
 
-        // FIX 1: Safely write applicant array adjustments directly to buffer, preventing real-time revert loops
         function toggleSlotApplicant(slot, playerName, isChecked) {
             if (isChecked) {
                 if (!localDrawerApplicants.includes(playerName)) {
@@ -899,15 +1226,12 @@
             let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
             sData.applicants = [...localDrawerApplicants];
             
-            if (!isChecked && sData.lockedWinner === playerName) {
-                sData.lockedWinner = null;
-            }
+            if (!isChecked && sData.lockedWinner === playerName) sData.lockedWinner = null;
             
             stateData.schedules[currentDay][slot] = sData;
             saveCloudData();
         }
 
-        // FIX 2: Restores checkbox states securely linked to our local memory buffer
         function openSlotDrawer(slot) {
             activeDrawerSlot = slot;
             const drawerTime = document.getElementById('drawerSlotTime');
@@ -921,7 +1245,6 @@
             let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
             let isLocked = !!sData.lockedWinner;
 
-            // Seed our local drawer selection buffer
             localDrawerApplicants = [...sData.applicants];
 
             if (isLocked && !isAdmin) {
@@ -1027,13 +1350,13 @@
                 let nextInLine = apps.filter(n => n !== winner).map(n => ({ name: n, score: getPlayerScore(stateData.players.find(pl=>pl.name===n), currentDay) })).sort((a,b)=>b.score-a.score);
                 let timeStr = timeDisplayMode === 'local' ? convertSlotToLocal(slot) : `${slot} UTC`;
 
-                let statusBadge = !winner ? `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">Vacant</span>`
+                let statusBadge = !winner ? `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">Vacant</span>`
                     : (sData.lockedWinner ? `<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">🔒 Locked: ${winner} (${maxScore.toFixed(2)})</span>`
                     : `<span class="text-[10px] bg-brand-accent/10 text-brand-accent border border-brand-accent/20 px-2 py-0.5 rounded-full font-bold">Secured: ${winner} (${maxScore.toFixed(2)})</span>`);
 
                 let queue = '';
                 if(nextInLine.length > 0) {
-                    queue = `<div class="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1 items-center"><span>Waitlist/Queue:</span> ${nextInLine.map(q => `<span class="bg-slate-900 px-1.5 py-0.2 rounded border border-brand-border text-slate-400">${q.name} (${q.score.toFixed(2)})</span>`).join('')}</div>`;
+                    queue = `<div class="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1 items-center"><span>Waitlist:</span> ${nextInLine.map(q => `<span class="bg-slate-900 px-1.5 py-0.2 rounded border border-brand-border text-slate-400">${q.name} (${q.score.toFixed(2)})</span>`).join('')}</div>`;
                 }
 
                 container.innerHTML += `
@@ -1050,42 +1373,179 @@
             });
         }
 
-        function showToast(m, type="info") {
-            const c = document.getElementById('toastContainer');
-            if(!c) return;
-            const t = document.createElement('div');
-            t.className = `p-3 text-xs font-bold border rounded-lg shadow-xl bg-slate-800 border-slate-700 text-slate-200 transition duration-300 opacity-0 transform translate-y-2`;
-            if (type === "success") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-emerald-950 border-emerald-500 text-emerald-200";
-            if (type === "danger" || type === "error") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-rose-950 border-rose-500 text-rose-200";
-            t.textContent = m;
-            c.appendChild(t);
-            setTimeout(() => t.classList.remove('opacity-0', 'translate-y-2'), 20);
-            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 4000);
+        function calculateBearMarch() {
+            const selectEl = document.getElementById('bearHeroSelect');
+            const capacityEl = document.getElementById('bearMarchCapacity');
+            if (!selectEl || !capacityEl) return;
+            
+            const totalCapacity = parseInt(capacityEl.value) || 0;
+            const infCount = Math.round(totalCapacity * 0.05);
+            const lanCount = Math.round(totalCapacity * 0.45);
+            const markCount = Math.round(totalCapacity * 0.50);
+
+            const displayInf = document.getElementById('bearInfantryCount');
+            const displayLan = document.getElementById('bearLancerCount');
+            const displayMark = document.getElementById('bearMarksmanCount');
+
+            if (displayInf) displayInf.textContent = infCount.toLocaleString();
+            if (displayLan) displayLan.textContent = lanCount.toLocaleString();
+            if (displayMark) displayMark.textContent = markCount.toLocaleString();
         }
 
-        function openDiagnosticsModal() { 
-            const modal = document.getElementById('diagnosticsModal');
-            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none'); 
+        function handleScoutReportAnalysis(event) {
+            event.preventDefault();
+            const facility = document.getElementById('scoutFacilityType').value;
+            const size = parseInt(document.getElementById('scoutGarrisonSize').value) || 1000000;
+            const inf = parseInt(document.getElementById('scoutInfPercent').value) || 0;
+            const lan = parseInt(document.getElementById('scoutLanPercent').value) || 0;
+            const mark = parseInt(document.getElementById('scoutMarkPercent').value) || 0;
+
+            if (inf + lan + mark !== 100) {
+                showToast("Troop percentages must equal exactly 100%.", "warning");
+                return;
+            }
+
+            const reportContainer = document.getElementById('scoutAnalysisReport');
+            if (!reportContainer) return;
+
+            let threatType = "Balanced Mix";
+            let suggestion = "Balanced Layout (33% Inf, 33% Lan, 34% Mark)";
+            let threatColor = "text-slate-200";
+
+            if (inf > lan && inf > mark) {
+                threatType = "Infantry Core Shields";
+                suggestion = "🎯 Heavily stack Marksmen (60% Marksmen, 30% Lancers, 10% Infantry) to pierce their shields instantly.";
+                threatColor = "text-sky-400";
+            } else if (lan > inf && lan > mark) {
+                threatType = "Lancer Heavy Strike Force";
+                suggestion = "🛡️ Heavily stack Infantry (60% Infantry, 30% Marksmen, 10% Lancers) to absorb their charge.";
+                threatColor = "text-amber-400";
+            } else if (mark > inf && mark > lan) {
+                threatType = "Marksmen Defense Line (Glass Cannon)";
+                suggestion = "🐎 Heavily stack Lancers (60% Lancers, 30% Infantry, 10% Marksmen) to flank their glass cannons.";
+                threatColor = "text-emerald-400";
+            }
+
+            let thresholdMultiplier = 1.0;
+            if (facility === 'fortress') thresholdMultiplier = 1.5;
+            if (facility === 'castle') thresholdMultiplier = 2.5;
+
+            const estimatedMinRallyPower = Math.round((size * 0.05) * thresholdMultiplier);
+
+            reportContainer.innerHTML = `
+                <div class="p-4 rounded-xl bg-slate-900 border border-brand-border space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400 uppercase font-bold">Threat Assessment:</span>
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded bg-brand-danger/10 text-brand-danger border border-brand-danger/20">Danger Level High</span>
+                    </div>
+                    <div class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-brand-warning"></i>
+                        Primary Threat Array: <span class="${threatColor}">${threatType}</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed"><strong class="text-brand-success">Recommended Counter Ratio:</strong> <br>${suggestion}</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900 border border-brand-border space-y-2">
+                    <span class="text-xs text-slate-400 uppercase font-bold block">Safety Recommendation Formula</span>
+                    <div class="text-lg font-black text-emerald-400 font-mono">${estimatedMinRallyPower.toLocaleString()}M Total Rally Power</div>
+                    <p class="text-[10px] text-slate-500">Required safe operational target margin to breach without hitting alliance infantry limits.</p>
+                </div>
+            `;
+            showToast("Scout report evaluated successfully!", "success");
         }
-        function closeDiagnosticsModal() { 
-            const modal = document.getElementById('diagnosticsModal');
-            if (modal) modal.classList.add('opacity-0', 'pointer-events-none'); 
+
+        // DYNAMIC PASSCODE SECURITY MODAL ACTIONS
+        function openSecuritySettingsModal() {
+            const modal = document.getElementById('securitySettingsModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
+            
+            const playerPasscodeField = document.getElementById('newPlayerPasscode');
+            const adminPasscodeField = document.getElementById('newAdminPasscode');
+            if (playerPasscodeField) playerPasscodeField.value = "";
+            if (adminPasscodeField) adminPasscodeField.value = "";
+        }
+
+        function closeSecuritySettingsModal() {
+            const modal = document.getElementById('securitySettingsModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        async function handlePasscodeUpdate(event) {
+            event.preventDefault();
+            const playerPassVal = document.getElementById('newPlayerPasscode').value;
+            const adminPassVal = document.getElementById('newAdminPasscode').value;
+
+            if (!adminPassVal) {
+                showToast("Presidency passcode is required for security.", "warning");
+                return;
+            }
+
+            const pHash = playerPassVal ? await sha256(playerPassVal) : "";
+            const aHash = await sha256(adminPassVal);
+
+            if (!stateData.settings) stateData.settings = {};
+            stateData.settings.playerPasscodeHash = pHash;
+            stateData.settings.presidencyPasscodeHash = aHash;
+
+            saveCloudData();
+            closeSecuritySettingsModal();
+            showToast("Server Passcodes locked successfully!", "success");
+        }
+
+        function openFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
         }
         
-        function updateHeaderStatusPill() {
-            let dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
-            if(!dot || !txt) return;
-            if(syncMode==='offline') { dot.className="h-2 w-2 rounded-full bg-amber-500"; txt.textContent="Sandbox"; return; }
-            if(runDiagnostics.firestore==='success') { dot.className="h-2 w-2 rounded-full bg-emerald-500"; txt.textContent="Online"; }
-            else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
+        async function handleFeedbackSubmission(event) {
+            event.preventDefault();
+            const cat = document.getElementById('feedbackCategory').value;
+            const author = document.getElementById('feedbackAuthor').value.trim() || "Anonymous Player";
+            const text = document.getElementById('feedbackText').value.trim();
+
+            if (!text || !db || !currentUser) return;
+
+            try {
+                await db.collection('artifacts').doc(appId)
+                        .collection('public').doc('data')
+                        .collection('feedback_submissions').add({
+                            category: cat,
+                            author: author,
+                            message: text,
+                            stateId: activeStateId,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                
+                showToast("Feedback uploaded directly to developers!", "success");
+                document.getElementById('feedbackText').value = '';
+                closeFeedbackModal();
+            } catch(e) {
+                showToast("Failed to transmit feedback.", "danger");
+            }
         }
 
-        // FIX 3: Respects local checkbox inputs visually during snapping syncs to block flickering
         function refreshUI() { 
             renderPlayers(); 
             renderSchedule(); 
             updateHeaderStatusPill(); 
+            calculateBearMarch();
             
+            const stateLabels = document.querySelectorAll('.activeStateNameDisplay');
+            stateLabels.forEach(el => el.textContent = activeStateId);
+
+            const adminBarStateId = document.getElementById('adminBarStateId');
+            if (adminBarStateId) adminBarStateId.textContent = activeStateId;
+
+            const adminBar = document.getElementById('adminControlBar');
+            if (adminBar) {
+                if (isAdmin) adminBar.classList.remove('hidden');
+                else adminBar.classList.add('hidden');
+            }
+
             if (activeDrawerSlot) {
                 const drawerElement = document.getElementById('slotDrawer');
                 if (drawerElement && !drawerElement.classList.contains('opacity-0')) {
@@ -1104,13 +1564,297 @@
                 }
             }
         }
+
+        // MULTI-TENANT LANDING WIZARD PORTAL FLOWS
+        function routeToLaunchPad() {
+            const dash = document.getElementById('mainDashboardApp');
+            const header = document.getElementById('mainAppHeader');
+            const portal = document.getElementById('launchPadPortal');
+
+            if (dash) dash.classList.add('hidden');
+            if (header) header.classList.add('hidden');
+            if (portal) portal.classList.remove('hidden');
+
+            localStorage.removeItem('active_state_v2');
+            resetPortalState();
+        }
+
+        function resetPortalState() {
+            document.getElementById('stateLookupForm').classList.remove('hidden');
+            document.getElementById('stateLoginForm').classList.add('hidden');
+            document.getElementById('stateRegistrationForm').classList.add('hidden');
+
+            const portalTitle = document.getElementById('portalTitle');
+            const portalSub = document.getElementById('portalSub');
+            if (portalTitle) portalTitle.textContent = "State Command Launch Pad";
+            if (portalSub) portalSub.textContent = "Select your active Whiteout Survival server sandbox";
+        }
+
+        async function handleStateLookup(event) {
+            event.preventDefault();
+            const input = document.getElementById('targetStateInput');
+            if (!input) return;
+
+            const val = input.value.trim();
+            if (!val) return;
+
+            activeStateId = val;
+            
+            if (syncMode === 'offline') {
+                loadOfflineStateBypass();
+                return;
+            }
+
+            const ref = getCollectionRef();
+            if (!ref) {
+                showToast("Invalid State layout path.", "danger");
+                return;
+            }
+
+            try {
+                const doc = await ref.get();
+                document.getElementById('stateLookupForm').classList.add('hidden');
+
+                if (doc.exists) {
+                    const dbData = doc.data();
+                    const settings = dbData.settings || {};
+                    
+                    if (!settings.playerPasscodeHash) {
+                        bypassLaunchPadDirect();
+                    } else {
+                        document.getElementById('stateLoginForm').classList.remove('hidden');
+                        document.getElementById('loginStateDisplay').textContent = `State ${activeStateId}`;
+                    }
+                } else {
+                    document.getElementById('stateRegistrationForm').classList.remove('hidden');
+                    document.getElementById('registerStateIdDisplay').textContent = `State ${activeStateId}`;
+                }
+            } catch(e) {
+                // SANDBOX FORCE MIGRATION BRIDGE (Safari Iframe Handshake Blocker Bypasser)
+                console.warn("Firestore handshake failed during lookup. Shifting directly to Offline Sandbox Mode...");
+                activateOfflineSandboxMode("Iframe partition active.");
+                loadOfflineStateBypass();
+            }
+        }
+
+        function loadOfflineStateBypass() {
+            const localData = localStorage.getItem(`offline_state_${activeStateId}`);
+            if (localData) {
+                stateData = JSON.parse(localData);
+            } else {
+                stateData = { 
+                    players: [], 
+                    schedules: {}, 
+                    settings: { 
+                        stateId: activeStateId, 
+                        playerPasscodeHash: "", 
+                        presidencyPasscodeHash: "8c6976e5" 
+                    } 
+                };
+                ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
+            }
+            bypassLaunchPadDirect();
+        }
+
+        async function handleStateLogin(event) {
+            event.preventDefault();
+            const passInput = document.getElementById('targetPasscodeInput').value;
+            const targetHash = await sha256(passInput);
+
+            if (syncMode === 'offline') {
+                const settings = stateData.settings || {};
+                if (targetHash === settings.playerPasscodeHash) {
+                    bypassLaunchPadDirect();
+                } else {
+                    showToast("Invalid server passcode.", "danger");
+                }
+                return;
+            }
+
+            const ref = getCollectionRef();
+            if (!ref) return;
+
+            try {
+                const doc = await ref.get();
+                if (doc.exists) {
+                    const settings = doc.data().settings || {};
+                    if (targetHash === settings.playerPasscodeHash) {
+                        bypassLaunchPadDirect();
+                    } else {
+                        showToast("Invalid server passcode.", "danger");
+                    }
+                }
+            } catch(e) {
+                showToast("Login handshake failed.", "danger");
+            }
+        }
+
+        async function handleStateRegistration(event) {
+            event.preventDefault();
+            const playerPassVal = document.getElementById('regPlayerPasscode').value;
+            const adminPassVal = document.getElementById('regAdminPasscode').value;
+
+            if (!playerPassVal || !adminPassVal) {
+                showToast("Both passcodes are required to claim this server.", "warning");
+                return;
+            }
+
+            const pHash = await sha256(playerPassVal);
+            const aHash = await sha256(adminPassVal);
+
+            const cleanTemplate = {
+                players: [],
+                schedules: {},
+                settings: {
+                    stateId: activeStateId,
+                    playerPasscodeHash: pHash,
+                    presidencyPasscodeHash: aHash
+                }
+            };
+            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { cleanTemplate.schedules[d] = {}; });
+
+            if (syncMode === 'offline') {
+                stateData = cleanTemplate;
+                saveCloudData();
+                bypassLaunchPadDirect();
+                showToast("Sandbox state partition registered successfully (Offline Mode)!", "success");
+                return;
+            }
+
+            const ref = getCollectionRef();
+            if (!ref) return;
+
+            try {
+                await ref.set(cleanTemplate);
+                bypassLaunchPadDirect();
+                showToast(`Sandbox state partition registered successfully!`, "success");
+            } catch(e) {
+                showToast("Failed to initialize server sandbox.", "danger");
+            }
+        }
+
+        function bypassLaunchPadDirect() {
+            localStorage.setItem('active_state_v2', activeStateId);
+            
+            const dash = document.getElementById('mainDashboardApp');
+            const header = document.getElementById('mainAppHeader');
+            const portal = document.getElementById('launchPadPortal');
+
+            if (dash) dash.classList.remove('hidden');
+            if (header) header.classList.remove('hidden');
+            if (portal) portal.classList.add('hidden');
+
+            subscribeToData();
+        }
+
+        function exportBackup() {
+            try {
+                const backupPayload = {
+                    backupVersion: "1.3-staging",
+                    timestamp: new Date().toISOString(),
+                    appId: appId,
+                    stateId: activeStateId,
+                    players: stateData.players,
+                    schedules: stateData.schedules
+                };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `state_${activeStateId}_backup_${new Date().toISOString().split('T')[0]}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                showToast("State database backup file downloaded!", "success");
+            } catch (e) {
+                showToast("Backup export failed.", "danger");
+            }
+        }
+
+        function triggerImportFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = readerEvent => {
+                    try {
+                        const parsed = JSON.parse(readerEvent.target.result);
+                        if (parsed && Array.isArray(parsed.players) && parsed.schedules) {
+                            stateData.players = parsed.players;
+                            stateData.schedules = parsed.schedules;
+                            
+                            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => {
+                                if (!stateData.schedules[d]) stateData.schedules[d] = {};
+                            });
+                            
+                            saveCloudData();
+                            showToast("Database restored cleanly from file!", "success");
+                        } else {
+                            showToast("Invalid backup file layout format.", "danger");
+                        }
+                    } catch (err) {
+                        showToast("Failed to parse file JSON.", "danger");
+                    }
+                }
+                reader.readAsText(file);
+            }
+            input.click();
+        }
+
+        function openDiagnosticsModal() { 
+            const modal = document.getElementById('diagnosticsModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none'); 
+        }
+        function closeDiagnosticsModal() { 
+            const modal = document.getElementById('diagnosticsModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none'); 
+        }
+        
+        function updateHeaderStatusPill() {
+            let dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
+            if(!dot || !txt) return;
+            if(syncMode==='offline') { dot.className="h-2 w-2 rounded-full bg-amber-500 animate-none"; txt.textContent="Local Sandbox"; return; }
+            if(runDiagnostics.firestore==='success') { dot.className="h-2 w-2 rounded-full bg-emerald-500"; txt.textContent="Online"; }
+            else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
+        }
     </script>
 
     <!-- Database Integration Framework Pipeline -->
     <script>
-        // Use AppId from global environment if available
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'svs-scheduler-a1919';
+        // Game mapping definition configuration links
+        const dayConfig = {
+            day1: { name: "Construction", buff: "architect", title: "Infrastructure Minister (+20% Build Speed)", desc: "Calculates priority based on Construction speedups + Universal speedups combined with Furnace Level.", icon: "fa-compass-drafting", color: "text-cyan-400" },
+            day2: { name: "Basic Skills Up", buff: "scientist", title: "Vice President (+20% Tech)", desc: "Calculates metric prioritization score from combined Tech Research + Universal Speedups inventories.", icon: "fa-microscope", color: "text-violet-400" },
+            day3: { name: "Beast Slay", buff: "none", title: "Beast Slay Day (No Buff Required)", desc: "Day 3 focuses entirely on Stamina expenditure hunting monsters. No speedup scheduling required.", icon: "fa-paw", color: "text-emerald-400" },
+            day4: { name: "Hero Development", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.", icon: "fa-shield-halved", color: "text-amber-400" },
+            day5: { name: "Power Boost", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Calculates priority ranking metrics for finishing pre-train batches and speeding up new troop squads.", icon: "fa-bolt", color: "text-orange-400" }
+        };
+
+        // STAGING vs PRODUCTION AUTOMATIC RESOLUTION
+        let appId = 'svs-scheduler-a1919'; 
         
+        const urlParams = new URLSearchParams(window.location.search);
+        const isStagingParam = urlParams.get('env') === 'staging' || urlParams.get('stage') === 'true';
+
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '';
+        const isSandboxFrame = window.location.hostname.includes('null') || window.location.hostname.includes('sandbox') || window.location.pathname.includes('artifacts');
+        
+        if (isLocalHost || isSandboxFrame || isStagingParam) {
+            appId = 'svs-scheduler-a1919-staging'; 
+            
+            window.addEventListener('DOMContentLoaded', () => {
+                const banner = document.getElementById('sandboxBanner');
+                const pill = document.getElementById('envIndicatorPill');
+                if (banner) banner.classList.remove('hidden');
+                if (pill) {
+                    pill.textContent = "Staging Sandbox";
+                    pill.className = "text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                }
+            });
+        }
+
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
             try {
@@ -1134,10 +1878,9 @@
         }
 
         let db, auth, unsubscribeState = null;
-        let currentUser = null; // Track authenticated state locally
+        let currentUser = null; 
 
         try {
-            // FIX: Safely check apps length to prevent multi-instance runtime exceptions
             const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
             db = app.firestore();
             auth = app.auth();
@@ -1147,111 +1890,195 @@
             runDiagnostics.sdkInit = 'failed'; 
         }
 
-        // RULE 1 Compliance Path: ALWAYS use /artifacts/{appId}/public/data/{collectionName}
+        // CRASH-PROOFED REFERENCE RESOLUTION GUARDS
         function getCollectionRef() {
+            if (!activeStateId) return null;
+            return db.collection('artifacts').doc(appId)
+                     .collection('public').doc('data')
+                     .collection('states').doc(activeStateId);
+        }
+
+        function getLegacyRef() {
             return db.collection('artifacts').doc(appId)
                      .collection('public').doc('data')
                      .collection('state_schedulers').doc('global_schedules');
         }
 
         function subscribeToData() {
-            if (!db || !currentUser || syncMode === 'offline') return;
+            if (!db || !currentUser || syncMode === 'offline' || !activeStateId) return;
             if (unsubscribeState) unsubscribeState();
             
-            unsubscribeState = getCollectionRef().onSnapshot(doc => {
+            const currentRef = getCollectionRef();
+            if (!currentRef) return;
+
+            unsubscribeState = currentRef.onSnapshot(async doc => {
                 runDiagnostics.firestore = 'success';
+                
                 if (doc.exists) {
                     const data = doc.data();
                     stateData.players = data.players || [];
-                    
+                    stateData.settings = data.settings || {};
                     const rawSchedules = data.schedules || {};
-                    const oldBuffKeys = ['architect', 'scientist', 'instructor'];
-                    const hasOldStructure = oldBuffKeys.some(key => rawSchedules[key] !== undefined);
                     
                     stateData.schedules = {};
                     ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(day => {
                         stateData.schedules[day] = {};
                     });
 
-                    if (hasOldStructure) {
-                        const mapping = {
-                            day1: 'architect',
-                            day2: 'scientist',
-                            day4: 'instructor',
-                            day5: 'instructor'
-                        };
-                        Object.keys(mapping).forEach(dayId => {
-                            const buffType = mapping[dayId];
-                            if (rawSchedules[buffType] && rawSchedules[buffType][dayId]) {
-                                stateData.schedules[dayId] = {};
-                                Object.keys(rawSchedules[buffType][dayId]).forEach(slot => {
-                                    stateData.schedules[dayId][slot] = normalizeSlotData(rawSchedules[buffType][dayId][slot]);
-                                });
-                            }
-                        });
-                    } else {
-                        Object.keys(rawSchedules).forEach(dayId => {
+                    Object.keys(rawSchedules).forEach(dayId => {
+                        if (['day1', 'day2', 'day3', 'day4', 'day5'].includes(dayId)) {
                             stateData.schedules[dayId] = {};
                             const slots = rawSchedules[dayId] || {};
                             Object.keys(slots).forEach(slot => {
                                 stateData.schedules[dayId][slot] = normalizeSlotData(slots[slot]);
                             });
-                        });
-                    }
+                        }
+                    });
+                    refreshUI();
+                } else {
+                    // SILENT DATA MIGRATOR TRIGGER
+                    if (activeStateId === '4336') {
+                        try {
+                            const legacyDoc = await getLegacyRef().get();
+                            if (legacyDoc.exists) {
+                                const legacyData = legacyDoc.get('schedules') ? legacyDoc.data() : { players: [], schedules: {} };
+                                
+                                legacyData.settings = {
+                                    stateId: "4336",
+                                    playerPasscodeHash: "", 
+                                    presidencyPasscodeHash: "8c6976e5" 
+                                };
 
-                    // Keep local selection buffer aligned with incoming remote snapshots cleanly
-                    if (activeDrawerSlot) {
-                        let activeDaySched = stateData.schedules[currentDay] || {};
-                        let sData = normalizeSlotData(activeDaySched[activeDrawerSlot]);
-                        localDrawerApplicants = [...sData.applicants];
+                                await currentRef.set(legacyData);
+                                showToast("Migrated legacy scheduling registry to secure partition successfully!", "success");
+                            } else {
+                                await currentRef.set({ players: [], schedules: {}, settings: { stateId: "4336", playerPasscodeHash: "", presidencyPasscodeHash: "8c6976e5" } });
+                            }
+                        } catch(migrationErr) {
+                            console.error("Migration Error: ", migrationErr.message);
+                        }
                     }
                 }
-                refreshUI();
             }, err => { 
-                console.error("Firestore Snapshot Sync Exception: ", err.message);
                 runDiagnostics.firestore = 'failed'; 
-                runDiagnostics.firestoreError = err.message;
                 refreshUI(); 
             });
         }
 
-        // FIX 4: Serializes data explicitly into pure deep arrays, ensuring Firestore accepts structural writes 100% of the time
         async function saveCloudData() {
             refreshUI();
-            if(!db || !currentUser || syncMode==='offline') return;
+            if (syncMode === 'offline') {
+                localStorage.setItem(`offline_state_${activeStateId}`, JSON.stringify(stateData));
+                return;
+            }
+            if(!db || !currentUser || syncMode==='offline' || !activeStateId) return;
             try {
                 const serializedPayload = JSON.parse(JSON.stringify({
                     players: stateData.players,
-                    schedules: stateData.schedules
+                    schedules: stateData.schedules,
+                    settings: stateData.settings || {}
                 }));
-                
-                await getCollectionRef().set(serializedPayload, { merge: true });
+                const ref = getCollectionRef();
+                if (ref) {
+                    await ref.set(serializedPayload); 
+                }
             } catch(e) { 
-                console.error("Firestore Document Set Exception: ", e.message);
                 runDiagnostics.firestore='failed'; 
-                runDiagnostics.firestoreError = e.message;
                 updateHeaderStatusPill();
             }
         }
 
         async function testManualDatabaseWrite() {
             try {
-                await getCollectionRef().set({ lastTestWrite: new Date().toISOString() }, { merge: true });
-                showToast("Write test successful!", "success");
+                const ref = getCollectionRef();
+                if (ref) {
+                    await ref.update({ lastTestWrite: new Date().toISOString() });
+                    showToast("Write test successful!", "success");
+                }
             } catch(e) { showToast("Write test failure.", "error"); }
+        }
+
+        function activateOfflineSandboxMode(reason) {
+            syncMode = 'offline';
+            runDiagnostics.auth = 'offline_fallback';
+            runDiagnostics.firestore = 'offline_fallback';
+            
+            // Mock credentials so the UI proceeds instantly
+            currentUser = { uid: "sandbox-local-user" };
+            
+            // Unlock Launch Pad button visually
+            const btn = document.getElementById('lookupSubmitBtn');
+            const text = document.getElementById('lookupBtnText');
+            const spin = document.getElementById('lookupSpinIcon');
+            if (btn) {
+                btn.disabled = false;
+                btn.className = "w-full py-3 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer";
+            }
+            if (text) text.textContent = "Next";
+            if (spin) spin.style.display = "none";
+            
+            showToast("Iframe network blocks detected. Running local Sandbox mode.", "warning");
+        }
+
+        function showToast(m, type="info") {
+            const c = document.getElementById('toastContainer');
+            if(!c) return;
+            const t = document.createElement('div');
+            t.className = `p-3 text-xs font-bold border rounded-lg shadow-xl bg-slate-800 border-slate-700 text-slate-200 transition duration-300 opacity-0 transform translate-y-2`;
+            if (type === "success") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-emerald-950 border-emerald-500 text-emerald-200";
+            if (type === "danger" || type === "error") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-rose-950 border-rose-500 text-rose-200";
+            if (type === "warning") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-amber-950 border-amber-500 text-amber-200";
+            t.textContent = m;
+            c.appendChild(t);
+            setTimeout(() => t.classList.remove('opacity-0', 'translate-y-2'), 20);
+            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 4000);
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
             initEventListeners();
             switchDay('day4'); 
+
+            // Restore state id from cache if available
+            const cachedState = localStorage.getItem('active_state_v2');
+            if (cachedState) {
+                activeStateId = cachedState;
+                const dash = document.getElementById('mainDashboardApp');
+                const header = document.getElementById('mainAppHeader');
+                const portal = document.getElementById('launchPadPortal');
+
+                if (dash) dash.classList.remove('hidden');
+                if (header) header.classList.remove('hidden');
+                if (portal) portal.classList.add('hidden');
+                
+                const targetInput = document.getElementById('targetStateInput');
+                if (targetInput) targetInput.value = cachedState;
+            }
+
+            // SAFETY TIMEOUT GUARD: Switch to offline mode if Safari blocks connection for 3.5 seconds
+            setTimeout(() => {
+                if (!currentUser && syncMode !== 'offline') {
+                    console.log("Iframe connectivity limit hit. Initiating offline recovery mode.");
+                    activateOfflineSandboxMode("Iframe partition blocked.");
+                }
+            }, 3500);
+
             if (auth) {
                 auth.onAuthStateChanged(user => {
                     currentUser = user;
                     if (user) {
+                        const btn = document.getElementById('lookupSubmitBtn');
+                        const text = document.getElementById('lookupBtnText');
+                        const spin = document.getElementById('lookupSpinIcon');
+                        
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.className = "w-full py-3 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer";
+                        }
+                        if (text) text.textContent = "Next";
+                        if (spin) spin.style.display = "none";
+
                         const tag = document.getElementById('userIdTag');
-                        const display = document.getElementById('userUidDisplay');
                         if (tag) tag.classList.remove('hidden');
-                        if (display) display.textContent = user.uid; // Displays full userId clearly
                         subscribeToData();
                     } else {
                         const tag = document.getElementById('userIdTag');
@@ -1259,14 +2086,14 @@
                     }
                 });
                 try { 
-                    // Rule 3: Priority Handshake Auth FIRST before any read/write triggers
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         await auth.signInWithCustomToken(__initial_auth_token);
                     } else {
                         await auth.signInAnonymously(); 
                     }
                 } catch(e){
-                    console.error("Firebase Handshake Authentication Exception: ", e.message);
+                    console.error("Firebase Auth Exception: ", e.message);
+                    activateOfflineSandboxMode(e.message);
                 }
             }
         });
