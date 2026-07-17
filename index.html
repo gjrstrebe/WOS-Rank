@@ -100,6 +100,11 @@
                     State <span id="adminBarStateId">4336</span> Presidency Control Console
                 </span>
                 <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                    <!-- ONE-CLICK MANUAL LEGACY DATABASE MIGRATOR (RESTORESday1-5 roster data) -->
+                    <button onclick="triggerManualLegacyMigration()" id="manualMigrateBtn" class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg transition font-extrabold flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-import text-amber-400 animate-bounce"></i> ⚡ Import Legacy 4336 Data
+                    </button>
+                    <!-- Manage Passcodes Button -->
                     <button onclick="openSecuritySettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-lg transition font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-shield-halved"></i> Lock Server Passcodes
                     </button>
@@ -1834,6 +1839,55 @@
             if(runDiagnostics.firestore==='success') { dot.className="h-2 w-2 rounded-full bg-emerald-500"; txt.textContent="Online"; }
             else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
         }
+
+        // ONE-CLICK MANUAL LEGACY DATABASE MIGRATION SYSTEM TRIGGER
+        async function triggerManualLegacyMigration() {
+            if (!isAdmin) {
+                showToast("Administrative Presidency override credentials are required.", "danger");
+                return;
+            }
+
+            const btn = document.getElementById('manualMigrateBtn');
+            if (btn) btn.disabled = true;
+
+            showToast("Opening secure migration handshakes...", "info");
+
+            try {
+                const legacySnap = await getLegacyRef().get();
+                if (legacySnap.exists) {
+                    const legacyData = legacySnap.data();
+                    
+                    const legacyPlayers = legacyData.players || [];
+                    const legacySchedules = legacyData.schedules || {};
+
+                    // Unpack and merge safely, preserving existing server passcode settings
+                    stateData.players = legacyPlayers;
+                    
+                    ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(day => {
+                        if (legacySchedules[day]) {
+                            stateData.schedules[day] = {};
+                            Object.keys(legacySchedules[day]).forEach(slot => {
+                                stateData.schedules[day][slot] = normalizeSlotData(legacySchedules[day][slot]);
+                            });
+                        }
+                    });
+
+                    await saveCloudData();
+                    showToast(`Successfully restored ${legacyPlayers.length} active players!`, "success");
+                    
+                    if (btn) btn.classList.add('hidden'); // auto-hide button once migration has finished successfully
+                } else {
+                    showToast("No historical legacy data was found at the global path.", "warning");
+                }
+            } catch (err) {
+                console.error("Migration handshakes interrupted: ", err.message);
+                showToast("Migration failed. Check connection parameters.", "danger");
+            } finally {
+                if (btn && !btn.classList.contains('hidden')) {
+                    btn.disabled = false;
+                }
+            }
+        }
     </script>
 
     <!-- Database Integration Framework Pipeline -->
@@ -1951,7 +2005,7 @@
                     });
                     refreshUI();
                 } else {
-                    // SILENT DATA MIGRATOR TRIGGER
+                    // SILENT DATA MIGRATOR TRIGGER (Fallback safeguard block)
                     if (activeStateId === '4336') {
                         try {
                             const legacyDoc = await getLegacyRef().get();
