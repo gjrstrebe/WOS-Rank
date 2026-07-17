@@ -100,7 +100,6 @@
                     State <span id="adminBarStateId">4336</span> Presidency Control Console
                 </span>
                 <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
-                    <!-- Manage Passcodes Button -->
                     <button onclick="openSecuritySettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-lg transition font-semibold flex items-center gap-1.5">
                         <i class="fa-solid fa-shield-halved"></i> Lock Server Passcodes
                     </button>
@@ -119,9 +118,11 @@
 
         <!-- CENTRAL NAVIGATION HEADER -->
         <header id="mainAppHeader" class="hidden border-b border-brand-border bg-brand-card/95 backdrop-blur-md px-4 py-3">
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+                
+                <!-- Logo & Brand Info -->
                 <div class="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-start">
-                    <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20 hidden sm:block">
+                    <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20 hidden sm:block animate-pulse">
                         <i class="fa-solid fa-shield text-xl text-amber-400"></i>
                     </div>
                     <div class="text-center lg:text-left">
@@ -133,48 +134,52 @@
                     </div>
                 </div>
                 
-                <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
-                    <!-- Navigation Switchers -->
-                    <nav class="flex items-center bg-slate-900 border border-brand-border rounded-lg p-1">
-                        <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-md transition bg-brand-accent/20 text-brand-accent">
-                            <i class="fa-regular fa-calendar-check sm:mr-1.5"></i><span class="hidden sm:inline">SvS Scheduler</span>
+                <!-- Mobile-Optimized Unified Action Panel -->
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                    
+                    <!-- Segmented View Tabs Control (Stretches on mobile, fits beautifully on tablet+) -->
+                    <nav class="flex items-center bg-slate-900 border border-brand-border rounded-xl p-1 w-full sm:w-auto">
+                        <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center justify-center gap-1.5">
+                            <i class="fa-regular fa-calendar-check text-[13px]"></i>
+                            <span>Scheduler</span>
                         </button>
-                        <button onclick="showTab('bear')" id="tabBtn-bear" class="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
-                            <i class="fa-solid fa-paw sm:mr-1.5"></i><span class="hidden sm:inline">Bear March</span>
+                        <button onclick="showTab('bear')" id="tabBtn-bear" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-paw text-[13px]"></i>
+                            <span>Bear March</span>
                         </button>
-                        <button onclick="showTab('scout')" id="tabBtn-scout" class="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
-                            <i class="fa-solid fa-binocular sm:mr-1.5"></i><span class="hidden sm:inline">Scout Analyzer</span>
+                        <button onclick="showTab('scout')" id="tabBtn-scout" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-binoculars text-[13px]"></i>
+                            <span>Scout</span>
                         </button>
                     </nav>
 
-                    <!-- Feedback Button -->
-                    <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20">
-                        <i class="fa-regular fa-comment-dots"></i>
-                        <span class="hidden sm:inline">Feedback</span>
-                    </button>
+                    <!-- Auxiliary Action Panel (Login, Feedback, DB, Servers) -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                        <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20" title="Feedback">
+                            <i class="fa-regular fa-comment-dots"></i>
+                            <span class="hidden md:inline">Feedback</span>
+                        </button>
 
-                    <!-- Switch Server (Back to Launch Pad) -->
-                    <button onclick="routeToLaunchPad()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span class="hidden sm:inline">Servers</span>
-                    </button>
+                        <button onclick="routeToLaunchPad()" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700" title="Switch Servers">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span class="hidden md:inline">Servers</span>
+                        </button>
 
-                    <!-- Admin Override Button -->
-                    <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                        <i class="fa-solid fa-key"></i>
-                        <span id="adminBtnText" class="hidden sm:inline">Presidency Login</span>
-                    </button>
+                        <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700" title="Presidency Login">
+                            <i class="fa-solid fa-key"></i>
+                            <span id="adminBtnText" class="hidden md:inline">Presidency Login</span>
+                        </button>
 
-                    <!-- Diagnostics Status Button -->
-                    <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                        <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
-                        <span class="hidden sm:inline">Database: <strong id="statusText">Checking...</strong></span>
-                    </button>
+                        <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700" title="Database Status">
+                            <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
+                            <span class="hidden md:inline">Database: <strong id="statusText">Checking...</strong></span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- SVS Days Tab Strip (Initial hidden block) -->
+        <!-- SVS Days Tab Strip -->
         <div id="daySelectorTabs" class="hidden bg-brand-card/95 border-b border-brand-border px-4 py-2 backdrop-blur-md">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
                 <div class="flex items-center gap-2 text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto justify-center md:justify-start">
@@ -555,7 +560,7 @@
                 <section class="lg:col-span-5 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
                     <div>
                         <h3 class="text-md font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-binocular text-brand-accent"></i>
+                            <i class="fa-solid fa-binoculars text-brand-accent"></i>
                             Scout Report Input
                         </h3>
                         <p class="text-xs text-slate-400">Input primary metrics of a surveyed fortress/facility</p>
@@ -902,10 +907,14 @@
                 if (view) {
                     if (id === tabId) {
                         view.classList.remove('hidden');
-                        if (btn) btn.className = "px-3 py-1.5 text-xs font-bold rounded-md transition bg-brand-accent/20 text-brand-accent";
+                        if (btn) {
+                            btn.className = "flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center justify-center gap-1.5";
+                        }
                     } else {
                         view.classList.add('hidden');
-                        if (btn) btn.className = "px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white";
+                        if (btn) {
+                            btn.className = "flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
+                        }
                     }
                 }
             });
@@ -1131,6 +1140,7 @@
             }
         }
 
+        // ADMINISTRATIVE OVERRIDING LOCK SYSTEM OVERLAYS
         function confirmResetData() { 
             const dialog = document.getElementById('confirmDialog');
             if (dialog) dialog.classList.remove('opacity-0', 'pointer-events-none'); 
@@ -1153,7 +1163,7 @@
                 isAdmin = false;
                 const adminBtn = document.getElementById('adminBtn');
                 const adminBtnText = document.getElementById('adminBtnText');
-                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700";
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
                 if (adminBtnText) adminBtnText.textContent = "Presidency Login";
                 refreshUI();
             } else {
@@ -1181,7 +1191,7 @@
                 isAdmin = true;
                 const adminBtn = document.getElementById('adminBtn');
                 const adminBtnText = document.getElementById('adminBtnText');
-                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
                 if (adminBtnText) adminBtnText.textContent = "Presidency Active";
                 closeAdminModal();
                 refreshUI();
@@ -1317,12 +1327,12 @@
                             <div class="flex items-center gap-1.5 font-bold text-white">
                                 <span class="px-1.5 py-0.2 bg-slate-800 text-[10px] rounded text-slate-400">${lvlDisplay}</span>
                                 <span>${p.name}</span>
-                                <button onclick="togglePlayerFcStatus('${p.name}')">${p.fc_upgrade?'<span class="text-[9px] text-amber-400 font-extrabold bg-amber-500/10 px-1 rounded font-semibold">⚡ Push</span>':'<span class="text-[9px] text-slate-600 px-1 rounded font-semibold">Off</span>'}</button>
+                                <button onclick="togglePlayerFcStatus('${p.name}')">${p.fc_upgrade?'<span class="text-[9px] text-amber-400 font-extrabold bg-amber-500/10 px-1 rounded font-semibold animate-pulse">⚡ Push</span>':'<span class="text-[9px] text-slate-600 px-1 rounded font-semibold">Off</span>'}</button>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-brand-success font-bold">${sc.toFixed(2)}</span>
-                            <button onclick="removePlayer('${p.name}')" class="text-brand-danger hover:bg-brand-danger/20 p-1 rounded"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="removePlayer('${p.name}')" class="text-brand-danger hover:bg-brand-danger/20 p-1 rounded" title="Remove"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>`;
             });
@@ -1748,9 +1758,7 @@
             if (header) header.classList.remove('hidden');
             if (portal) portal.classList.add('hidden');
 
-            // Force tab navigation initialization to resolve the iframe hidden-days bug cleanly
             showTab('scheduler');
-
             subscribeToData();
         }
 
@@ -2052,7 +2060,6 @@
                 const targetInput = document.getElementById('targetStateInput');
                 if (targetInput) targetInput.value = cachedState;
                 
-                // Routes cleanly, showing day buttons and clearing hidden containers
                 bypassLaunchPadDirect();
             }
 
