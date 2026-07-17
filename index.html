@@ -100,7 +100,7 @@
                     State <span id="adminBarStateId">4336</span> Presidency Control Console
                 </span>
                 <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
-                    <!-- ONE-CLICK MANUAL LEGACY DATABASE MIGRATOR (RESTORESday1-5 roster data) -->
+                    <!-- ONE-CLICK MANUAL LEGACY DATABASE MIGRATOR -->
                     <button onclick="triggerManualLegacyMigration()" id="manualMigrateBtn" class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg transition font-extrabold flex items-center gap-1.5">
                         <i class="fa-solid fa-file-import text-amber-400 animate-bounce"></i> ⚡ Import Legacy 4336 Data
                     </button>
@@ -142,7 +142,7 @@
                 <!-- Mobile-Optimized Unified Action Panel -->
                 <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                     
-                    <!-- Segmented View Tabs Control (Stretches on mobile, fits beautifully on tablet+) -->
+                    <!-- Segmented View Tabs Control -->
                     <nav class="flex items-center bg-slate-900 border border-brand-border rounded-xl p-1 w-full sm:w-auto">
                         <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center justify-center gap-1.5">
                             <i class="fa-regular fa-calendar-check text-[13px]"></i>
@@ -158,7 +158,7 @@
                         </button>
                     </nav>
 
-                    <!-- Auxiliary Action Panel (Login, Feedback, DB, Servers) -->
+                    <!-- Auxiliary Action Panel -->
                     <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
                         <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20" title="Feedback">
                             <i class="fa-regular fa-comment-dots"></i>
@@ -447,7 +447,7 @@
                     </div>
                 </section>
 
-                <!-- Right Column: Live Buff Priority Schedule (7 Cols) -->
+                <!-- Right Column: Live Buff Priority Schedule -->
                 <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
                         <div>
@@ -562,65 +562,126 @@
 
             <!-- VIEW TAB 3: FACILITY SCOUT REPORT ANALYZER -->
             <div id="view-scout" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <section class="lg:col-span-5 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
-                    <div>
-                        <h3 class="text-md font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-binoculars text-brand-accent"></i>
-                            Scout Report Input
-                        </h3>
-                        <p class="text-xs text-slate-400">Input primary metrics of a surveyed fortress/facility</p>
+                <!-- Scout Inputs -->
+                <section class="lg:col-span-5 space-y-6">
+                    
+                    <!-- PREMIUM AI SCREENSHOT DECODER CARD -->
+                    <div class="bg-gradient-to-br from-slate-900 via-brand-card to-slate-900 border border-brand-accent/20 rounded-xl p-5 shadow-xl space-y-4 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[9px] uppercase font-black tracking-widest text-brand-accent bg-brand-accent/10 border border-brand-accent/25 px-2 py-0.5 rounded-full">AI Vision Powered</span>
+                                <h3 class="text-md font-bold text-white mt-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-brand-accent"></i>
+                                    Scout Screenshot Scanner
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- DYNAMIC BRING-YOUR-OWN-KEY INPUT BOX -->
+                        <div class="p-3.5 bg-slate-950/80 rounded-xl border border-brand-border space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-sky-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-key text-[10px]"></i> Personal Gemini API Key
+                                </span>
+                                <a href="https://aistudio.google.com/" target="_blank" class="text-[10px] text-brand-accent hover:underline flex items-center gap-0.5">
+                                    Get Free Key <i class="fa-solid fa-up-right-from-square text-[8px]"></i>
+                                </a>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="password" id="scoutDirectApiKeyInput" placeholder="Paste your Gemini AI key here..." class="flex-grow bg-slate-900 border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-accent transition tracking-wider font-mono">
+                                <button onclick="saveDirectApiKey()" class="px-3.5 py-1.5 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-md">
+                                    Save
+                                </button>
+                            </div>
+                            <span class="text-[9px] text-slate-500 block">Keys are stored locally in your own browser's secure cache and never shared.</span>
+                        </div>
+
+                        <!-- Screenshot Upload Action Box -->
+                        <div id="scoutUploadContainer" class="relative group border-2 border-dashed border-brand-border hover:border-brand-accent/40 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 bg-slate-950/40">
+                            <!-- Visual Loading Overlay -->
+                            <div id="scoutAiLoadingOverlay" class="hidden absolute inset-0 bg-brand-card/95 flex flex-col items-center justify-center space-y-3 z-10 p-4">
+                                <div class="relative w-12 h-12">
+                                    <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+                                    <div class="absolute inset-0 rounded-full border-4 border-t-brand-accent border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                                </div>
+                                <span class="text-xs font-bold text-white" id="scoutLoadingStateText">Reading game image...</span>
+                                <p class="text-[10px] text-slate-500 text-center max-w-xs">Scanning garrison values and troop ratios via Gemini Vision API</p>
+                            </div>
+
+                            <input type="file" id="scoutScreenshotInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleScoutScreenshotUpload(event)">
+                            <div class="space-y-2.5">
+                                <div class="inline-flex p-3 rounded-full bg-slate-900 text-slate-400 group-hover:text-brand-accent group-hover:bg-brand-accent/10 border border-brand-border group-hover:border-brand-accent/20 transition-all duration-300">
+                                    <i class="fa-solid fa-camera-rotate text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-extrabold text-white block group-hover:text-brand-accent transition-colors">Upload Game Screenshot</span>
+                                    <span class="text-[10px] text-slate-400 block mt-1">Accepts fortress, stronghold or castle scout profiles</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 leading-normal text-center">Tip: Simply crop your screenshot to focus on garrison details for faster, highly accurate parses.</p>
                     </div>
 
-                    <form onsubmit="handleScoutReportAnalysis(event)" class="space-y-4">
-                        <div class="space-y-1.5">
-                            <label class="text-xs font-semibold text-slate-300">Facility Type & Threat Tier</label>
-                            <select id="scoutFacilityType" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white">
-                                <option value="stronghold">State Stronghold (Medium Defense)</option>
-                                <option value="fortress">State Fortress (High Defense)</option>
-                                <option value="castle">Sunfire Palace (Extreme Defense)</option>
-                            </select>
+                    <!-- Manual Input Fallback Form -->
+                    <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+                        <div class="border-b border-brand-border pb-2">
+                            <h4 class="text-xs uppercase tracking-widest text-slate-400 font-extrabold">Scout Report Override</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Edit scanner values manually to tweak combat recommendations</p>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-3">
+                        <form id="scoutManualForm" onsubmit="handleScoutReportAnalysis(event)" class="space-y-4">
                             <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-slate-300">Primary Troop Tier</label>
-                                <select id="scoutTroopTier" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white">
-                                    <option value="9">Tier 9 (T9)</option>
-                                    <option value="10" selected>Tier 10 (T10)</option>
-                                    <option value="11">Tier 11 (T11)</option>
+                                <label class="text-xs font-semibold text-slate-300">Facility Type & Threat Tier</label>
+                                <select id="scoutFacilityType" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                                    <option value="stronghold">State Stronghold (Medium Defense)</option>
+                                    <option value="fortress">State Fortress (High Defense)</option>
+                                    <option value="castle">Sunfire Palace (Extreme Defense)</option>
                                 </select>
                             </div>
-                            <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-slate-300">Est. Garrison Size</label>
-                                <input type="number" id="scoutGarrisonSize" value="1500000" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white font-mono">
-                            </div>
-                        </div>
 
-                        <div class="space-y-2 border-t border-brand-border/60 pt-3">
-                            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Garrison Troop Balance (%)</span>
-                            <div class="grid grid-cols-3 gap-2 text-center">
-                                <div>
-                                    <label class="text-[10px] text-sky-400">🛡️ Inf %</label>
-                                    <input type="number" id="scoutInfPercent" value="30" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300">Primary Troop Tier</label>
+                                    <select id="scoutTroopTier" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                        <option value="9">Tier 9 (T9)</option>
+                                        <option value="10" selected>Tier 10 (T10)</option>
+                                        <option value="11">Tier 11 (T11)</option>
+                                    </select>
                                 </div>
-                                <div>
-                                    <label class="text-[10px] text-amber-400">🐎 Lan %</label>
-                                    <input type="number" id="scoutLanPercent" value="20" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] text-emerald-400">🎯 Mark %</label>
-                                    <input type="number" id="scoutMarkPercent" value="50" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300">Est. Garrison Size</label>
+                                    <input type="number" id="scoutGarrisonSize" value="1500000" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
                                 </div>
                             </div>
-                        </div>
 
-                        <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-brain"></i>
-                            Analyze Enemy Garrison
-                        </button>
-                    </form>
+                            <div class="space-y-2 border-t border-brand-border/60 pt-3">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Garrison Troop Balance (%)</span>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div>
+                                        <label class="text-[10px] text-sky-400">🛡️ Inf %</label>
+                                        <input type="number" id="scoutInfPercent" value="30" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white focus:outline-none focus:border-brand-accent">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-amber-400">🐎 Lan %</label>
+                                        <input type="number" id="scoutLanPercent" value="20" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white focus:outline-none focus:border-brand-accent">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-emerald-400">🎯 Mark %</label>
+                                        <input type="number" id="scoutMarkPercent" value="50" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white focus:outline-none focus:border-brand-accent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-brain"></i>
+                                Re-Analyze Garrison
+                            </button>
+                        </form>
+                    </div>
                 </section>
 
+                <!-- Scout Reports Outcomes -->
                 <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col justify-between space-y-4">
                     <div>
                         <h3 class="text-sm uppercase tracking-widest text-slate-400 font-extrabold border-b border-brand-border pb-3">
@@ -629,8 +690,8 @@
                     </div>
                     <div id="scoutAnalysisReport" class="space-y-4 my-auto">
                         <div class="text-center py-12 text-slate-500">
-                            <i class="fa-solid fa-chart-line text-4xl mb-2 opacity-35 block"></i>
-                            Submit a scout report to see counter recommendations and threat metrics.
+                            <i class="fa-solid fa-chart-line text-4xl mb-2 opacity-35 block animate-pulse"></i>
+                            Drop a scout screenshot or enter garrison metrics manually to unlock instant counter suggestions.
                         </div>
                     </div>
                 </section>
@@ -1250,6 +1311,22 @@
             saveCloudData();
         }
 
+        // BRING YOUR OWN GEMINI KEY STORAGE LOGIC
+        function saveDirectApiKey() {
+            const inputField = document.getElementById('scoutDirectApiKeyInput');
+            if (!inputField) return;
+
+            const rawVal = inputField.value.trim();
+            if (rawVal) {
+                localStorage.setItem('state_gemini_api_key', rawVal);
+                showToast("Your Gemini OCR API key has been securely saved locally!", "success");
+            } else {
+                localStorage.removeItem('state_gemini_api_key');
+                showToast("Gemini key cleared.", "info");
+            }
+            refreshUI();
+        }
+
         function openSlotDrawer(slot) {
             activeDrawerSlot = slot;
             const drawerTime = document.getElementById('drawerSlotTime');
@@ -1411,7 +1488,7 @@
         }
 
         function handleScoutReportAnalysis(event) {
-            event.preventDefault();
+            if (event) event.preventDefault();
             const facility = document.getElementById('scoutFacilityType').value;
             const size = parseInt(document.getElementById('scoutGarrisonSize').value) || 1000000;
             const inf = parseInt(document.getElementById('scoutInfPercent').value) || 0;
@@ -1472,6 +1549,139 @@
             showToast("Scout report evaluated successfully!", "success");
         }
 
+        // --- GEMINI AI SCREENSHOT IMAGE UNDERSTANDING IMPLEMENTATION ---
+        function toggleScoutAiLoading(show, message = "Scanning image...") {
+            const overlay = document.getElementById('scoutAiLoadingOverlay');
+            const txt = document.getElementById('scoutLoadingStateText');
+            if (overlay) {
+                if (show) {
+                    overlay.classList.remove('hidden');
+                    if (txt) txt.textContent = message;
+                } else {
+                    overlay.classList.add('hidden');
+                }
+            }
+        }
+
+        function handleScoutScreenshotUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Secure local Key validation checks (BYOK)
+            const savedKey = localStorage.getItem('state_gemini_api_key') || '';
+            if (!savedKey) {
+                showToast("Please enter your personal Gemini API Key first.", "warning");
+                return;
+            }
+
+            toggleScoutAiLoading(true, "Processing image file...");
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result.split(',')[1];
+                await processImageWithGeminiVision(base64Data, savedKey);
+            };
+            reader.onerror = function() {
+                toggleScoutAiLoading(false);
+                showToast("Failed to read image file locally.", "danger");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function processImageWithGeminiVision(base64ImageData, userApiKey) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userApiKey}`;
+            
+            toggleScoutAiLoading(true, "AI extracting statistics...");
+
+            const systemInstruction = "You are an expert game assistant for Whiteout Survival. Analyze the uploaded screenshot of an in-game Fortress, Stronghold, or Castle scout report. Your job is to extract: the facility type, total garrison size (as a plain number), the highest troop tier present, and the percentages of Infantry, Lancers, and Marksmen. Ensure Infantry + Lancer + Marksman percents add up exactly to 100. Return only raw structured JSON matching the requested schema.";
+
+            const userQuery = "Identify values from this Whiteout Survival scout report screenshot. Fill out the response schema precisely.";
+
+            const payload = {
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: userQuery },
+                            { inlineData: { mimeType: "image/png", data: base64ImageData } }
+                        ]
+                    }
+                ],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            facilityType: { type: "STRING", enum: ["stronghold", "fortress", "castle"] },
+                            garrisonSize: { type: "INTEGER" },
+                            troopTier: { type: "INTEGER" },
+                            infantryPercent: { type: "INTEGER" },
+                            lancerPercent: { type: "INTEGER" },
+                            marksmanPercent: { type: "INTEGER" }
+                        },
+                        required: ["facilityType", "garrisonSize", "troopTier", "infantryPercent", "lancerPercent", "marksmanPercent"]
+                    }
+                }
+            };
+
+            // Exponential backoff network call
+            let responseText = null;
+            let success = false;
+            let delay = 1000;
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        success = true;
+                        break;
+                    } else if (response.status === 403 || response.status === 400) {
+                        toggleScoutAiLoading(false);
+                        showToast("Invalid Gemini API Key. Please verify or refresh your key from AI Studio.", "danger");
+                        return;
+                    }
+                } catch (e) {
+                    // Exponential backoff logic
+                }
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+            }
+
+            toggleScoutAiLoading(false);
+
+            if (!success || !responseText) {
+                showToast("AI Screen Reader was unable to parse that layout. Please verify parameters manually.", "warning");
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(responseText);
+                
+                // Pre-fill fields
+                document.getElementById('scoutFacilityType').value = parsed.facilityType || "stronghold";
+                document.getElementById('scoutTroopTier').value = parsed.troopTier ? String(parsed.troopTier) : "10";
+                document.getElementById('scoutGarrisonSize').value = parsed.garrisonSize || 1500000;
+                
+                document.getElementById('scoutInfPercent').value = parsed.infantryPercent || 33;
+                document.getElementById('scoutLanPercent').value = parsed.lancerPercent || 33;
+                document.getElementById('scoutMarkPercent').value = parsed.marksmanPercent || 34;
+
+                showToast("Screenshot parsed! Generating strategic combat recommendations...", "success");
+                handleScoutReportAnalysis(null);
+            } catch (err) {
+                console.error("JSON formatting error: ", err);
+                showToast("Failed to interpret scanner layout output.", "danger");
+            }
+        }
+
         // DYNAMIC PASSCODE SECURITY MODAL ACTIONS
         function openSecuritySettingsModal() {
             const modal = document.getElementById('securitySettingsModal');
@@ -1479,6 +1689,7 @@
             
             const playerPasscodeField = document.getElementById('newPlayerPasscode');
             const adminPasscodeField = document.getElementById('newAdminPasscode');
+            
             if (playerPasscodeField) playerPasscodeField.value = "";
             if (adminPasscodeField) adminPasscodeField.value = "";
         }
@@ -1562,6 +1773,12 @@
             if (adminBar) {
                 if (isAdmin) adminBar.classList.remove('hidden');
                 else adminBar.classList.add('hidden');
+            }
+
+            // Sync Direct Key Input
+            const directKeyBox = document.getElementById('scoutDirectApiKeyInput');
+            if (directKeyBox) {
+                directKeyBox.value = localStorage.getItem('state_gemini_api_key') || '';
             }
 
             if (activeDrawerSlot) {
@@ -2005,7 +2222,7 @@
                     });
                     refreshUI();
                 } else {
-                    // SILENT DATA MIGRATOR TRIGGER (Fallback safeguard block)
+                    // SILENT DATA MIGRATOR TRIGGER
                     if (activeStateId === '4336') {
                         try {
                             const legacyDoc = await getLegacyRef().get();
