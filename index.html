@@ -81,95 +81,130 @@
         };
     </script>
 
-    <!-- AUTOMATIC STAGING ENVIRONMENT DETECTOR BANNER -->
-    <div id="sandboxBanner" class="hidden bg-gradient-to-r from-amber-500/20 via-brand-warning/30 to-amber-500/20 border-b border-brand-warning/40 text-center py-2 px-4 sticky top-0 z-50 backdrop-blur-md">
-        <p class="text-xs font-bold text-amber-300 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
-            DEVELOPMENT MODE ACTIVE &mdash; Connected to Staging Database (Live data is safe!)
-        </p>
-    </div>
+    <!-- UNIFIED STICKY NAVIGATION STACK WRAPPER -->
+    <div class="sticky top-0 z-50 flex flex-col w-full shadow-lg">
+        
+        <!-- AUTOMATIC STAGING ENVIRONMENT DETECTOR BANNER -->
+        <div id="sandboxBanner" class="hidden bg-gradient-to-r from-amber-500/20 via-brand-warning/30 to-amber-500/20 border-b border-brand-warning/40 text-center py-2 px-4 backdrop-blur-md">
+            <p class="text-xs font-bold text-amber-300 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+                DEVELOPMENT MODE ACTIVE &mdash; Connected to Staging Database (Live data is safe!)
+            </p>
+        </div>
 
-    <!-- PRESIDENCY ADMINISTRATIVE CONTROL CONSOLE BAR -->
-    <div id="adminControlBar" class="hidden bg-slate-900 border-b border-brand-border py-2 px-4 sticky top-0 z-50 transition-all duration-300">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <span class="text-amber-400 font-bold flex items-center gap-1.5">
-                <i class="fa-solid fa-crown text-amber-400 animate-pulse"></i> 
-                State <span id="adminBarStateId">4336</span> Presidency Control Console
-            </span>
-            <div class="flex flex-wrap items-center gap-2">
-                <!-- Manage Passcodes Button -->
-                <button onclick="openSecuritySettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-lg transition font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-shield-halved"></i> Lock Server Passcodes
-                </button>
-                <button onclick="exportBackup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-download text-sky-400"></i> Export Backup (.json)
-                </button>
-                <button onclick="triggerImportFile()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-upload text-emerald-400"></i> Restore Backup
-                </button>
-                <button onclick="confirmResetData()" class="px-3 py-1.5 bg-brand-danger/20 hover:bg-brand-danger/30 text-brand-danger border border-brand-danger/30 rounded-lg transition font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-trash-can"></i> Reset All Data
-                </button>
+        <!-- PRESIDENCY ADMINISTRATIVE CONTROL CONSOLE BAR -->
+        <div id="adminControlBar" class="hidden bg-slate-900 border-b border-brand-border py-2 px-4 transition-all duration-300">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <span class="text-amber-400 font-bold flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start">
+                    <i class="fa-solid fa-crown text-amber-400 animate-pulse"></i> 
+                    State <span id="adminBarStateId">4336</span> Presidency Control Console
+                </span>
+                <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                    <!-- Manage Passcodes Button -->
+                    <button onclick="openSecuritySettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved"></i> Lock Server Passcodes
+                    </button>
+                    <button onclick="exportBackup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-download text-sky-400"></i> Export Backup
+                    </button>
+                    <button onclick="triggerImportFile()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-upload text-emerald-400"></i> Restore Backup
+                    </button>
+                    <button onclick="confirmResetData()" class="px-3 py-1.5 bg-brand-danger/20 hover:bg-brand-danger/30 text-brand-danger border border-brand-danger/30 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> Reset All Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTRAL NAVIGATION HEADER -->
+        <header id="mainAppHeader" class="hidden border-b border-brand-border bg-brand-card/95 backdrop-blur-md px-4 py-3">
+            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-start">
+                    <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20 hidden sm:block">
+                        <i class="fa-solid fa-shield text-xl text-amber-400"></i>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center justify-center lg:justify-start gap-2">
+                            State Command Center
+                            <span id="envIndicatorPill" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
+                        </h1>
+                        <p class="text-[10px] sm:text-xs text-slate-400">Whiteout Survival Companion & Scheduler Platform</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
+                    <!-- Navigation Switchers -->
+                    <nav class="flex items-center bg-slate-900 border border-brand-border rounded-lg p-1">
+                        <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-md transition bg-brand-accent/20 text-brand-accent">
+                            <i class="fa-regular fa-calendar-check sm:mr-1.5"></i><span class="hidden sm:inline">SvS Scheduler</span>
+                        </button>
+                        <button onclick="showTab('bear')" id="tabBtn-bear" class="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-paw sm:mr-1.5"></i><span class="hidden sm:inline">Bear March</span>
+                        </button>
+                        <button onclick="showTab('scout')" id="tabBtn-scout" class="px-2.5 sm:px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
+                            <i class="fa-solid fa-binocular sm:mr-1.5"></i><span class="hidden sm:inline">Scout Analyzer</span>
+                        </button>
+                    </nav>
+
+                    <!-- Feedback Button -->
+                    <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20">
+                        <i class="fa-regular fa-comment-dots"></i>
+                        <span class="hidden sm:inline">Feedback</span>
+                    </button>
+
+                    <!-- Switch Server (Back to Launch Pad) -->
+                    <button onclick="routeToLaunchPad()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">Servers</span>
+                    </button>
+
+                    <!-- Admin Override Button -->
+                    <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                        <i class="fa-solid fa-key"></i>
+                        <span id="adminBtnText" class="hidden sm:inline">Presidency Login</span>
+                    </button>
+
+                    <!-- Diagnostics Status Button -->
+                    <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
+                        <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
+                        <span class="hidden sm:inline">Database: <strong id="statusText">Checking...</strong></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- SVS Days Tab Strip (Initial hidden block) -->
+        <div id="daySelectorTabs" class="hidden bg-brand-card/95 border-b border-brand-border px-4 py-2 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+                <div class="flex items-center gap-2 text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto justify-center md:justify-start">
+                    <i class="fa-solid fa-calendar-days text-brand-accent"></i> Select Prep Day:
+                </div>
+                <div class="grid grid-cols-5 gap-1 w-full md:w-auto">
+                    <button onclick="switchDay('day1')" id="btnDay-day1" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D1</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-compass-drafting text-[9px] text-cyan-400"></i><span class="hidden sm:inline">Build</span></span>
+                    </button>
+                    <button onclick="switchDay('day2')" id="btnDay-day2" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D2</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-microscope text-[9px] text-violet-400"></i><span class="hidden sm:inline">Tech</span></span>
+                    </button>
+                    <button onclick="switchDay('day3')" id="btnDay-day3" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D3</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-paw text-[9px] text-emerald-400"></i><span class="hidden sm:inline">Beast</span></span>
+                    </button>
+                    <button onclick="switchDay('day4')" id="btnDay-day4" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D4</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-shield-halved text-[9px] text-amber-400"></i><span class="hidden sm:inline">Hero</span></span>
+                    </button>
+                    <button onclick="switchDay('day5')" id="btnDay-day5" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D5</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-bolt text-[9px] text-orange-400"></i><span class="hidden sm:inline">Train</span></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- CENTRAL NAVIGATION HEADER -->
-    <header id="mainAppHeader" class="hidden border-b border-brand-border bg-brand-card/70 backdrop-blur sticky top-[33px] z-40 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-3">
-            <div class="flex items-center gap-3">
-                <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20">
-                    <i class="fa-solid fa-shield text-xl text-amber-400"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-                        State Command Center
-                        <span id="envIndicatorPill" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
-                    </h1>
-                    <p class="text-xs text-slate-400">Whiteout Survival Companion & Scheduler Platform</p>
-                </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center justify-center lg:justify-end gap-2 w-full lg:w-auto">
-                <!-- Navigation Switchers -->
-                <nav class="flex items-center bg-slate-900 border border-brand-border rounded-lg p-1 mr-2">
-                    <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="px-3 py-1.5 text-xs font-bold rounded-md transition bg-brand-accent/20 text-brand-accent">
-                        <i class="fa-regular fa-calendar-check mr-1.5"></i>SvS Scheduler
-                    </button>
-                    <button onclick="showTab('bear')" id="tabBtn-bear" class="px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
-                        <i class="fa-solid fa-paw mr-1.5"></i>Bear March
-                    </button>
-                    <button onclick="showTab('scout')" id="tabBtn-scout" class="px-3 py-1.5 text-xs font-bold rounded-md transition text-slate-400 hover:text-white">
-                        <i class="fa-solid fa-binocular mr-1.5"></i>Scout Analyzer
-                    </button>
-                </nav>
-
-                <!-- Feedback Button -->
-                <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20">
-                    <i class="fa-regular fa-comment-dots text-[10px]"></i>
-                    <span>Send Feedback</span>
-                </button>
-
-                <!-- Switch Server (Back to Launch Pad) -->
-                <button onclick="routeToLaunchPad()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                    <i class="fa-solid fa-right-from-bracket text-[10px]"></i>
-                    <span>Server List</span>
-                </button>
-
-                <!-- Admin Override Button -->
-                <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                    <i class="fa-solid fa-key text-[10px]"></i>
-                    <span id="adminBtnText">Presidency Login</span>
-                </button>
-
-                <!-- Diagnostics Status Button -->
-                <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                    <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
-                    <span>Database: <strong id="statusText">Checking...</strong></span>
-                </button>
-            </div>
-        </div>
-    </header>
 
     <!-- MULTI-TENANT LANDING SCREEN (LAUNCH PAD) -->
     <div id="launchPadPortal" class="flex-grow flex items-center justify-center p-4">
@@ -255,38 +290,6 @@
 
     <!-- MAIN CORE PANEL WRAPPER -->
     <div id="mainDashboardApp" class="hidden flex-grow flex flex-col">
-        
-        <!-- SVS Days Tab Strip -->
-        <div id="daySelectorTabs" class="bg-brand-card/30 border-b border-brand-border px-4 py-2 sticky top-[94px] z-30 backdrop-blur-sm">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3">
-                <div class="flex items-center gap-2 text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto">
-                    <i class="fa-solid fa-calendar-days text-brand-accent"></i> Select Prep Stage Day:
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 w-full md:w-auto">
-                    <button onclick="switchDay('day1')" id="btnDay-day1" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                        <span class="text-[9px] text-slate-500 font-bold">DAY 1</span>
-                        <span class="flex items-center gap-1"><i class="fa-solid fa-compass-drafting text-[10px] text-cyan-400"></i> Construction</span>
-                    </button>
-                    <button onclick="switchDay('day2')" id="btnDay-day2" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                        <span class="text-[9px] text-slate-500 font-bold">DAY 2</span>
-                        <span class="flex items-center gap-1"><i class="fa-solid fa-microscope text-[10px] text-violet-400"></i> Skills Up</span>
-                    </button>
-                    <button onclick="switchDay('day3')" id="btnDay-day3" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                        <span class="text-[9px] text-slate-500 font-bold">DAY 3</span>
-                        <span class="flex items-center gap-1"><i class="fa-solid fa-paw text-[10px] text-emerald-400"></i> Beast Slay</span>
-                    </button>
-                    <button onclick="switchDay('day4')" id="btnDay-day4" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                        <span class="text-[9px] text-slate-500 font-bold">DAY 4</span>
-                        <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-[10px] text-amber-400"></i> Hero Dev</span>
-                    </button>
-                    <button onclick="switchDay('day5')" id="btnDay-day5" class="px-3 py-2 text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
-                        <span class="text-[9px] text-slate-500 font-bold">DAY 5</span>
-                        <span class="flex items-center gap-1"><i class="fa-solid fa-bolt text-[10px] text-orange-400"></i> Power Boost</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- MAIN GRIDS VIEW CONTAINER -->
         <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-6">
             
@@ -340,7 +343,7 @@
                                 <i class="fa-solid fa-user-plus text-brand-accent"></i>
                                 Register Competitor Profile
                             </h2>
-                            <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800">State <span class="activeStateNameDisplay">4336</span></span>
+                            <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800 font-semibold font-mono">State <span class="activeStateNameDisplay">4336</span></span>
                         </div>
 
                         <form id="addPlayerForm" onsubmit="handleAddPlayer(event)" class="space-y-4">
@@ -355,7 +358,7 @@
                                     <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                                         <i class="fa-solid fa-fire text-amber-500"></i> Furnace/FC Level
                                     </label>
-                                    <input type="number" id="furnaceLevel" required min="1" max="45" placeholder="e.g. 30 (FC0) or 31 (FC1)" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                    <input type="number" id="furnaceLevel" required min="1" max="45" placeholder="e.g. 30" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
                                 </div>
                             </div>
 
@@ -995,10 +998,10 @@
             const config = dayConfig[dayId];
             if (!config) return;
 
-            const buffLabel = document.getElementById('infoBuffLabel');
-            const buffDesc = document.getElementById('infoBuffDescription');
-            if (buffLabel) buffLabel.textContent = config.title;
-            if (buffDesc) buffDesc.textContent = config.desc;
+            const textHeader = document.getElementById('infoBuffLabel');
+            const descHeader = document.getElementById('infoBuffDescription');
+            if (textHeader) textHeader.textContent = config.title;
+            if (descHeader) descHeader.textContent = config.desc;
 
             const scheduleList = document.getElementById('scheduleContainer');
             const beastSlayCard = document.getElementById('beastSlayAlert');
@@ -1027,8 +1030,8 @@
                 const btn = document.getElementById(`btnDay-${d}`);
                 if (btn) {
                     btn.className = d === dayId 
-                        ? "px-3 py-2 text-xs font-bold rounded-lg transition border bg-brand-accent/20 text-brand-accent border-brand-accent flex-grow animate-pulse" 
-                        : "px-3 py-2 text-xs font-bold rounded-lg transition border bg-slate-800 text-slate-400 border-transparent hover:text-white flex-grow";
+                        ? "px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border bg-brand-accent/20 text-brand-accent border-brand-accent flex-grow animate-pulse" 
+                        : "px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border bg-slate-800 text-slate-400 border-transparent hover:text-white flex-grow";
                 }
             });
             refreshUI();
@@ -1150,7 +1153,7 @@
                 isAdmin = false;
                 const adminBtn = document.getElementById('adminBtn');
                 const adminBtnText = document.getElementById('adminBtnText');
-                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700";
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700";
                 if (adminBtnText) adminBtnText.textContent = "Presidency Login";
                 refreshUI();
             } else {
@@ -1178,7 +1181,7 @@
                 isAdmin = true;
                 const adminBtn = document.getElementById('adminBtn');
                 const adminBtnText = document.getElementById('adminBtnText');
-                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
                 if (adminBtnText) adminBtnText.textContent = "Presidency Active";
                 closeAdminModal();
                 refreshUI();
@@ -1314,7 +1317,7 @@
                             <div class="flex items-center gap-1.5 font-bold text-white">
                                 <span class="px-1.5 py-0.2 bg-slate-800 text-[10px] rounded text-slate-400">${lvlDisplay}</span>
                                 <span>${p.name}</span>
-                                <button onclick="togglePlayerFcStatus('${p.name}')">${p.fc_upgrade?'<span class="text-[9px] text-amber-400 font-extrabold bg-amber-500/10 px-1 rounded">⚡ Push</span>':'<span class="text-[9px] text-slate-600 px-1 rounded">Off</span>'}</button>
+                                <button onclick="togglePlayerFcStatus('${p.name}')">${p.fc_upgrade?'<span class="text-[9px] text-amber-400 font-extrabold bg-amber-500/10 px-1 rounded font-semibold">⚡ Push</span>':'<span class="text-[9px] text-slate-600 px-1 rounded font-semibold">Off</span>'}</button>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
@@ -1570,9 +1573,11 @@
             const dash = document.getElementById('mainDashboardApp');
             const header = document.getElementById('mainAppHeader');
             const portal = document.getElementById('launchPadPortal');
+            const dayBar = document.getElementById('daySelectorTabs');
 
             if (dash) dash.classList.add('hidden');
             if (header) header.classList.add('hidden');
+            if (dayBar) dayBar.classList.add('hidden');
             if (portal) portal.classList.remove('hidden');
 
             localStorage.removeItem('active_state_v2');
@@ -1630,7 +1635,6 @@
                     document.getElementById('registerStateIdDisplay').textContent = `State ${activeStateId}`;
                 }
             } catch(e) {
-                // SANDBOX FORCE MIGRATION BRIDGE (Safari Iframe Handshake Blocker Bypasser)
                 console.warn("Firestore handshake failed during lookup. Shifting directly to Offline Sandbox Mode...");
                 activateOfflineSandboxMode("Iframe partition active.");
                 loadOfflineStateBypass();
@@ -1743,6 +1747,9 @@
             if (dash) dash.classList.remove('hidden');
             if (header) header.classList.remove('hidden');
             if (portal) portal.classList.add('hidden');
+
+            // Force tab navigation initialization to resolve the iframe hidden-days bug cleanly
+            showTab('scheduler');
 
             subscribeToData();
         }
@@ -2038,20 +2045,15 @@
             initEventListeners();
             switchDay('day4'); 
 
-            // Restore state id from cache if available
+            // Restore state id from cache if available cleanly via the central route bypass logic
             const cachedState = localStorage.getItem('active_state_v2');
             if (cachedState) {
                 activeStateId = cachedState;
-                const dash = document.getElementById('mainDashboardApp');
-                const header = document.getElementById('mainAppHeader');
-                const portal = document.getElementById('launchPadPortal');
-
-                if (dash) dash.classList.remove('hidden');
-                if (header) header.classList.remove('hidden');
-                if (portal) portal.classList.add('hidden');
-                
                 const targetInput = document.getElementById('targetStateInput');
                 if (targetInput) targetInput.value = cachedState;
+                
+                // Routes cleanly, showing day buttons and clearing hidden containers
+                bypassLaunchPadDirect();
             }
 
             // SAFETY TIMEOUT GUARD: Switch to offline mode if Safari blocks connection for 3.5 seconds
@@ -2079,7 +2081,11 @@
 
                         const tag = document.getElementById('userIdTag');
                         if (tag) tag.classList.remove('hidden');
-                        subscribeToData();
+                        
+                        // Only trigger subscribe if we already logged into a state to prevent boot collisions
+                        if (activeStateId) {
+                            subscribeToData();
+                        }
                     } else {
                         const tag = document.getElementById('userIdTag');
                         if (tag) tag.classList.add('hidden');
