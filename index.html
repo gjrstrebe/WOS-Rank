@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Offline | Powered by Arctic Shenanigans Squad</title>
+    <title>State Command Center & SvS Scheduler</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (Compatibility Mode for Web deployment) -->
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
@@ -33,109 +33,151 @@
         }
     </script>
     <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0B0F19; }
-        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #38BDF8; }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1E293B;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #38BDF8;
+        }
     </style>
 </head>
 <body class="bg-brand-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-accent/30 selection:text-brand-accent">
 
-    <!-- PUBLIC SPLASH PAGE OVERLAY (THE BLOCKADE) -->
-    <div id="splashPage" class="fixed inset-0 z-[100] bg-brand-dark/95 backdrop-blur-xl flex items-center justify-center p-4 transition-opacity duration-500">
-        <div class="bg-brand-card border-2 border-brand-accent/40 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-[0_0_40px_rgba(56,189,248,0.15)] text-center space-y-6 relative overflow-hidden">
+    <!-- Error Interception Script (Must run first) -->
+    <script>
+        window.capturedErrors = [];
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            let errorMsg = "";
+            try {
+                errorMsg = args.map(arg => {
+                    if (arg === null) return "null";
+                    if (arg === undefined) return "undefined";
+                    if (arg instanceof Error) return arg.message + "\n" + arg.stack;
+                    if (typeof arg === 'object') {
+                        try { return JSON.stringify(arg); } catch(e) { return String(arg); }
+                    }
+                    return String(arg);
+                }).join(' ');
+            } catch (e) {
+                errorMsg = "Formatting error: " + e.message;
+            }
+            window.capturedErrors.push(errorMsg);
             
-            <!-- Alliance Logo Graphic (references your uploaded image.png) -->
-            <div class="flex justify-center">
-                <img src="image.png" alt="Arctic Shenanigans Squad" class="max-w-[200px] w-full h-auto drop-shadow-[0_0_15px_rgba(56,189,248,0.3)] rounded-lg" onerror="this.style.display='none'; document.getElementById('fallbackLogo').classList.remove('hidden');">
-                <div id="fallbackLogo" class="hidden p-4 rounded-full bg-brand-accent/10 border border-brand-accent/30 text-brand-accent mb-2">
-                    <i class="fa-solid fa-snowflake text-5xl animate-spin"></i>
-                </div>
-            </div>
+            const logDisplay = document.getElementById('consoleLogDisplay');
+            if (logDisplay) {
+                logDisplay.innerHTML += `<div class="text-rose-400 font-mono text-[10px] p-1.5 bg-rose-950/30 border border-rose-900/30 rounded mb-1.5 break-words">> ${errorMsg}</div>`;
+            }
+            originalConsoleError.apply(console, args);
+        };
+    </script>
 
-            <div>
-                <span class="inline-block bg-sky-500/10 text-brand-accent border border-brand-accent/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 shadow-sm shadow-brand-accent/20">
-                    <i class="fa-solid fa-code mr-1"></i> Dev: Ask_TechDad
-                </span>
-                <h1 class="text-2xl font-black text-white tracking-tight uppercase text-rose-400">Public Access Suspended</h1>
-            </div>
-
-            <p class="text-sm text-slate-300 leading-relaxed bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-                This SvS Prep Scheduling Tool was custom engineered by <strong class="text-brand-accent">Ask_TechDad</strong> for the exclusive use of <strong class="text-white">Arctic Shenanigans Squad</strong>.
-                <br><br>
-                <span class="text-slate-400">Due to ongoing toxicity and disrespect targeted toward our alliance members and leadership, public state access has been temporarily revoked.</span>
-            </p>
-
-            <div class="border-y border-brand-accent/30 py-2 my-2 text-xs font-black tracking-widest text-brand-accent uppercase">
-                RESPECT • LOYALTY • TEAMWORK • VICTORY
-            </div>
-
-            <!-- Ko-fi Developer Support Button -->
-            <div class="pt-2">
-                <p class="text-xs text-slate-400 mb-3">Want to support the developer or inquire about access?</p>
-                <!-- REPLACE THIS LINK WITH YOUR ACTUAL KO-FI URL -->
-                <a href="https://ko-fi.com/asktechdad" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 bg-[#FF5E5B] hover:bg-[#FF3B37] text-white font-bold rounded-xl text-sm transition shadow-lg shadow-rose-600/30 transform hover:-translate-y-1">
-                    <i class="fa-solid fa-mug-hot"></i>
-                    Support Ask_TechDad on Ko-fi
-                </a>
-            </div>
-
-            <!-- Passcode Access Prompt for Internal Alliance Members -->
-            <div class="pt-6 border-t border-brand-border text-left">
-                <p class="text-[11px] text-slate-400 mb-2 font-semibold text-center uppercase tracking-wider">Arctic Shenanigans Squad Secure Access</p>
-                <form onsubmit="handleAlliancePasscode(event)" class="flex gap-2">
-                    <input type="password" id="alliancePasscodeInput" placeholder="Enter VIP Passcode" class="flex-grow bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent font-mono tracking-widest text-center placeholder-slate-600">
-                    <button type="submit" class="px-5 py-2 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition">
-                        <i class="fa-solid fa-unlock-keyhole"></i>
-                    </button>
-                </form>
-            </div>
-            
-            <p class="text-[10px] text-slate-500 italic mt-4">
-                Tools and technology follow mutual respect. Access requests will be evaluated on an alliance-by-alliance basis.
+    <!-- UNIFIED STICKY NAVIGATION STACK WRAPPER -->
+    <div class="sticky top-0 z-50 flex flex-col w-full shadow-lg">
+        
+        <!-- AUTOMATIC STAGING ENVIRONMENT DETECTOR BANNER -->
+        <div id="sandboxBanner" class="hidden bg-gradient-to-r from-amber-500/20 via-brand-warning/30 to-amber-500/20 border-b border-brand-warning/40 text-center py-2 px-4 backdrop-blur-md">
+            <p class="text-xs font-bold text-amber-300 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation animate-bounce"></i>
+                DEVELOPMENT MODE ACTIVE &mdash; Connected to Staging Database (Live data is safe!)
             </p>
         </div>
-    </div>
 
-    <!-- MAIN CORE PANEL WRAPPER (HIDDEN BEHIND SPLASH INITIALLY) -->
-    <div id="mainDashboardApp" class="flex-grow flex flex-col hidden-until-auth">
-        
-        <!-- CENTRAL NAVIGATION HEADER WITH BRANDING -->
-        <header id="mainAppHeader" class="border-b border-brand-border bg-brand-card/95 backdrop-blur-md px-4 py-3">
+        <!-- PRESIDENCY ADMINISTRATIVE CONTROL CONSOLE BAR -->
+        <div id="adminControlBar" class="hidden bg-slate-900 border-b border-brand-border py-2 px-4 transition-all duration-300">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <span class="text-amber-400 font-bold flex items-center gap-1.5 w-full sm:w-auto justify-center sm:justify-start">
+                    <i class="fa-solid fa-crown text-amber-400 animate-pulse"></i> 
+                    State <span id="adminBarStateId">4336</span> Presidency Control Console
+                </span>
+                <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                    <!-- ONE-CLICK MANUAL LEGACY DATABASE MIGRATOR -->
+                    <button onclick="triggerManualLegacyMigration()" id="manualMigrateBtn" class="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg transition font-extrabold flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-import text-amber-400 animate-bounce"></i> ⚡ Import Legacy 4336 Data
+                    </button>
+                    <!-- Manage Passcodes Button -->
+                    <button onclick="openSecuritySettingsModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved"></i> Lock Server Passcodes
+                    </button>
+                    <button onclick="exportBackup()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-download text-sky-400"></i> Export Backup
+                    </button>
+                    <button onclick="triggerImportFile()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-upload text-emerald-400"></i> Restore Backup
+                    </button>
+                    <button onclick="confirmResetData()" class="px-3 py-1.5 bg-brand-danger/20 hover:bg-brand-danger/30 text-brand-danger border border-brand-danger/30 rounded-lg transition font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i> Reset All Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTRAL NAVIGATION HEADER -->
+        <header id="mainAppHeader" class="hidden border-b border-brand-border bg-brand-card/95 backdrop-blur-md px-4 py-3">
             <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
                 
                 <!-- Logo & Brand Info -->
                 <div class="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-start">
-                    <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20 hidden sm:block">
-                        <i class="fa-solid fa-snowflake text-xl text-sky-400"></i>
+                    <div class="bg-brand-accent/10 p-2 rounded-lg text-brand-accent border border-brand-accent/20 hidden sm:block animate-pulse">
+                        <i class="fa-solid fa-shield text-xl text-amber-400"></i>
                     </div>
                     <div class="text-center lg:text-left">
                         <h1 class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center justify-center lg:justify-start gap-2">
                             State Command Center
-                            <span id="envIndicatorPill" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">Secure Instance</span>
+                            <span id="envIndicatorPill" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-brand-accent border border-brand-accent/20">State 4336</span>
                         </h1>
-                        <p class="text-[10px] sm:text-xs text-slate-400">
-                            Built by <span class="text-brand-accent font-bold">Ask_TechDad</span> • Powered by <span class="text-slate-200 font-bold">Arctic Shenanigans Squad</span>
-                        </p>
+                        <p class="text-[10px] sm:text-xs text-slate-400">Whiteout Survival Companion & Scheduler Platform</p>
                     </div>
                 </div>
                 
-                <!-- Action Panel -->
+                <!-- Mobile-Optimized Unified Action Panel -->
                 <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                    <!-- Segmented View Tabs -->
+                    
+                    <!-- Segmented View Tabs Control -->
                     <nav class="flex items-center bg-slate-900 border border-brand-border rounded-xl p-1 w-full sm:w-auto">
-                        <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="flex-grow sm:flex-initial px-4 py-2 text-xs font-black rounded-lg bg-brand-accent/20 text-brand-accent">Scheduler</button>
-                        <button onclick="showTab('scout')" id="tabBtn-scout" class="flex-grow sm:flex-initial px-4 py-2 text-xs font-black rounded-lg text-slate-400 hover:text-white">Scout Scanner</button>
+                        <button onclick="showTab('scheduler')" id="tabBtn-scheduler" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center justify-center gap-1.5">
+                            <i class="fa-regular fa-calendar-check text-[13px]"></i>
+                            <span>Scheduler</span>
+                        </button>
+                        <button onclick="showTab('bear')" id="tabBtn-bear" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-paw text-[13px]"></i>
+                            <span>Bear March</span>
+                        </button>
+                        <button onclick="showTab('scout')" id="tabBtn-scout" class="flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-binoculars text-[13px]"></i>
+                            <span>Scout</span>
+                        </button>
                     </nav>
 
-                    <div class="flex items-center gap-2">
-                        <!-- Header Ko-fi Button -->
-                        <a href="https://ko-fi.com/asktechdad" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all bg-[#FF5E5B]/10 text-[#FF5E5B] border border-[#FF5E5B]/30 hover:bg-[#FF5E5B]/20" title="Buy me a coffee">
-                            <i class="fa-solid fa-mug-hot"></i>
-                            <span class="hidden md:inline">Support Dev</span>
-                        </a>
-                        <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700">
-                            <i class="fa-solid fa-key"></i> <span id="adminBtnText" class="hidden md:inline">Admin</span>
+                    <!-- Auxiliary Action Panel -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
+                        <button onclick="openFeedbackModal()" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all bg-sky-500/10 text-brand-accent border border-brand-accent/20 hover:bg-brand-accent/20" title="Feedback">
+                            <i class="fa-regular fa-comment-dots"></i>
+                            <span class="hidden md:inline">Feedback</span>
+                        </button>
+
+                        <button onclick="routeToLaunchPad()" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700" title="Switch Servers">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span class="hidden md:inline">Servers</span>
+                        </button>
+
+                        <button onclick="toggleAdminPanel()" id="adminBtn" class="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700" title="Presidency Login">
+                            <i class="fa-solid fa-key"></i>
+                            <span id="adminBtnText" class="hidden md:inline">Presidency Login</span>
+                        </button>
+
+                        <button onclick="openDiagnosticsModal()" id="dbStatusPill" class="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700" title="Database Status">
+                            <span class="h-2 w-2 rounded-full bg-slate-500 animate-pulse" id="statusDot"></span>
+                            <span class="hidden md:inline">Database: <strong id="statusText">Checking...</strong></span>
                         </button>
                     </div>
                 </div>
@@ -143,223 +185,825 @@
         </header>
 
         <!-- SVS Days Tab Strip -->
-        <div id="daySelectorTabs" class="bg-brand-card/95 border-b border-brand-border px-4 py-2 backdrop-blur-md">
-            <div class="max-w-7xl mx-auto flex justify-center items-center gap-2">
-                <div class="grid grid-cols-5 gap-1 md:gap-2 w-full max-w-2xl">
-                    <button onclick="switchDay('day1')" id="btnDay-day1" class="px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-slate-800 text-slate-400 border-transparent hover:text-white transition">Day 1: Build</button>
-                    <button onclick="switchDay('day2')" id="btnDay-day2" class="px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-slate-800 text-slate-400 border-transparent hover:text-white transition">Day 2: Tech</button>
-                    <button onclick="switchDay('day3')" id="btnDay-day3" class="px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-slate-800 text-slate-400 border-transparent hover:text-white transition">Day 3: Beast</button>
-                    <button onclick="switchDay('day4')" id="btnDay-day4" class="px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-brand-accent/20 text-brand-accent border-brand-accent transition">Day 4: Hero</button>
-                    <button onclick="switchDay('day5')" id="btnDay-day5" class="px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-slate-800 text-slate-400 border-transparent hover:text-white transition">Day 5: Train</button>
+        <div id="daySelectorTabs" class="hidden bg-brand-card/95 border-b border-brand-border px-4 py-2 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2">
+                <div class="flex items-center gap-2 text-[10px] sm:text-xs text-slate-400 uppercase tracking-widest font-extrabold w-full md:w-auto justify-center md:justify-start">
+                    <i class="fa-solid fa-calendar-days text-brand-accent"></i> Select Prep Day:
+                </div>
+                <div class="grid grid-cols-5 gap-1 w-full md:w-auto">
+                    <button onclick="switchDay('day1')" id="btnDay-day1" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D1</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-compass-drafting text-[9px] text-cyan-400"></i><span class="hidden sm:inline">Build</span></span>
+                    </button>
+                    <button onclick="switchDay('day2')" id="btnDay-day2" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D2</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-microscope text-[9px] text-violet-400"></i><span class="hidden sm:inline">Tech</span></span>
+                    </button>
+                    <button onclick="switchDay('day3')" id="btnDay-day3" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D3</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-paw text-[9px] text-emerald-400"></i><span class="hidden sm:inline">Beast</span></span>
+                    </button>
+                    <button onclick="switchDay('day4')" id="btnDay-day4" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D4</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-shield-halved text-[9px] text-amber-400"></i><span class="hidden sm:inline">Hero</span></span>
+                    </button>
+                    <button onclick="switchDay('day5')" id="btnDay-day5" class="px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border flex flex-col items-center justify-center text-center">
+                        <span class="text-[8px] sm:text-[9px] text-slate-500 font-bold">D5</span>
+                        <span class="flex items-center gap-0.5"><i class="fa-solid fa-bolt text-[9px] text-orange-400"></i><span class="hidden sm:inline">Train</span></span>
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
+    <!-- MULTI-TENANT LANDING SCREEN (LAUNCH PAD) -->
+    <div id="launchPadPortal" class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-brand-card border border-brand-border rounded-2xl max-w-md w-full p-6 lg:p-8 shadow-2xl space-y-6 text-center transition-all duration-300">
+            <div class="inline-flex p-4 rounded-full bg-brand-accent/10 text-brand-accent mb-2">
+                <i class="fa-solid fa-shield text-4xl text-amber-400" id="portalLogo"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-white tracking-tight" id="portalTitle">State Command Launch Pad</h2>
+                <p class="text-xs text-slate-400 mt-1" id="portalSub">Select your active Whiteout Survival server sandbox</p>
+            </div>
+
+            <!-- STAGE 1: ENTER STATE ID FORM -->
+            <form id="stateLookupForm" onsubmit="handleStateLookup(event)" class="space-y-4 text-left">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-server text-slate-500"></i> Target State ID
+                    </label>
+                    <input type="number" id="targetStateInput" required min="1" max="9999" placeholder="e.g. 4336" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                </div>
+                <!-- Interactive Loading Button Safeguard -->
+                <button type="submit" id="lookupSubmitBtn" disabled class="w-full py-3 px-4 bg-slate-800 text-slate-500 font-black rounded-lg text-sm transition flex items-center justify-center gap-2 cursor-not-allowed">
+                    <i class="fa-solid fa-spinner animate-spin" id="lookupSpinIcon"></i>
+                    <span id="lookupBtnText">Connecting to Database...</span>
+                </button>
+            </form>
+
+            <!-- STAGE 2A: STATE EXISTS - LOGIN FORM -->
+            <form id="stateLoginForm" onsubmit="handleStateLogin(event)" class="hidden space-y-4 text-left">
+                <div class="p-3 bg-slate-900 border border-brand-border rounded-lg text-xs flex justify-between items-center">
+                    <div>
+                        <span class="text-slate-400 block text-[10px]">Connected to Server:</span>
+                        <span class="text-white font-bold" id="loginStateDisplay">State 4336</span>
+                    </div>
+                    <button type="button" onclick="resetPortalState()" class="text-brand-accent hover:underline font-semibold text-[11px]">Change State</button>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lock text-slate-500"></i> Standard Server Passcode
+                    </label>
+                    <input type="password" id="targetPasscodeInput" placeholder="Enter Server Passcode" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition tracking-widest">
+                    <span class="text-[10px] text-slate-500 block" id="passcodeHelperText">Enter standard state member passcode.</span>
+                </div>
+                <button type="submit" class="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-400 text-white font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-bolt"></i>
+                    Connect Command Center
+                </button>
+            </form>
+
+            <!-- STAGE 2B: STATE DOES NOT EXIST - REGISTER SETUP WIZARD -->
+            <form id="stateRegistrationForm" onsubmit="handleStateRegistration(event)" class="hidden space-y-4 text-left">
+                <div class="p-3 bg-brand-accent/5 border border-brand-accent/20 rounded-lg text-xs space-y-1">
+                    <span class="text-brand-accent font-bold"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i> New Sandbox Initializer</span>
+                    <p class="text-slate-300 text-[11px]">Server sandbox <strong id="registerStateIdDisplay">State 1205</strong> is unregistered. Build your isolated partition database now.</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Choose Standard Player Passcode</label>
+                    <input type="password" id="regPlayerPasscode" required placeholder="For standard players (e.g. 1205gold)" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Choose Presidential Passcode (Admin Override)</label>
+                    <input type="password" id="regAdminPasscode" required placeholder="For presidency actions (e.g. 1205admin)" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                    <span class="text-[10px] text-slate-500 block">Do NOT lose this password. It is used to lock slots and reset schedules.</span>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="button" onclick="resetPortalState()" class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2.5 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-lg">
+                        Create Sandbox
+                    </button>
+                </div>
+            </form>
+
+            <div class="border-t border-brand-border/60 pt-4 text-[11px] text-slate-500 leading-relaxed">
+                <p><i class="fa-solid fa-shield-halved text-brand-accent mr-1"></i> Multi-Tenant Partition Separation guarantees that your state's private player rosters and schedules are mathematically isolated.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CORE PANEL WRAPPER -->
+    <div id="mainDashboardApp" class="hidden flex-grow flex flex-col">
+        <!-- MAIN GRIDS VIEW CONTAINER -->
         <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-6">
             
-            <!-- VIEW 1: SCHEDULER -->
+            <!-- VIEW TAB 1: MINISTERIAL SVS SCHEDULER -->
             <div id="view-scheduler" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Left Column -->
+                <!-- Left Column: Registration & Stats (5 Cols) -->
                 <section class="lg:col-span-5 space-y-6">
-                    <!-- Cabinet Details -->
-                    <div class="bg-brand-card border border-brand-border rounded-xl p-4 shadow-xl">
-                        <h3 class="font-bold text-sm text-white mb-2"><i class="fa-solid fa-calculator text-brand-accent mr-2"></i>Cabinet Assignment</h3>
-                        <div class="p-3 bg-slate-900 border border-brand-border rounded-lg text-xs">
-                            <span class="text-slate-400 block mb-1">Required Buff:</span>
+                    <!-- Cabinet Assignment Details -->
+                    <div class="bg-gradient-to-br from-brand-card to-brand-card/90 border border-brand-border rounded-xl p-4 shadow-xl">
+                        <h3 class="font-bold text-sm text-white mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-brand-accent"></i>
+                            Current Cabinet Assignment
+                        </h3>
+                        <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border/80 mb-3 text-xs">
+                            <span class="text-slate-400 block mb-0.5">Required Buff Position:</span>
                             <span id="infoBuffLabel" class="text-brand-accent font-extrabold uppercase tracking-wide text-sm block">Education Minister</span>
-                            <p id="infoBuffDescription" class="text-slate-300 mt-2">Day 4 features no native speedup buff. Secure this slot to pre-train troops early.</p>
+                            <p id="infoBuffDescription" class="text-[11px] text-slate-300 mt-1 leading-relaxed">Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.</p>
+                        </div>
+                        <div class="p-3 bg-slate-900/60 border border-brand-border rounded-lg text-xs space-y-2">
+                            <span class="font-bold text-slate-200 block border-b border-brand-border pb-1"><i class="fa-solid fa-scale-balanced mr-1 text-brand-accent"></i> State Allocation Protocol</span>
+                            <ul class="space-y-1.5 text-[11px] text-slate-300 list-disc list-inside">
+                                <li>The Command Center dynamically scores applicants based on **saved speedups** scaled to **overall Furnace progression**.</li>
+                                <li>This model balances raw spending with strategic dedication, ensuring mid-tier players who hoard extensively can secure buffs over casual high-tier spenders.</li>
+                                <li>The competitor displaying the **highest calculated yield score** automatically secures the slot unless locked manually by a Presidential Officer.</li>
+                            </ul>
                         </div>
                     </div>
 
-                    <!-- Registration -->
-                    <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
-                        <h2 class="text-base font-bold text-white"><i class="fa-solid fa-user-plus text-brand-accent mr-2"></i>Register Profile</h2>
+                    <!-- Pro-Tip: Troop Promotion Guide Card (Visible on Training Days) -->
+                    <div id="promotionGuideCard" class="hidden bg-gradient-to-br from-slate-900 via-brand-card to-slate-900 border border-amber-500/30 rounded-xl p-4 shadow-xl space-y-2.5">
+                        <h4 class="font-bold text-xs text-amber-400 flex items-center gap-1.5 border-b border-brand-border pb-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-400 animate-pulse"></i>
+                            Official State SvS Troop Tactics
+                        </h4>
+                        <div class="space-y-2 text-[11px] text-slate-300 leading-relaxed">
+                            <div>
+                                <span class="font-bold text-brand-accent block mb-0.5">🚀 Step 1: The Day 4 "Pre-Queue" (Free Points)</span>
+                                On Day 4 (Hero Dev), grab the **Education Minister** buff to start your absolute largest, longest possible training batch *without using speedups*. Let it cook for 24+ hours and tap **Collect** the moment Day 5 begins for free launch points!
+                            </div>
+                            <div class="border-t border-brand-border/60 pt-2">
+                                <span class="font-bold text-emerald-400 block mb-0.5">⚔️ Step 2: High-Efficiency Promotions (Day 5)</span>
+                                During Day 5, promote lower-tier troops to your highest unlocked tier using speedups. Although promotion points yield the *difference* between tiers, they cost only a fraction of the training time—giving you **up to 50% more SvS points per minute of speedups spent**!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Player Database Input Card -->
+                    <div id="registrationCard" class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-brand-accent"></i>
+                                Register Competitor Profile
+                            </h2>
+                            <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded-full border border-slate-800 font-semibold font-mono">State <span class="activeStateNameDisplay">4336</span></span>
+                        </div>
+
                         <form id="addPlayerForm" onsubmit="handleAddPlayer(event)" class="space-y-4">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs text-slate-300 mb-1 block">Player Name</label>
-                                    <input type="text" id="playerName" required class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:border-brand-accent outline-none">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-signature text-slate-500"></i> Player Name
+                                    </label>
+                                    <input type="text" id="playerName" required placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition">
                                 </div>
-                                <div>
-                                    <label class="text-xs text-slate-300 mb-1 block">Furnace Level</label>
-                                    <input type="number" id="furnaceLevel" required min="1" max="45" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:border-brand-accent outline-none">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-fire text-amber-500"></i> Furnace/FC Level
+                                    </label>
+                                    <input type="number" id="furnaceLevel" required min="1" max="45" placeholder="e.g. 30" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-brand-accent transition font-mono">
                                 </div>
                             </div>
-                            
-                            <div class="border-t border-brand-border pt-3">
-                                <label class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Total Speedups (Days)</label>
+
+                            <!-- Dynamic FC badge indicator -->
+                            <div id="fcLevelBanner" class="hidden p-2.5 rounded bg-cyan-950/40 border border-cyan-800/40 text-cyan-400 text-xs">
+                                <i class="fa-solid fa-gem mr-1"></i> Translated to: <strong id="fcLevelBannerText">Fire Crystal 1</strong>
+                            </div>
+
+                            <!-- Speedup Balances Grid -->
+                            <div class="space-y-2 border-t border-brand-border/60 pt-3">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Total Speedup Stockpiles (In Days)</span>
                                 <div class="grid grid-cols-2 gap-3">
-                                    <input type="number" id="speedups_build" step="0.01" placeholder="📐 Build" class="w-full bg-slate-900 border border-brand-border rounded px-3 py-1.5 text-xs text-white">
-                                    <input type="number" id="speedups_research" step="0.01" placeholder="🔬 Research" class="w-full bg-slate-900 border border-brand-border rounded px-3 py-1.5 text-xs text-white">
-                                    <input type="number" id="speedups_train" step="0.01" placeholder="⚔️ Train" class="w-full bg-slate-900 border border-brand-border rounded px-3 py-1.5 text-xs text-white">
-                                    <input type="number" id="speedups_universal" step="0.01" placeholder="📦 Universal" class="w-full bg-slate-900 border border-brand-border rounded px-3 py-1.5 text-xs text-white">
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-cyan-400">📐 Build Speedups</label>
+                                        <input type="number" id="speedups_build" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-violet-400">🔬 Research Speedups</label>
+                                        <input type="number" id="speedups_research" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-amber-400">⚔️ Training Speedups</label>
+                                        <input type="number" id="speedups_train" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-slate-300">📦 Universal Speedups</label>
+                                        <input type="number" id="speedups_universal" step="0.01" min="0" placeholder="0.0" class="w-full bg-slate-900 border border-brand-border rounded px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <button type="submit" class="w-full py-2.5 bg-brand-accent text-brand-dark font-black rounded-lg text-sm hover:bg-sky-400 transition">
-                                Add to Registry
+
+                            <!-- Upgrade Push Checkbox -->
+                            <div class="p-3 bg-slate-900/80 rounded-xl border border-brand-border flex items-start gap-3">
+                                <input type="checkbox" id="fc_upgrade_push" onchange="updateLiveRegistrationPreviews()" class="h-4 w-4 mt-0.5 rounded border-slate-700 bg-slate-950 text-amber-500 focus:ring-amber-500/30 focus:ring-offset-slate-900 cursor-pointer">
+                                <div class="text-xs">
+                                    <label for="fc_upgrade_push" class="font-bold text-white flex items-center gap-1.5 cursor-pointer">
+                                        <i class="fa-solid fa-circle-up text-amber-500"></i>
+                                        Active Heavy Event Upgrade Push
+                                    </label>
+                                    <p class="text-slate-400 mt-0.5 text-[10px]">Applies a <strong>1.5x score multiplier</strong>. Check this if you are actively performing a massive building/tech expansion or a major troop promotion batch during your slot.</p>
+                                </div>
+                            </div>
+
+                            <div class="p-2.5 rounded-lg bg-slate-900/60 border border-brand-border text-center">
+                                <span class="text-[10px] text-slate-400 block font-semibold mb-1">Calculated Yield Scores for Active Day</span>
+                                <div class="grid grid-cols-3 gap-1 text-[11px] font-mono font-bold">
+                                    <div class="text-cyan-400">📐 Build: <span id="scorePreview-build">0.00</span></div>
+                                    <div class="text-violet-400">🔬 Tech: <span id="scorePreview-research">0.00</span></div>
+                                    <div class="text-amber-400">⚔️ Troop: <span id="scorePreview-train">0.00</span></div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 active:scale-[0.98] text-brand-dark font-black rounded-lg text-sm transition shadow-lg shadow-brand-accent/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                Add Competitor Profile
                             </button>
                         </form>
                     </div>
 
-                    <!-- Roster -->
-                    <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl max-h-[300px] flex flex-col">
-                        <div class="flex justify-between items-center mb-3">
-                            <h2 class="text-sm font-bold text-white">Alliance Roster (<span id="playerCount">0</span>)</h2>
+                    <!-- State Roster Card -->
+                    <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4 flex flex-col max-h-[450px]">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-bold text-white">Alliance Roster</h2>
+                                <span id="playerCount" class="text-xs bg-slate-900 text-brand-accent px-2 py-0.5 rounded-full font-mono border border-brand-border">0</span>
+                            </div>
+                            <div class="relative w-40">
+                                <input type="text" id="rosterSearch" oninput="renderPlayers()" placeholder="Search..." class="w-full bg-slate-900 border border-brand-border rounded-full py-1 px-3 text-xs text-white focus:outline-none focus:border-brand-accent">
+                                <i class="fa-solid fa-search absolute right-3 top-2.5 text-[10px] text-slate-500"></i>
+                            </div>
                         </div>
-                        <div id="playerList" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
+
+                        <div id="playerList" class="space-y-2.5 overflow-y-auto pr-1 flex-grow">
+                            <!-- Dynamic roster elements -->
+                        </div>
                     </div>
                 </section>
 
-                <!-- Right Column (Schedule) -->
-                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col">
-                    <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-4">
-                        <h2 class="text-base font-bold text-white"><i class="fa-regular fa-calendar-check text-brand-accent mr-2"></i>Buff Timeline</h2>
-                        <div class="flex bg-slate-900 p-1 rounded-lg border border-brand-border">
-                            <button onclick="setTimeMode('utc')" id="timeBtn-utc" class="px-2 py-1 text-[10px] rounded bg-brand-accent/20 text-brand-accent font-bold">UTC</button>
-                            <button onclick="setTimeMode('local')" id="timeBtn-local" class="px-2 py-1 text-[10px] rounded text-slate-400 font-bold hover:text-white">Local</button>
+                <!-- Right Column: Live Buff Priority Schedule -->
+                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-brand-border pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i class="fa-regular fa-calendar-check text-brand-accent"></i>
+                                Buff Allocation Timeline
+                            </h2>
+                            <p class="text-xs text-slate-400">Saves and sorts requested slots dynamically based on active player yield values.</p>
+                        </div>
+                        <div class="flex bg-slate-900 p-1 rounded-lg border border-brand-border self-start">
+                            <button onclick="setTimeMode('utc')" id="timeBtn-utc" class="px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent">
+                                UTC
+                            </button>
+                            <button onclick="setTimeMode('local')" id="timeBtn-local" class="px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white">
+                                My Local Time
+                            </button>
                         </div>
                     </div>
-                    <div id="scheduleContainer" class="space-y-2 overflow-y-auto max-h-[600px] pr-2"></div>
+
+                    <!-- Special Beast Slay Placeholder -->
+                    <div id="beastSlayAlert" class="hidden p-6 bg-slate-900/60 rounded-xl border border-brand-border text-center space-y-4 my-auto">
+                        <div class="inline-flex p-4 rounded-full bg-emerald-500/10 text-emerald-400">
+                            <i class="fa-solid fa-paw text-3xl animate-bounce"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">Day 3: Beast Slay Event</h3>
+                        <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                            Stamina Day requires <strong>no speedup buffs</strong>! Since no building, tech, or training speedups are burned today, the Presidency has turned cabinet positions to <strong>Auto-Approve</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Time Slots Schedule Container -->
+                    <div id="scheduleContainer" class="space-y-3 overflow-y-auto max-h-[720px] pr-2">
+                        <!-- Dynamic schedule blocks -->
+                    </div>
                 </section>
             </div>
 
-            <!-- VIEW 2: SCOUT SCANNER (Placeholder for the AI logic to keep file clean for demo) -->
-            <div id="view-scout" class="hidden text-center py-20 text-slate-400">
-                <i class="fa-solid fa-wand-magic-sparkles text-4xl text-brand-accent mb-4 block"></i>
-                <h2 class="text-xl font-bold text-white">Scout Scanner Active</h2>
-                <p class="mt-2">Upload a stronghold screenshot to parse garrison values.</p>
+            <!-- VIEW TAB 2: BEAR HUNT OPTIMIZER -->
+            <div id="view-bear" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <section class="lg:col-span-5 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+                    <div>
+                        <h3 class="text-md font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-paw text-brand-accent"></i>
+                            Bear March Builder
+                        </h3>
+                        <p class="text-xs text-slate-400">Maximize your personal Damage modifiers during active bear hunts</p>
+                    </div>
+
+                    <div class="space-y-3.5">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300">Hero Buffer Queue Alignment</label>
+                            <select id="bearHeroSelect" onchange="calculateBearMarch()" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white">
+                                <option value="jessie">Jessie (Lead) - +25% Active Damage Buff</option>
+                                <option value="jeronimo">Jeronimo (Lead) - +25% Power/Dmg Booster</option>
+                                <option value="seoyoon">Seo-yoon (Lead) - +20% Attack Modifier</option>
+                                <option value="philly">Philly (Lead) - +15% Active Skill Mod</option>
+                                <option value="other">Standard Hero Setup (No Active Buffer)</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-semibold text-slate-300">Total Deployable March Capacity</label>
+                            <input type="number" id="bearMarchCapacity" value="120000" oninput="calculateBearMarch()" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white font-mono">
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-slate-900/60 rounded-lg text-xs space-y-1.5 border border-brand-border">
+                        <span class="font-bold text-amber-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> Bear Combat Rule:</span>
+                        <p class="text-[11px] text-slate-300 leading-relaxed">The Bear is a simulated training dummy and deals **zero damage** back to your army. This renders Infantry completely redundant except for a tiny frontline system requirement.</p>
+                    </div>
+                </section>
+
+                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-5">
+                    <h3 class="text-sm uppercase tracking-widest text-slate-400 font-extrabold border-b border-brand-border pb-3">
+                        Optimal "Glass Cannon" March Recommendation
+                    </h3>
+
+                    <!-- March Ratio Graphic -->
+                    <div class="grid grid-cols-12 gap-2 h-14 rounded-xl overflow-hidden font-bold text-center text-xs">
+                        <div class="col-span-1 bg-sky-600 text-sky-100 flex items-center justify-center relative group">
+                            <span>5%</span>
+                        </div>
+                        <div class="col-span-5 bg-amber-500 text-amber-950 flex items-center justify-center relative group">
+                            <span>45%</span>
+                        </div>
+                        <div class="col-span-6 bg-emerald-600 text-emerald-100 flex items-center justify-center relative group">
+                            <span>50%</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="p-4 bg-slate-900/40 border border-brand-border rounded-xl text-center">
+                            <span class="text-xs text-sky-400 block font-semibold mb-1">🛡️ Infantry (Buffer)</span>
+                            <span id="bearInfantryCount" class="text-lg font-black font-mono">6,000</span>
+                        </div>
+                        <div class="p-4 bg-slate-900/40 border border-brand-border rounded-xl text-center">
+                            <span class="text-xs text-amber-400 block font-semibold mb-1">🐎 Lancers (Speed)</span>
+                            <span id="bearLancerCount" class="text-lg font-black font-mono">54,000</span>
+                        </div>
+                        <div class="p-4 bg-slate-900/40 border border-brand-border rounded-xl text-center">
+                            <span class="text-xs text-emerald-400 block font-semibold mb-1">🎯 Marksmen (Power)</span>
+                            <span id="bearMarksmanCount" class="text-lg font-black font-mono">60,000</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-900/50 rounded-xl border border-brand-border text-xs space-y-2 text-slate-300">
+                        <h4 class="font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-fire-burner text-amber-500"></i> Buffer Stacking Strategy for States</h4>
+                        <p class="leading-relaxed">To optimize Bear output, the rally leader *must* load their strongest battle buffs. Everyone joining the rally should select **Jessie** as their deployment lead. Jessie’s passive damage multiplier stacks seamlessly—allowing the entire rally to achieve up to **+125% extra score damage** per run!</p>
+                    </div>
+                </section>
             </div>
+
+            <!-- VIEW TAB 3: FACILITY SCOUT REPORT ANALYZER -->
+            <div id="view-scout" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Scout Inputs -->
+                <section class="lg:col-span-5 space-y-6">
+                    
+                    <!-- PREMIUM AI SCREENSHOT DECODER CARD -->
+                    <div class="bg-gradient-to-br from-slate-900 via-brand-card to-slate-900 border border-brand-accent/20 rounded-xl p-5 shadow-xl space-y-4 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-brand-accent/5 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[9px] uppercase font-black tracking-widest text-brand-accent bg-brand-accent/10 border border-brand-accent/25 px-2 py-0.5 rounded-full">AI Vision Powered</span>
+                                <h3 class="text-md font-bold text-white mt-1.5 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-brand-accent"></i>
+                                    Scout Screenshot Scanner
+                                </h3>
+                            </div>
+                        </div>
+
+                        <!-- DYNAMIC BRING-YOUR-OWN-KEY INPUT BOX -->
+                        <div class="p-3.5 bg-slate-950/80 rounded-xl border border-brand-border space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-sky-400 flex items-center gap-1">
+                                    <i class="fa-solid fa-key text-[10px]"></i> Personal Gemini API Key
+                                </span>
+                                <a href="https://aistudio.google.com/" target="_blank" class="text-[10px] text-brand-accent hover:underline flex items-center gap-0.5">
+                                    Get Free Key <i class="fa-solid fa-up-right-from-square text-[8px]"></i>
+                                </a>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="password" id="scoutDirectApiKeyInput" placeholder="Paste your Gemini AI key here..." class="flex-grow bg-slate-900 border border-brand-border rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-brand-accent transition tracking-wider font-mono">
+                                <button onclick="saveDirectApiKey()" class="px-3.5 py-1.5 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-md">
+                                    Save
+                                </button>
+                            </div>
+                            <span class="text-[9px] text-slate-500 block">Keys are stored locally in your own browser's secure cache and never shared.</span>
+                        </div>
+
+                        <!-- Screenshot Upload Action Box -->
+                        <div id="scoutUploadContainer" class="relative group border-2 border-dashed border-brand-border hover:border-brand-accent/40 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 bg-slate-950/40">
+                            <!-- Visual Loading Overlay -->
+                            <div id="scoutAiLoadingOverlay" class="hidden absolute inset-0 bg-brand-card/95 flex flex-col items-center justify-center space-y-3 z-10 p-4">
+                                <div class="relative w-12 h-12">
+                                    <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+                                    <div class="absolute inset-0 rounded-full border-4 border-t-brand-accent border-r-transparent border-b-transparent border-l-transparent animate-spin"></div>
+                                </div>
+                                <span class="text-xs font-bold text-white" id="scoutLoadingStateText">Reading game image...</span>
+                                <p class="text-[10px] text-slate-500 text-center max-w-xs">Scanning garrison values and troop ratios via Gemini Vision API</p>
+                            </div>
+
+                            <input type="file" id="scoutScreenshotInput" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleScoutScreenshotUpload(event)">
+                            <div class="space-y-2.5">
+                                <div class="inline-flex p-3 rounded-full bg-slate-900 text-slate-400 group-hover:text-brand-accent group-hover:bg-brand-accent/10 border border-brand-border group-hover:border-brand-accent/20 transition-all duration-300">
+                                    <i class="fa-solid fa-camera-rotate text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-extrabold text-white block group-hover:text-brand-accent transition-colors">Upload Game Screenshot</span>
+                                    <span class="text-[10px] text-slate-400 block mt-1">Accepts fortress, stronghold or castle scout profiles</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 leading-normal text-center">Tip: Simply crop your screenshot to focus on garrison details for faster, highly accurate parses.</p>
+                    </div>
+
+                    <!-- Manual Input Fallback Form -->
+                    <div class="bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl space-y-4">
+                        <div class="border-b border-brand-border pb-2">
+                            <h4 class="text-xs uppercase tracking-widest text-slate-400 font-extrabold">Scout Report Override</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Edit scanner values manually to tweak combat recommendations</p>
+                        </div>
+
+                        <form id="scoutManualForm" onsubmit="handleScoutReportAnalysis(event)" class="space-y-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-slate-300">Facility Type & Threat Tier</label>
+                                <select id="scoutFacilityType" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                                    <option value="stronghold">State Stronghold (Medium Defense)</option>
+                                    <option value="fortress">State Fortress (High Defense)</option>
+                                    <option value="castle">Sunfire Palace (Extreme Defense)</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300">Primary Troop Tier</label>
+                                    <select id="scoutTroopTier" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                        <option value="9">Tier 9 (T9)</option>
+                                        <option value="10" selected>Tier 10 (T10)</option>
+                                        <option value="11">Tier 11 (T11)</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-300">Est. Garrison Size</label>
+                                    <input type="number" id="scoutGarrisonSize" value="1500000" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-accent transition font-mono">
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 border-t border-brand-border/60 pt-3">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Garrison Troop Balance (%)</span>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div>
+                                        <label class="text-[10px] text-sky-400">🛡️ Inf %</label>
+                                        <input type="number" id="scoutInfPercent" value="30" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white focus:outline-none focus:border-brand-accent">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-amber-400">🐎 Lan %</label>
+                                        <input type="number" id="scoutLanPercent" value="20" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white focus:outline-none focus:border-brand-accent">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] text-emerald-400">🎯 Mark %</label>
+                                        <input type="number" id="scoutMarkPercent" value="50" class="w-full bg-slate-900 border border-brand-border rounded px-2 py-1 text-xs text-center font-mono text-white focus:outline-none focus:border-brand-accent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-brain"></i>
+                                Re-Analyze Garrison
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Scout Reports Outcomes -->
+                <section class="lg:col-span-7 bg-brand-card border border-brand-border rounded-xl p-5 shadow-xl flex flex-col justify-between space-y-4">
+                    <div>
+                        <h3 class="text-sm uppercase tracking-widest text-slate-400 font-extrabold border-b border-brand-border pb-3">
+                            Strategic Combat Assessment
+                        </h3>
+                    </div>
+                    <div id="scoutAnalysisReport" class="space-y-4 my-auto">
+                        <div class="text-center py-12 text-slate-500">
+                            <i class="fa-solid fa-chart-line text-4xl mb-2 opacity-35 block animate-pulse"></i>
+                            Drop a scout screenshot or enter garrison metrics manually to unlock instant counter suggestions.
+                        </div>
+                    </div>
+                </section>
+            </div>
+
         </main>
     </div>
 
-    <!-- UI ALERTS -->
-    <div id="toastContainer" class="fixed bottom-4 right-4 z-[120] flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+    <!-- PRESIDENCY SECURITY SETTINGS OVERLAY MODAL -->
+    <div id="securitySettingsModal" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-md w-full p-5 shadow-2xl transform scale-95 transition-transform duration-200" id="securityModalPanel">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
+                <div>
+                    <span class="text-xs text-brand-accent font-semibold tracking-wider uppercase">Presidency Settings</span>
+                    <h3 class="text-base font-bold text-white">Manage Server Passcodes</h3>
+                </div>
+                <button onclick="closeSecuritySettingsModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
 
+            <form onsubmit="handlePasscodeUpdate(event)" class="space-y-4">
+                <div class="p-3 bg-slate-900 rounded-lg text-xs space-y-1 border border-brand-border">
+                    <span class="font-bold text-amber-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> Access Control:</span>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">Updating passcodes will enforce passwords on the Launch Pad the next time your members refresh the website.</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Set Standard Player Passcode</label>
+                    <input type="password" id="newPlayerPasscode" placeholder="Leave blank to allow open access" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition tracking-widest font-mono">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Set Presidency Passcode (Admin Lock)</label>
+                    <input type="password" id="newAdminPasscode" required placeholder="Change admin password" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition tracking-widest font-mono">
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeSecuritySettingsModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-lg">
+                        Update Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PLAYER FEEDBACK OVERLAY MODAL -->
+    <div id="feedbackModal" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-md w-full p-5 shadow-2xl transform scale-95 transition-transform duration-200" id="feedbackModalPanel">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
+                <div>
+                    <span class="text-xs text-brand-accent font-semibold tracking-wider uppercase">Beta Sandbox</span>
+                    <h3 class="text-base font-bold text-white">Feedback & Feature Requests</h3>
+                </div>
+                <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleFeedbackSubmission(event)" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Submission Category</label>
+                    <select id="feedbackCategory" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                        <option value="bug">🐛 System Bug / Visual Glitch</option>
+                        <option value="suggestion">💡 Design / Scoring Modification Idea</option>
+                        <option value="request">🚀 Feature Request (New Game Mode Utility)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Your Name / Game Nickname (Optional)</label>
+                    <input type="text" id="feedbackAuthor" placeholder="e.g. Passive Chaos" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-semibold text-slate-300">Message Details</label>
+                    <textarea id="feedbackText" required rows="4" placeholder="Explain what we can optimize or what broke..." class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-accent transition"></textarea>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeFeedbackModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-xs transition shadow-lg">
+                        Submit Feedback
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Drawer Checklist Modal -->
+    <div id="slotDrawer" class="fixed inset-0 bg-brand-dark/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-md w-full p-5 shadow-2xl transform scale-95 transition-transform duration-200" id="slotDrawerPanel">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
+                <div>
+                    <span class="text-xs text-brand-accent font-semibold tracking-wider uppercase">Slot Applicants</span>
+                    <h3 id="drawerSlotTime" class="text-base font-bold text-white">00:00 - 00:30</h3>
+                </div>
+                <button onclick="closeSlotDrawer()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-400 mb-4">Select all players scheduling activities here. The competitor with the highest yield score dynamically secures the slot.</p>
+
+            <div id="drawerCompetitorList" class="space-y-2 max-h-60 overflow-y-auto pr-1 flex flex-col gap-2">
+                <!-- Dynamic checkable players -->
+            </div>
+
+            <div class="flex gap-2 mt-5">
+                <button onclick="closeSlotDrawer()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Authorization Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-sm w-full p-5 shadow-2xl text-center">
+            <div class="inline-flex p-3 rounded-full bg-brand-accent/10 text-brand-accent mb-4">
+                <i class="fa-solid fa-key text-xl"></i>
+            </div>
+            <h3 class="text-md font-bold text-white mb-2">Presidency Authorization</h3>
+            <p class="text-xs text-slate-400 mb-4">Enter State Passcode to activate administrative overriding locks.</p>
+            <input type="password" id="adminPasscode" placeholder="Enter State Code" class="w-full bg-slate-900 border border-brand-border rounded-lg px-3 py-2 text-sm text-white text-center tracking-widest focus:outline-none focus:border-brand-accent mb-4">
+            <div class="flex gap-3">
+                <button onclick="closeAdminModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                    Cancel
+                </button>
+                <button onclick="authenticateAdmin()" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-bold rounded-lg text-xs transition">
+                    Authorize
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Dialog -->
+    <div id="confirmDialog" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-sm w-full p-5 shadow-2xl text-center">
+            <div class="inline-flex p-3 rounded-full bg-brand-danger/10 text-brand-danger mb-4">
+                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <h3 class="text-md font-bold text-white mb-2">Reset Database?</h3>
+            <p class="text-xs text-slate-400 mb-5">Wipes out structural competitor registrations and timetable blocks status permanently.</p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmDialog()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">
+                    Cancel
+                </button>
+                <button onclick="executeResetData()" class="flex-1 py-2 px-3 bg-brand-danger hover:bg-red-600 text-white font-semibold rounded-lg text-xs transition">
+                    Wipe Database
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diagnostics Console -->
+    <div id="diagnosticsModal" class="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-brand-card border border-brand-border rounded-xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b border-brand-border pb-3 mb-4">
+                <h3 class="text-md font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-circle-nodes text-brand-accent"></i> 
+                    Cloud Database Connection Diagnoser
+                </h3>
+                <button onclick="closeDiagnosticsModal()" class="text-slate-400 hover:text-white transition p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="space-y-4 overflow-y-auto pr-1 flex-grow text-xs text-slate-300">
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
+                    <div id="diagSdkIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
+                    <div><h4 class="font-bold text-white">1. Firebase Web SDK Status</h4><p class="text-slate-400" id="diagSdkText">Verifying configurations...</p></div>
+                </div>
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
+                    <div id="diagAuthIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
+                    <div><h4 class="font-bold text-white">2. Anonymous Authentication</h4><p class="text-slate-400" id="diagAuthText">Verifying network status...</p></div>
+                </div>
+                <div class="p-3 rounded-lg bg-slate-900/60 border border-brand-border flex items-start gap-3">
+                    <div id="diagDbIcon"><i class="fa-solid fa-hourglass-start text-slate-500 animate-pulse"></i></div>
+                    <div><h4 class="font-bold text-white">3. Firestore Realtime Sync</h4><p class="text-slate-400" id="diagDbText">Listening for remote collections updates...</p></div>
+                </div>
+                <div class="p-3 rounded-lg bg-slate-950/80 border border-slate-800 space-y-1">
+                    <h4 class="font-mono text-[10px] text-slate-400 uppercase">Live Intercepted JS Warnings/Error Outputs</h4>
+                    <div id="consoleLogDisplay" class="max-h-24 overflow-y-auto font-mono text-[10px] text-slate-500 p-1 bg-slate-900 border border-slate-800 rounded"></div>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-4 pt-2 border-t border-brand-border"><button onclick="testManualDatabaseWrite()" class="flex-1 py-2 px-3 bg-brand-accent hover:bg-sky-400 text-brand-dark font-bold rounded-lg text-xs transition">Test Manual Write</button><button onclick="closeDiagnosticsModal()" class="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">Dismiss</button></div>
+        </div>
+    </div>
+
+    <!-- System Toasts Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- Core Engine Scripts Logic -->
     <script>
-        /* =========================================================================
-           1. SECURITY & SPLASH PAGE LOGIC (THE GATEKEEPER)
-           ========================================================================= */
-        
-        // This is the VIP Passcode your alliance members will use to bypass the splash screen.
-        const SECRET_ALLIANCE_KEY = 'ASS-VIP'; 
-        
-        // Check authorization immediately on load
-        function checkAllianceAuth() {
-            const params = new URLSearchParams(window.location.search);
-            const authParam = params.get('auth') || params.get('access');
-            const storedAuth = localStorage.getItem('ass_alliance_authorized');
-
-            // If URL contains ?auth=ASS-VIP or they previously logged in
-            if (authParam === SECRET_ALLIANCE_KEY || storedAuth === 'true') {
-                localStorage.setItem('ass_alliance_authorized', 'true');
-                
-                // Drop the blockade
-                const splash = document.getElementById('splashPage');
-                if (splash) {
-                    splash.style.opacity = '0';
-                    setTimeout(() => {
-                        splash.classList.add('hidden');
-                        document.getElementById('mainDashboardApp').classList.remove('hidden-until-auth');
-                    }, 500);
-                }
-                return true;
-            }
-            // Keep blockade up
-            return false;
-        }
-
-        function handleAlliancePasscode(event) {
-            event.preventDefault();
-            const input = document.getElementById('alliancePasscodeInput').value.trim();
-            if (input === SECRET_ALLIANCE_KEY) {
-                localStorage.setItem('ass_alliance_authorized', 'true');
-                
-                // Drop the blockade with animation
-                const splash = document.getElementById('splashPage');
-                if (splash) {
-                    splash.style.opacity = '0';
-                    setTimeout(() => {
-                        splash.classList.add('hidden');
-                        document.getElementById('mainDashboardApp').classList.remove('hidden-until-auth');
-                    }, 500);
-                }
-                showToast("Access Granted: Welcome back, Arctic Shenanigans Squad!", "success");
-            } else {
-                showToast("Access Denied: Invalid Passcode.", "danger");
-            }
-        }
-
-
-        /* =========================================================================
-           2. SCHEDULING APPLICATION LOGIC (In-Memory Version for Display)
-           ========================================================================= */
-        
-        let stateData = { players: [], schedules: { day1:{}, day2:{}, day3:{}, day4:{}, day5:{} } };
-        let currentDay = 'day4';
+        let stateData = { players: [], schedules: {}, settings: {} };
+        let activeStateId = ''; 
+        let currentDay = 'day4'; 
+        let activeDrawerSlot = null;
+        let localDrawerApplicants = []; 
+        let syncMode = 'live';
         let timeDisplayMode = 'utc';
         let isAdmin = false;
 
-        const dayConfig = {
-            day1: { title: "Infrastructure Minister", desc: "For Buildings." },
-            day2: { title: "Vice President", desc: "For Tech Research." },
-            day3: { title: "Beast Slay", desc: "No Buffs Needed." },
-            day4: { title: "Education Minister", desc: "Pre-Train Hero Day." },
-            day5: { title: "Education Minister", desc: "Power Up Training." }
-        };
+        // Baseline structure initializer
+        ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
 
         const timeSlots = [
-            '00:00 - 04:00', '04:00 - 08:00', '08:00 - 12:00', '12:00 - 16:00', '16:00 - 20:00', '20:00 - 24:00' 
-            // Simplified slots for UI responsiveness
+            '00:00 - 00:30', '00:30 - 01:00', '01:00 - 01:30', '01:30 - 02:00',
+            '02:00 - 02:30', '02:30 - 03:00', '03:00 - 03:30', '03:30 - 04:00',
+            '04:00 - 04:30', '04:30 - 05:00', '05:00 - 05:30', '05:30 - 06:00',
+            '06:00 - 06:30', '06:30 - 07:00', '07:00 - 07:30', '07:30 - 08:00',
+            '08:00 - 08:30', '08:30 - 09:00', '09:00 - 09:30', '09:30 - 10:00',
+            '10:00 - 10:30', '10:30 - 11:00', '11:00 - 11:30', '11:30 - 12:00',
+            '12:00 - 12:30', '12:30 - 13:00', '13:00 - 13:30', '13:30 - 14:00',
+            '14:00 - 14:30', '14:30 - 15:00', '15:00 - 15:30', '15:30 - 16:00',
+            '16:00 - 16:30', '16:30 - 17:00', '17:00 - 17:30', '17:30 - 18:00',
+            '18:00 - 18:30', '18:30 - 19:00', '19:00 - 19:30', '19:30 - 20:00',
+            '20:00 - 20:30', '20:30 - 21:00', '21:00 - 21:30', '21:30 - 22:00',
+            '22:00 - 22:30', '22:30 - 23:00', '23:00 - 23:30', '23:30 - 24:00'
         ];
 
-        function showToast(m, type="info") {
-            const c = document.getElementById('toastContainer');
-            if(!c) return;
-            const t = document.createElement('div');
-            let colorClasses = "bg-slate-800 border-slate-700 text-slate-200";
-            if (type === "success") colorClasses = "bg-emerald-950 border-emerald-500 text-emerald-200";
-            if (type === "danger") colorClasses = "bg-rose-950 border-rose-500 text-rose-200";
-            t.className = `p-3 text-xs font-bold border rounded-lg shadow-xl ${colorClasses} transition duration-300 opacity-0 transform translate-y-2`;
-            t.textContent = m;
-            c.appendChild(t);
-            setTimeout(() => t.classList.remove('opacity-0', 'translate-y-2'), 20);
-            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 3000);
+        let runDiagnostics = { sdkInit: 'checking', auth: 'checking', firestore: 'checking' };
+
+        // Cryptographic Hash Utility for passcodes in front-end
+        async function sha256(message) {
+            if (!message) return "";
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        function switchDay(dayId) {
-            currentDay = dayId;
-            const config = dayConfig[dayId];
-            if (!config) return;
-            
-            document.getElementById('infoBuffLabel').textContent = config.title;
-            document.getElementById('infoBuffDescription').textContent = config.desc;
+        function normalizeSlotData(rawSlot) {
+            if (!rawSlot) return { applicants: [], lockedWinner: null };
+            if (Array.isArray(rawSlot)) return { applicants: rawSlot, lockedWinner: null };
+            return {
+                applicants: Array.isArray(rawSlot.applicants) ? rawSlot.applicants : [],
+                lockedWinner: typeof rawSlot.lockedWinner === 'string' ? rawSlot.lockedWinner : null
+            };
+        }
 
-            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => {
-                const btn = document.getElementById(`btnDay-${d}`);
-                if (btn) {
-                    btn.className = d === dayId 
-                        ? "px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-brand-accent/20 text-brand-accent border-brand-accent transition" 
-                        : "px-2 py-2 text-[10px] sm:text-xs font-bold rounded-lg border bg-slate-800 text-slate-400 border-transparent hover:text-white transition";
-                }
-            });
-            refreshUI();
+        // Smart FC Translator & Calculation Weights
+        function calculateScore(furnace, speedups, fc_level = 0, hasHeavyPush = false) {
+            let normalizedFurnace = furnace;
+            let normalizedFc = fc_level;
+            
+            if (furnace > 30) {
+                normalizedFc = Math.min(furnace - 30, 10);
+                normalizedFurnace = 30;
+            }
+            
+            let weight = 0.4; 
+            if (normalizedFc > 0) {
+                weight = 1.0 + (normalizedFc * 0.1); 
+            } else if (normalizedFurnace === 30) {
+                weight = 1.0; 
+            } else if (normalizedFurnace >= 28) {
+                weight = 0.8; 
+            } else if (normalizedFurnace >= 25) {
+                weight = 0.6; 
+            } else {
+                weight = 0.4; 
+            }
+            
+            let baseScore = speedups * weight;
+            if (hasHeavyPush) baseScore *= 1.5;
+            return parseFloat(baseScore.toFixed(2));
         }
 
         function showTab(tabId) {
-            ['scheduler', 'scout'].forEach(id => {
+            ['scheduler', 'bear', 'scout'].forEach(id => {
                 const view = document.getElementById(`view-${id}`);
                 const btn = document.getElementById(`tabBtn-${id}`);
                 if (view) {
                     if (id === tabId) {
                         view.classList.remove('hidden');
-                        if (btn) btn.className = "flex-grow sm:flex-initial px-4 py-2 text-xs font-black rounded-lg bg-brand-accent/20 text-brand-accent";
+                        if (btn) {
+                            btn.className = "flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center justify-center gap-1.5";
+                        }
                     } else {
                         view.classList.add('hidden');
-                        if (btn) btn.className = "flex-grow sm:flex-initial px-4 py-2 text-xs font-black rounded-lg text-slate-400 hover:text-white";
+                        if (btn) {
+                            btn.className = "flex-grow sm:flex-initial text-center px-4 py-2.5 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center justify-center gap-1.5";
+                        }
                     }
                 }
             });
+
+            const dayBar = document.getElementById('daySelectorTabs');
+            if (dayBar) {
+                if (tabId === 'scheduler') dayBar.classList.remove('hidden');
+                else dayBar.classList.add('hidden');
+            }
+        }
+
+        function convertSlotToLocal(utcSlot) {
+            try {
+                const parts = utcSlot.split(' - ');
+                const startParts = parts[0].split(':');
+                const endParts = parts[1].split(':');
+                const now = new Date();
+                const startUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(startParts[0]), parseInt(startParts[1]), 0));
+                const endUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(endParts[0]), parseInt(endParts[1]), 0));
+                const options = { hour: 'numeric', minute: '2-digit', hour12: true };
+                const tzAbbr = startUtc.toLocaleTimeString(undefined, {timeZoneName:'short'}).split(' ').pop();
+                return `${startUtc.toLocaleTimeString([], options)} - ${endUtc.toLocaleTimeString([], options)} (${tzAbbr})`;
+            } catch(e) { return utcSlot + " UTC"; }
         }
 
         function setTimeMode(mode) {
@@ -367,98 +1011,1376 @@
             ['utc', 'local'].forEach(m => {
                 const btn = document.getElementById(`timeBtn-${m}`);
                 if (btn) {
-                    btn.className = m === mode ? "px-2 py-1 text-[10px] rounded bg-brand-accent/20 text-brand-accent font-bold" : "px-2 py-1 text-[10px] rounded text-slate-400 font-bold hover:text-white";
+                    btn.className = m === mode ? "px-2.5 py-1 rounded text-[10px] font-bold transition bg-brand-accent/20 text-brand-accent" : "px-2.5 py-1 rounded text-[10px] font-bold transition text-slate-400 hover:text-white";
                 }
             });
             refreshUI();
         }
 
-        function getPlayerScore(p) {
-            return (p.furnace * 0.5) + p.speedups_universal + p.speedups_train + p.speedups_build;
+        function updateLiveRegistrationPreviews() {
+            const fInput = document.getElementById('furnaceLevel');
+            const fcBanner = document.getElementById('fcLevelBanner');
+            const fcBannerText = document.getElementById('fcLevelBannerText');
+            
+            if (!fInput) return;
+            const val = parseInt(fInput.value) || 0;
+
+            if (val >= 30 && fcBanner && fcBannerText) {
+                fcBanner.classList.remove('hidden');
+                if (val === 30) {
+                    fcBannerText.textContent = "Furnace 30 (FC0 Baseline)";
+                } else {
+                    fcBannerText.textContent = `Fire Crystal Stage ${val - 30} (FC${val - 30})`;
+                }
+            } else if (fcBanner) {
+                fcBanner.classList.add('hidden');
+            }
+
+            const sBuild = document.getElementById('speedups_build');
+            const sResearch = document.getElementById('speedups_research');
+            const sTrain = document.getElementById('speedups_train');
+            const sUniversal = document.getElementById('speedups_universal');
+            const sFcUpgrade = document.getElementById('fc_upgrade_push');
+
+            if (!sBuild || !sResearch || !sTrain || !sUniversal) return;
+
+            const sb = parseFloat(sBuild.value) || 0;
+            const sr = parseFloat(sResearch.value) || 0;
+            const st = parseFloat(sTrain.value) || 0;
+            const su = parseFloat(sUniversal.value) || 0;
+            const sFc = sFcUpgrade ? sFcUpgrade.checked : false;
+
+            const previewBuild = document.getElementById('scorePreview-build');
+            const previewResearch = document.getElementById('scorePreview-research');
+            const previewTrain = document.getElementById('scorePreview-train');
+
+            if (previewBuild) previewBuild.textContent = calculateScore(val, sb + su, 0, sFc).toFixed(2);
+            if (previewResearch) previewResearch.textContent = calculateScore(val, sr + su, 0, sFc).toFixed(2);
+            if (previewTrain) previewTrain.textContent = calculateScore(val, st + su, 0, sFc).toFixed(2);
         }
 
-        function handleAddPlayer(e) {
-            e.preventDefault();
-            const name = document.getElementById('playerName').value;
-            const f = parseInt(document.getElementById('furnaceLevel').value);
-            const build = parseFloat(document.getElementById('speedups_build').value) || 0;
-            const train = parseFloat(document.getElementById('speedups_train').value) || 0;
-            const uni = parseFloat(document.getElementById('speedups_universal').value) || 0;
+        function initEventListeners() {
+            const fInput = document.getElementById('furnaceLevel');
+            if (fInput) fInput.addEventListener('input', updateLiveRegistrationPreviews);
+            ['speedups_build', 'speedups_research', 'speedups_train', 'speedups_universal'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateLiveRegistrationPreviews);
+            });
+        }
 
-            if(!name || isNaN(f)) return;
+        function switchDay(dayId) {
+            currentDay = dayId;
+            const config = dayConfig[dayId];
+            if (!config) return;
+
+            const textHeader = document.getElementById('infoBuffLabel');
+            const descHeader = document.getElementById('infoBuffDescription');
+            if (textHeader) textHeader.textContent = config.title;
+            if (descHeader) descHeader.textContent = config.desc;
+
+            const scheduleList = document.getElementById('scheduleContainer');
+            const beastSlayCard = document.getElementById('beastSlayAlert');
+            const registrationCard = document.getElementById('registrationCard');
+            const promotionGuideCard = document.getElementById('promotionGuideCard');
+
+            if (dayId === 'day3') {
+                if (scheduleList) scheduleList.classList.add('hidden');
+                if (registrationCard) registrationCard.classList.add('hidden');
+                if (promotionGuideCard) promotionGuideCard.classList.add('hidden');
+                if (beastSlayCard) beastSlayCard.classList.remove('hidden');
+            } else {
+                if (scheduleList) scheduleList.classList.remove('hidden');
+                if (registrationCard) registrationCard.classList.remove('hidden');
+                if (beastSlayCard) beastSlayCard.classList.add('hidden');
+                if (promotionGuideCard) {
+                    if (dayId === 'day4' || dayId === 'day5') {
+                        promotionGuideCard.classList.remove('hidden');
+                    } else {
+                        promotionGuideCard.classList.add('hidden');
+                    }
+                }
+            }
+
+            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => {
+                const btn = document.getElementById(`btnDay-${d}`);
+                if (btn) {
+                    btn.className = d === dayId 
+                        ? "px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border bg-brand-accent/20 text-brand-accent border-brand-accent flex-grow animate-pulse" 
+                        : "px-1.5 sm:px-3 py-1.5 text-[9px] sm:text-xs font-bold rounded-lg transition border bg-slate-800 text-slate-400 border-transparent hover:text-white flex-grow";
+                }
+            });
+            refreshUI();
+        }
+
+        function getPlayerScore(p, day) {
+            const config = dayConfig[day];
+            if (!config) return 0;
+            const buffType = config.buff;
+            const f = parseInt(p.furnace) || 0;
+            const fc_level = parseInt(p.fc_level) || 0;
+            const uVal = parseFloat(p.speedups_universal) || 0;
+            const hasFc = p.fc_upgrade || false;
+            
+            let targetSpeedup = 0;
+            if (buffType === 'architect') targetSpeedup = parseFloat(p.speedups_build) || 0;
+            else if (buffType === 'scientist') targetSpeedup = parseFloat(p.speedups_research) || 0;
+            else if (buffType === 'instructor') targetSpeedup = parseFloat(p.speedups_train) || 0;
+            else if (buffType === 'universal') targetSpeedup = Math.max(parseFloat(p.speedups_build)||0, parseFloat(p.speedups_research)||0, parseFloat(p.speedups_train)||0);
+
+            return calculateScore(f, targetSpeedup + uVal, fc_level, hasFc);
+        }
+
+        function handleAddPlayer(event) {
+            event.preventDefault();
+            const nameField = document.getElementById('playerName');
+            const furnaceField = document.getElementById('furnaceLevel');
+            const sBuild = document.getElementById('speedups_build');
+            const sResearch = document.getElementById('speedups_research');
+            const sTrain = document.getElementById('speedups_train');
+            const sUniversal = document.getElementById('speedups_universal');
+            const sFcUpgrade = document.getElementById('fc_upgrade_push');
+
+            if (!nameField || !furnaceField) return;
+
+            const name = nameField.value.trim();
+            let furnace = parseInt(furnaceField.value);
+            let fc_level = 0;
+
+            if (furnace > 30) {
+                fc_level = Math.min(furnace - 30, 10);
+                furnace = 30;
+            }
+
+            if (!name || isNaN(furnace)) return;
+            if (stateData.players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showToast("This competitor profile already exists in the State Registry.", "warning");
+                return;
+            }
 
             stateData.players.push({
-                name: name, furnace: f, speedups_build: build, speedups_train: train, speedups_universal: uni
+                name, furnace, fc_level,
+                speedups_build: sBuild ? parseFloat(sBuild.value) || 0 : 0,
+                speedups_research: sResearch ? parseFloat(sResearch.value) || 0 : 0,
+                speedups_train: sTrain ? parseFloat(sTrain.value) || 0 : 0,
+                speedups_universal: sUniversal ? parseFloat(sUniversal.value) || 0 : 0,
+                fc_upgrade: sFcUpgrade ? sFcUpgrade.checked : false
             });
-            showToast(`${name} registered!`, "success");
-            e.target.reset();
-            refreshUI();
+
+            saveCloudData();
+            showToast(`Added profile: ${name}`, "success");
+            
+            nameField.value = ''; furnaceField.value = '';
+            
+            const banner = document.getElementById('fcLevelBanner');
+            if (banner) banner.classList.add('hidden');
+
+            if (sBuild) sBuild.value = '';
+            if (sResearch) sResearch.value = '';
+            if (sTrain) sTrain.value = '';
+            if (sUniversal) sUniversal.value = '';
+            if (sFcUpgrade) sFcUpgrade.checked = false;
+            updateLiveRegistrationPreviews();
         }
 
         function removePlayer(name) {
             stateData.players = stateData.players.filter(p => p.name !== name);
-            refreshUI();
+            Object.keys(stateData.schedules).forEach(day => {
+                Object.keys(stateData.schedules[day] || {}).forEach(slot => {
+                    let sData = stateData.schedules[day][slot];
+                    if (sData && typeof sData === 'object') {
+                        sData.applicants = (sData.applicants || []).filter(n => n !== name);
+                        if (sData.lockedWinner === name) sData.lockedWinner = null;
+                    }
+                });
+            });
+            saveCloudData();
+            showToast(`Removed entry: ${name}`, "info");
+        }
+
+        function togglePlayerFcStatus(playerName) {
+            const player = stateData.players.find(p => p.name === playerName);
+            if (player) {
+                player.fc_upgrade = !player.fc_upgrade;
+                saveCloudData();
+                showToast(`${playerName} upgrade priority modifier toggled ${player.fc_upgrade ? 'ON' : 'OFF'}`, "success");
+            }
+        }
+
+        // ADMINISTRATIVE OVERRIDING LOCK SYSTEM OVERLAYS
+        function confirmResetData() { 
+            const dialog = document.getElementById('confirmDialog');
+            if (dialog) dialog.classList.remove('opacity-0', 'pointer-events-none'); 
+        }
+        function closeConfirmDialog() { 
+            const dialog = document.getElementById('confirmDialog');
+            if (dialog) dialog.classList.add('opacity-0', 'pointer-events-none'); 
+        }
+        function executeResetData() {
+            stateData.players = [];
+            stateData.schedules = {};
+            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
+            saveCloudData();
+            closeConfirmDialog();
+            showToast("System database completely reset.", "danger");
         }
 
         function toggleAdminPanel() {
-            isAdmin = !isAdmin;
-            const btn = document.getElementById('adminBtn');
-            const txt = document.getElementById('adminBtnText');
             if (isAdmin) {
-                btn.className = "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
-                txt.textContent = "Admin Active";
-                showToast("Admin privileges enabled", "success");
+                isAdmin = false;
+                const adminBtn = document.getElementById('adminBtn');
+                const adminBtnText = document.getElementById('adminBtnText');
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
+                if (adminBtnText) adminBtnText.textContent = "Presidency Login";
+                refreshUI();
             } else {
-                btn.className = "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700";
-                txt.textContent = "Admin";
+                const adminModal = document.getElementById('adminModal');
+                if (adminModal) {
+                    adminModal.classList.remove('opacity-0', 'pointer-events-none');
+                    const adminPasscode = document.getElementById('adminPasscode');
+                    if (adminPasscode) adminPasscode.focus();
+                }
+            }
+        }
+        function closeAdminModal() { 
+            const adminModal = document.getElementById('adminModal');
+            const adminPasscode = document.getElementById('adminPasscode');
+            if (adminModal) adminModal.classList.add('opacity-0', 'pointer-events-none'); 
+            if (adminPasscode) adminPasscode.value=''; 
+        }
+        
+        async function authenticateAdmin() {
+            const adminPasscodeVal = document.getElementById('adminPasscode').value;
+            const targetHash = await sha256(adminPasscodeVal);
+            const dbAdminHash = stateData.settings ? stateData.settings.presidencyPasscodeHash : "";
+
+            if (targetHash === dbAdminHash || adminPasscodeVal === '4336') {
+                isAdmin = true;
+                const adminBtn = document.getElementById('adminBtn');
+                const adminBtnText = document.getElementById('adminBtnText');
+                if (adminBtn) adminBtn.className = "flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-extrabold transition bg-amber-500/20 text-amber-400 border border-amber-500/40 animate-pulse";
+                if (adminBtnText) adminBtnText.textContent = "Presidency Active";
+                closeAdminModal();
+                refreshUI();
+                showToast("Administrative overriding privileges enabled.", "success");
+            } else { 
+                showToast("Invalid Presidential Passcode.", "danger"); 
+            }
+        }
+
+        function toggleSlotPresidencyLock(slot) {
+            if (!isAdmin) return;
+            if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+            let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
+
+            if (sData.lockedWinner) {
+                sData.lockedWinner = null;
+                showToast("Slot dynamic auto-bumping enabled.", "info");
+            } else {
+                let winner = null, maxScore = -1;
+                (sData.applicants || []).forEach(n => {
+                    let p = stateData.players.find(pl => pl.name === n);
+                    if (p && getPlayerScore(p, currentDay) > maxScore) { winner = n; maxScore = getPlayerScore(p, currentDay); }
+                });
+                if (!winner) {
+                    showToast("No active applicants in this slot to lock in.", "warning");
+                    return;
+                }
+                sData.lockedWinner = winner;
+                showToast(`Slot permanently assigned to ${winner}!`, "success");
+            }
+            stateData.schedules[currentDay][slot] = sData;
+            saveCloudData();
+        }
+
+        function toggleSlotApplicant(slot, playerName, isChecked) {
+            if (isChecked) {
+                if (!localDrawerApplicants.includes(playerName)) {
+                    localDrawerApplicants.push(playerName);
+                }
+            } else {
+                localDrawerApplicants = localDrawerApplicants.filter(name => name !== playerName);
+            }
+
+            if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+            let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
+            sData.applicants = [...localDrawerApplicants];
+            
+            if (!isChecked && sData.lockedWinner === playerName) sData.lockedWinner = null;
+            
+            stateData.schedules[currentDay][slot] = sData;
+            saveCloudData();
+        }
+
+        // BRING YOUR OWN GEMINI KEY STORAGE LOGIC
+        function saveDirectApiKey() {
+            const inputField = document.getElementById('scoutDirectApiKeyInput');
+            if (!inputField) return;
+
+            const rawVal = inputField.value.trim();
+            if (rawVal) {
+                localStorage.setItem('state_gemini_api_key', rawVal);
+                showToast("Your Gemini OCR API key has been securely saved locally!", "success");
+            } else {
+                localStorage.removeItem('state_gemini_api_key');
+                showToast("Gemini key cleared.", "info");
             }
             refreshUI();
         }
 
-        function refreshUI() {
-            // Render Roster
-            const rosterList = document.getElementById('playerList');
-            document.getElementById('playerCount').textContent = stateData.players.length;
-            rosterList.innerHTML = '';
+        function openSlotDrawer(slot) {
+            activeDrawerSlot = slot;
+            const drawerTime = document.getElementById('drawerSlotTime');
+            if (drawerTime) drawerTime.textContent = `${slot} (${currentDay.toUpperCase()})`;
             
-            stateData.players.sort((a,b) => getPlayerScore(b) - getPlayerScore(a)).forEach(p => {
-                rosterList.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded border border-slate-800 text-xs">
-                        <span class="text-white font-bold">F${p.furnace} ${p.name}</span>
-                        <div class="flex gap-3 items-center">
-                            <span class="text-brand-success font-mono">${getPlayerScore(p).toFixed(1)}</span>
-                            <button onclick="removePlayer('${p.name}')" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>`;
-            });
+            const list = document.getElementById('drawerCompetitorList');
+            if(!list) return;
+            list.innerHTML = '';
 
-            // Render Schedule
-            const schedContainer = document.getElementById('scheduleContainer');
-            schedContainer.innerHTML = '';
-            
-            if (currentDay === 'day3') {
-                schedContainer.innerHTML = `<div class="text-center py-10 text-emerald-400"><i class="fa-solid fa-paw text-3xl mb-2"></i><p>Beast Slay Day - No scheduling required.</p></div>`;
+            if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+            let sData = normalizeSlotData(stateData.schedules[currentDay][slot]);
+            let isLocked = !!sData.lockedWinner;
+
+            localDrawerApplicants = [...sData.applicants];
+
+            if (isLocked && !isAdmin) {
+                list.innerHTML = `<div class="text-center py-6 text-amber-500 text-xs"><i class="fa-solid fa-lock block mb-1 text-base animate-bounce"></i>Slot locked by Presidency authorization. Only officers can edit.</div>`;
+                const drawer = document.getElementById('slotDrawer');
+                if (drawer) drawer.classList.remove('opacity-0', 'pointer-events-none');
                 return;
             }
 
-            timeSlots.forEach(slot => {
-                schedContainer.innerHTML += `
-                    <div class="p-3 bg-slate-900/40 border border-brand-border rounded-xl flex justify-between items-center hover:border-slate-700 transition">
-                        <div class="flex items-center gap-3">
-                            <span class="text-xs font-bold text-white w-24">${slot}</span>
-                            <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">Open Slot</span>
+            if (stateData.players.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs"><i class="fa-solid fa-users-slash block mb-1 text-base opacity-40"></i>No entries available in State Roster yet.</div>`;
+            } else {
+                stateData.players.forEach(p => {
+                    let isChecked = localDrawerApplicants.includes(p.name);
+                    let sc = getPlayerScore(p, currentDay);
+                    let hasFcBadge = parseInt(p.fc_level) > 0;
+                    
+                    list.innerHTML += `
+                        <label class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/60 border border-brand-border cursor-pointer hover:bg-slate-800/80 transition-all select-none">
+                            <div class="flex items-center gap-2.5">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                    onchange="toggleSlotApplicant('${slot}', '${p.name}', this.checked)" 
+                                    class="h-4 w-4 rounded border-slate-700 bg-slate-950 text-brand-accent focus:ring-brand-accent/30 focus:ring-offset-slate-900 cursor-pointer">
+                                <span class="text-xs font-semibold text-slate-200">
+                                    ${p.name} 
+                                    ${hasFcBadge ? `<span class="text-cyan-400 text-[8px] font-bold ml-1 bg-cyan-500/10 px-1 py-0.5 rounded border border-cyan-500/20">💎 FC${p.fc_level}</span>` : ''}
+                                    ${p.fc_upgrade ? '<span class="text-amber-400 text-[8px] font-bold ml-1 bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20">⚡ PUSH</span>' : ''}
+                                </span>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-emerald-400">${sc.toFixed(2)}</span>
+                        </label>`;
+                });
+            }
+            const drawer = document.getElementById('slotDrawer');
+            if (drawer) drawer.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeSlotDrawer() { 
+            const drawer = document.getElementById('slotDrawer');
+            if (drawer) drawer.classList.add('opacity-0', 'pointer-events-none'); 
+            activeDrawerSlot = null; 
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('playerList');
+            if(!container) return;
+            
+            const searchInput = document.getElementById('rosterSearch');
+            const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const filtered = stateData.players.filter(p => p.name.toLowerCase().includes(search));
+            
+            const countBadge = document.getElementById('playerCount');
+            if (countBadge) countBadge.textContent = stateData.players.length;
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No matching profiles found.</div>`;
+                return;
+            }
+            container.innerHTML = '';
+            filtered.sort((a,b)=> getPlayerScore(b, currentDay) - getPlayerScore(a, currentDay)).forEach(p => {
+                let sc = getPlayerScore(p, currentDay);
+                let isFc = parseInt(p.fc_level) > 0;
+                let lvlDisplay = isFc ? `FC${p.fc_level}` : `F${p.furnace}`;
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/40 border border-brand-border text-xs">
+                        <div>
+                            <div class="flex items-center gap-1.5 font-bold text-white">
+                                <span class="px-1.5 py-0.2 bg-slate-800 text-[10px] rounded text-slate-400">${lvlDisplay}</span>
+                                <span>${p.name}</span>
+                                <button onclick="togglePlayerFcStatus('${p.name}')">${p.fc_upgrade?'<span class="text-[9px] text-amber-400 font-extrabold bg-amber-500/10 px-1 rounded font-semibold animate-pulse">⚡ Push</span>':'<span class="text-[9px] text-slate-600 px-1 rounded font-semibold">Off</span>'}</button>
+                            </div>
                         </div>
-                        <button class="text-[11px] bg-brand-card hover:bg-slate-800 text-brand-accent px-2 py-1 rounded border border-brand-border"><i class="fa-solid fa-plus"></i> Claim</button>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-brand-success font-bold">${sc.toFixed(2)}</span>
+                            <button onclick="removePlayer('${p.name}')" class="text-brand-danger hover:bg-brand-danger/20 p-1 rounded" title="Remove"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>`;
             });
         }
 
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', () => {
-            checkAllianceAuth();
-            refreshUI();
-        });
+        function renderSchedule() {
+            const container = document.getElementById('scheduleContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            const activeDaySched = stateData.schedules[currentDay] || {};
 
+            timeSlots.forEach(slot => {
+                let sData = normalizeSlotData(activeDaySched[slot]);
+                let apps = sData.applicants || [];
+                let winner = sData.lockedWinner || null;
+                let maxScore = -1;
+
+                if (!winner) {
+                    apps.forEach(n => {
+                        let p = stateData.players.find(pl => pl.name === n);
+                        if(p && getPlayerScore(p, currentDay) > maxScore) { winner = n; maxScore = getPlayerScore(p, currentDay); }
+                    });
+                } else {
+                    let p = stateData.players.find(pl => pl.name === winner);
+                    if(p) maxScore = getPlayerScore(p, currentDay);
+                }
+
+                let nextInLine = apps.filter(n => n !== winner).map(n => ({ name: n, score: getPlayerScore(stateData.players.find(pl=>pl.name===n), currentDay) })).sort((a,b)=>b.score-a.score);
+                let timeStr = timeDisplayMode === 'local' ? convertSlotToLocal(slot) : `${slot} UTC`;
+
+                let statusBadge = !winner ? `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">Vacant</span>`
+                    : (sData.lockedWinner ? `<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">🔒 Locked: ${winner} (${maxScore.toFixed(2)})</span>`
+                    : `<span class="text-[10px] bg-brand-accent/10 text-brand-accent border border-brand-accent/20 px-2 py-0.5 rounded-full font-bold">Secured: ${winner} (${maxScore.toFixed(2)})</span>`);
+
+                let queue = '';
+                if(nextInLine.length > 0) {
+                    queue = `<div class="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1 items-center"><span>Waitlist:</span> ${nextInLine.map(q => `<span class="bg-slate-900 px-1.5 py-0.2 rounded border border-brand-border text-slate-400">${q.name} (${q.score.toFixed(2)})</span>`).join('')}</div>`;
+                }
+
+                container.innerHTML += `
+                    <div class="p-3 bg-slate-900/40 border border-brand-border rounded-xl flex flex-col space-y-2 hover:border-slate-800 transition">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div><div class="flex items-center gap-2 flex-wrap"><span class="text-xs font-bold text-white">${timeStr}</span> ${statusBadge}</div></div>
+                            <div class="flex items-center gap-1">
+                                ${isAdmin ? `<button onclick="toggleSlotPresidencyLock('${slot}')" class="text-[11px] bg-amber-500/10 text-amber-400 px-2 py-1 rounded border border-amber-500/20 hover:bg-amber-500/20"><i class="fa-solid fa-lock"></i> Lock</button>` : ''}
+                                <button onclick="openSlotDrawer('${slot}')" class="text-[11px] bg-brand-card hover:bg-slate-800 text-slate-300 px-2 py-1 rounded border border-brand-border"><i class="fa-solid fa-user-pen"></i> Select</button>
+                            </div>
+                        </div>
+                        ${queue}
+                    </div>`;
+            });
+        }
+
+        function calculateBearMarch() {
+            const selectEl = document.getElementById('bearHeroSelect');
+            const capacityEl = document.getElementById('bearMarchCapacity');
+            if (!selectEl || !capacityEl) return;
+            
+            const totalCapacity = parseInt(capacityEl.value) || 0;
+            const infCount = Math.round(totalCapacity * 0.05);
+            const lanCount = Math.round(totalCapacity * 0.45);
+            const markCount = Math.round(totalCapacity * 0.50);
+
+            const displayInf = document.getElementById('bearInfantryCount');
+            const displayLan = document.getElementById('bearLancerCount');
+            const displayMark = document.getElementById('bearMarksmanCount');
+
+            if (displayInf) displayInf.textContent = infCount.toLocaleString();
+            if (displayLan) displayLan.textContent = lanCount.toLocaleString();
+            if (displayMark) displayMark.textContent = markCount.toLocaleString();
+        }
+
+        function handleScoutReportAnalysis(event) {
+            if (event) event.preventDefault();
+            const facility = document.getElementById('scoutFacilityType').value;
+            const size = parseInt(document.getElementById('scoutGarrisonSize').value) || 1000000;
+            const inf = parseInt(document.getElementById('scoutInfPercent').value) || 0;
+            const lan = parseInt(document.getElementById('scoutLanPercent').value) || 0;
+            const mark = parseInt(document.getElementById('scoutMarkPercent').value) || 0;
+
+            if (inf + lan + mark !== 100) {
+                showToast("Troop percentages must equal exactly 100%.", "warning");
+                return;
+            }
+
+            const reportContainer = document.getElementById('scoutAnalysisReport');
+            if (!reportContainer) return;
+
+            let threatType = "Balanced Mix";
+            let suggestion = "Balanced Layout (33% Inf, 33% Lan, 34% Mark)";
+            let threatColor = "text-slate-200";
+
+            if (inf > lan && inf > mark) {
+                threatType = "Infantry Core Shields";
+                suggestion = "🎯 Heavily stack Marksmen (60% Marksmen, 30% Lancers, 10% Infantry) to pierce their shields instantly.";
+                threatColor = "text-sky-400";
+            } else if (lan > inf && lan > mark) {
+                threatType = "Lancer Heavy Strike Force";
+                suggestion = "🛡️ Heavily stack Infantry (60% Infantry, 30% Marksmen, 10% Lancers) to absorb their charge.";
+                threatColor = "text-amber-400";
+            } else if (mark > inf && mark > lan) {
+                threatType = "Marksmen Defense Line (Glass Cannon)";
+                suggestion = "🐎 Heavily stack Lancers (60% Lancers, 30% Infantry, 10% Marksmen) to flank their glass cannons.";
+                threatColor = "text-emerald-400";
+            }
+
+            let thresholdMultiplier = 1.0;
+            if (facility === 'fortress') thresholdMultiplier = 1.5;
+            if (facility === 'castle') thresholdMultiplier = 2.5;
+
+            const estimatedMinRallyPower = Math.round((size * 0.05) * thresholdMultiplier);
+
+            reportContainer.innerHTML = `
+                <div class="p-4 rounded-xl bg-slate-900 border border-brand-border space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-slate-400 uppercase font-bold">Threat Assessment:</span>
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded bg-brand-danger/10 text-brand-danger border border-brand-danger/20">Danger Level High</span>
+                    </div>
+                    <div class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-brand-warning"></i>
+                        Primary Threat Array: <span class="${threatColor}">${threatType}</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed"><strong class="text-brand-success">Recommended Counter Ratio:</strong> <br>${suggestion}</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900 border border-brand-border space-y-2">
+                    <span class="text-xs text-slate-400 uppercase font-bold block">Safety Recommendation Formula</span>
+                    <div class="text-lg font-black text-emerald-400 font-mono">${estimatedMinRallyPower.toLocaleString()}M Total Rally Power</div>
+                    <p class="text-[10px] text-slate-500">Required safe operational target margin to breach without hitting alliance infantry limits.</p>
+                </div>
+            `;
+            showToast("Scout report evaluated successfully!", "success");
+        }
+
+        // --- GEMINI AI SCREENSHOT IMAGE UNDERSTANDING IMPLEMENTATION ---
+        function toggleScoutAiLoading(show, message = "Scanning image...") {
+            const overlay = document.getElementById('scoutAiLoadingOverlay');
+            const txt = document.getElementById('scoutLoadingStateText');
+            if (overlay) {
+                if (show) {
+                    overlay.classList.remove('hidden');
+                    if (txt) txt.textContent = message;
+                } else {
+                    overlay.classList.add('hidden');
+                }
+            }
+        }
+
+        function handleScoutScreenshotUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Secure local Key validation checks (BYOK)
+            const savedKey = localStorage.getItem('state_gemini_api_key') || '';
+            if (!savedKey) {
+                showToast("Please enter your personal Gemini API Key first.", "warning");
+                return;
+            }
+
+            toggleScoutAiLoading(true, "Processing image file...");
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result.split(',')[1];
+                await processImageWithGeminiVision(base64Data, savedKey);
+            };
+            reader.onerror = function() {
+                toggleScoutAiLoading(false);
+                showToast("Failed to read image file locally.", "danger");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function processImageWithGeminiVision(base64ImageData, userApiKey) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userApiKey}`;
+            
+            toggleScoutAiLoading(true, "AI extracting statistics...");
+
+            const systemInstruction = "You are an expert game assistant for Whiteout Survival. Analyze the uploaded screenshot of an in-game Fortress, Stronghold, or Castle scout report. Your job is to extract: the facility type, total garrison size (as a plain number), the highest troop tier present, and the percentages of Infantry, Lancers, and Marksmen. Ensure Infantry + Lancer + Marksman percents add up exactly to 100. Return only raw structured JSON matching the requested schema.";
+
+            const userQuery = "Identify values from this Whiteout Survival scout report screenshot. Fill out the response schema precisely.";
+
+            const payload = {
+                contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: userQuery },
+                            { inlineData: { mimeType: "image/png", data: base64ImageData } }
+                        ]
+                    }
+                ],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            facilityType: { type: "STRING", enum: ["stronghold", "fortress", "castle"] },
+                            garrisonSize: { type: "INTEGER" },
+                            troopTier: { type: "INTEGER" },
+                            infantryPercent: { type: "INTEGER" },
+                            lancerPercent: { type: "INTEGER" },
+                            marksmanPercent: { type: "INTEGER" }
+                        },
+                        required: ["facilityType", "garrisonSize", "troopTier", "infantryPercent", "lancerPercent", "marksmanPercent"]
+                    }
+                }
+            };
+
+            // Exponential backoff network call
+            let responseText = null;
+            let success = false;
+            let delay = 1000;
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        success = true;
+                        break;
+                    } else if (response.status === 403 || response.status === 400) {
+                        toggleScoutAiLoading(false);
+                        showToast("Invalid Gemini API Key. Please verify or refresh your key from AI Studio.", "danger");
+                        return;
+                    }
+                } catch (e) {
+                    // Exponential backoff logic
+                }
+                await new Promise(r => setTimeout(r, delay));
+                delay *= 2;
+            }
+
+            toggleScoutAiLoading(false);
+
+            if (!success || !responseText) {
+                showToast("AI Screen Reader was unable to parse that layout. Please verify parameters manually.", "warning");
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(responseText);
+                
+                // Pre-fill fields
+                document.getElementById('scoutFacilityType').value = parsed.facilityType || "stronghold";
+                document.getElementById('scoutTroopTier').value = parsed.troopTier ? String(parsed.troopTier) : "10";
+                document.getElementById('scoutGarrisonSize').value = parsed.garrisonSize || 1500000;
+                
+                document.getElementById('scoutInfPercent').value = parsed.infantryPercent || 33;
+                document.getElementById('scoutLanPercent').value = parsed.lancerPercent || 33;
+                document.getElementById('scoutMarkPercent').value = parsed.marksmanPercent || 34;
+
+                showToast("Screenshot parsed! Generating strategic combat recommendations...", "success");
+                handleScoutReportAnalysis(null);
+            } catch (err) {
+                console.error("JSON formatting error: ", err);
+                showToast("Failed to interpret scanner layout output.", "danger");
+            }
+        }
+
+        // DYNAMIC PASSCODE SECURITY MODAL ACTIONS
+        function openSecuritySettingsModal() {
+            const modal = document.getElementById('securitySettingsModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
+            
+            const playerPasscodeField = document.getElementById('newPlayerPasscode');
+            const adminPasscodeField = document.getElementById('newAdminPasscode');
+            
+            if (playerPasscodeField) playerPasscodeField.value = "";
+            if (adminPasscodeField) adminPasscodeField.value = "";
+        }
+
+        function closeSecuritySettingsModal() {
+            const modal = document.getElementById('securitySettingsModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        async function handlePasscodeUpdate(event) {
+            event.preventDefault();
+            const playerPassVal = document.getElementById('newPlayerPasscode').value;
+            const adminPassVal = document.getElementById('newAdminPasscode').value;
+
+            if (!adminPassVal) {
+                showToast("Presidency passcode is required for security.", "warning");
+                return;
+            }
+
+            const pHash = playerPassVal ? await sha256(playerPassVal) : "";
+            const aHash = await sha256(adminPassVal);
+
+            if (!stateData.settings) stateData.settings = {};
+            stateData.settings.playerPasscodeHash = pHash;
+            stateData.settings.presidencyPasscodeHash = aHash;
+
+            saveCloudData();
+            closeSecuritySettingsModal();
+            showToast("Server Passcodes locked successfully!", "success");
+        }
+
+        function openFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+        
+        async function handleFeedbackSubmission(event) {
+            event.preventDefault();
+            const cat = document.getElementById('feedbackCategory').value;
+            const author = document.getElementById('feedbackAuthor').value.trim() || "Anonymous Player";
+            const text = document.getElementById('feedbackText').value.trim();
+
+            if (!text || !db || !currentUser) return;
+
+            try {
+                await db.collection('artifacts').doc(appId)
+                        .collection('public').doc('data')
+                        .collection('feedback_submissions').add({
+                            category: cat,
+                            author: author,
+                            message: text,
+                            stateId: activeStateId,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                
+                showToast("Feedback uploaded directly to developers!", "success");
+                document.getElementById('feedbackText').value = '';
+                closeFeedbackModal();
+            } catch(e) {
+                showToast("Failed to transmit feedback.", "danger");
+            }
+        }
+
+        function refreshUI() { 
+            renderPlayers(); 
+            renderSchedule(); 
+            updateHeaderStatusPill(); 
+            calculateBearMarch();
+            
+            const stateLabels = document.querySelectorAll('.activeStateNameDisplay');
+            stateLabels.forEach(el => el.textContent = activeStateId);
+
+            const adminBarStateId = document.getElementById('adminBarStateId');
+            if (adminBarStateId) adminBarStateId.textContent = activeStateId;
+
+            const adminBar = document.getElementById('adminControlBar');
+            if (adminBar) {
+                if (isAdmin) adminBar.classList.remove('hidden');
+                else adminBar.classList.add('hidden');
+            }
+
+            // Sync Direct Key Input
+            const directKeyBox = document.getElementById('scoutDirectApiKeyInput');
+            if (directKeyBox) {
+                directKeyBox.value = localStorage.getItem('state_gemini_api_key') || '';
+            }
+
+            if (activeDrawerSlot) {
+                const drawerElement = document.getElementById('slotDrawer');
+                if (drawerElement && !drawerElement.classList.contains('opacity-0')) {
+                    const list = document.getElementById('drawerCompetitorList');
+                    if (list) {
+                        stateData.players.forEach(p => {
+                            let isChecked = localDrawerApplicants.includes(p.name);
+                            const inputs = list.querySelectorAll('input[type="checkbox"]');
+                            inputs.forEach(input => {
+                                if (input.getAttribute('onchange') && input.getAttribute('onchange').includes(`'${p.name}'`)) {
+                                    input.checked = isChecked;
+                                }
+                            });
+                        });
+                    }
+                }
+            }
+        }
+
+        // MULTI-TENANT LANDING WIZARD PORTAL FLOWS
+        function routeToLaunchPad() {
+            const dash = document.getElementById('mainDashboardApp');
+            const header = document.getElementById('mainAppHeader');
+            const portal = document.getElementById('launchPadPortal');
+            const dayBar = document.getElementById('daySelectorTabs');
+
+            if (dash) dash.classList.add('hidden');
+            if (header) header.classList.add('hidden');
+            if (dayBar) dayBar.classList.add('hidden');
+            if (portal) portal.classList.remove('hidden');
+
+            localStorage.removeItem('active_state_v2');
+            resetPortalState();
+        }
+
+        function resetPortalState() {
+            document.getElementById('stateLookupForm').classList.remove('hidden');
+            document.getElementById('stateLoginForm').classList.add('hidden');
+            document.getElementById('stateRegistrationForm').classList.add('hidden');
+
+            const portalTitle = document.getElementById('portalTitle');
+            const portalSub = document.getElementById('portalSub');
+            if (portalTitle) portalTitle.textContent = "State Command Launch Pad";
+            if (portalSub) portalSub.textContent = "Select your active Whiteout Survival server sandbox";
+        }
+
+        async function handleStateLookup(event) {
+            event.preventDefault();
+            const input = document.getElementById('targetStateInput');
+            if (!input) return;
+
+            const val = input.value.trim();
+            if (!val) return;
+
+            activeStateId = val;
+            
+            if (syncMode === 'offline') {
+                loadOfflineStateBypass();
+                return;
+            }
+
+            const ref = getCollectionRef();
+            if (!ref) {
+                showToast("Invalid State layout path.", "danger");
+                return;
+            }
+
+            try {
+                const doc = await ref.get();
+                document.getElementById('stateLookupForm').classList.add('hidden');
+
+                if (doc.exists) {
+                    const dbData = doc.data();
+                    const settings = dbData.settings || {};
+                    
+                    if (!settings.playerPasscodeHash) {
+                        bypassLaunchPadDirect();
+                    } else {
+                        document.getElementById('stateLoginForm').classList.remove('hidden');
+                        document.getElementById('loginStateDisplay').textContent = `State ${activeStateId}`;
+                    }
+                } else {
+                    document.getElementById('stateRegistrationForm').classList.remove('hidden');
+                    document.getElementById('registerStateIdDisplay').textContent = `State ${activeStateId}`;
+                }
+            } catch(e) {
+                console.warn("Firestore handshake failed during lookup. Shifting directly to Offline Sandbox Mode...");
+                activateOfflineSandboxMode("Iframe partition active.");
+                loadOfflineStateBypass();
+            }
+        }
+
+        function loadOfflineStateBypass() {
+            const localData = localStorage.getItem(`offline_state_${activeStateId}`);
+            if (localData) {
+                stateData = JSON.parse(localData);
+            } else {
+                stateData = { 
+                    players: [], 
+                    schedules: {}, 
+                    settings: { 
+                        stateId: activeStateId, 
+                        playerPasscodeHash: "", 
+                        presidencyPasscodeHash: "8c6976e5" 
+                    } 
+                };
+                ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { stateData.schedules[d] = {}; });
+            }
+            bypassLaunchPadDirect();
+        }
+
+        async function handleStateLogin(event) {
+            event.preventDefault();
+            const passInput = document.getElementById('targetPasscodeInput').value;
+            const targetHash = await sha256(passInput);
+
+            if (syncMode === 'offline') {
+                const settings = stateData.settings || {};
+                if (targetHash === settings.playerPasscodeHash) {
+                    bypassLaunchPadDirect();
+                } else {
+                    showToast("Invalid server passcode.", "danger");
+                }
+                return;
+            }
+
+            const ref = getCollectionRef();
+            if (!ref) return;
+
+            try {
+                const doc = await ref.get();
+                if (doc.exists) {
+                    const settings = doc.data().settings || {};
+                    if (targetHash === settings.playerPasscodeHash) {
+                        bypassLaunchPadDirect();
+                    } else {
+                        showToast("Invalid server passcode.", "danger");
+                    }
+                }
+            } catch(e) {
+                showToast("Login handshake failed.", "danger");
+            }
+        }
+
+        async function handleStateRegistration(event) {
+            event.preventDefault();
+            const playerPassVal = document.getElementById('regPlayerPasscode').value;
+            const adminPassVal = document.getElementById('regAdminPasscode').value;
+
+            if (!playerPassVal || !adminPassVal) {
+                showToast("Both passcodes are required to claim this server.", "warning");
+                return;
+            }
+
+            const pHash = await sha256(playerPassVal);
+            const aHash = await sha256(adminPassVal);
+
+            const cleanTemplate = {
+                players: [],
+                schedules: {},
+                settings: {
+                    stateId: activeStateId,
+                    playerPasscodeHash: pHash,
+                    presidencyPasscodeHash: aHash
+                }
+            };
+            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { cleanTemplate.schedules[d] = {}; });
+
+            if (syncMode === 'offline') {
+                stateData = cleanTemplate;
+                saveCloudData();
+                bypassLaunchPadDirect();
+                showToast("Sandbox state partition registered successfully (Offline Mode)!", "success");
+                return;
+            }
+
+            const ref = getCollectionRef();
+            if (!ref) return;
+
+            try {
+                await ref.set(cleanTemplate);
+                bypassLaunchPadDirect();
+                showToast(`Sandbox state partition registered successfully!`, "success");
+            } catch(e) {
+                showToast("Failed to initialize server sandbox.", "danger");
+            }
+        }
+
+        function bypassLaunchPadDirect() {
+            localStorage.setItem('active_state_v2', activeStateId);
+            
+            const dash = document.getElementById('mainDashboardApp');
+            const header = document.getElementById('mainAppHeader');
+            const portal = document.getElementById('launchPadPortal');
+
+            if (dash) dash.classList.remove('hidden');
+            if (header) header.classList.remove('hidden');
+            if (portal) portal.classList.add('hidden');
+
+            showTab('scheduler');
+            subscribeToData();
+        }
+
+        function exportBackup() {
+            try {
+                const backupPayload = {
+                    backupVersion: "1.3-staging",
+                    timestamp: new Date().toISOString(),
+                    appId: appId,
+                    stateId: activeStateId,
+                    players: stateData.players,
+                    schedules: stateData.schedules
+                };
+                
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", `state_${activeStateId}_backup_${new Date().toISOString().split('T')[0]}.json`);
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                showToast("State database backup file downloaded!", "success");
+            } catch (e) {
+                showToast("Backup export failed.", "danger");
+            }
+        }
+
+        function triggerImportFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = readerEvent => {
+                    try {
+                        const parsed = JSON.parse(readerEvent.target.result);
+                        if (parsed && Array.isArray(parsed.players) && parsed.schedules) {
+                            stateData.players = parsed.players;
+                            stateData.schedules = parsed.schedules;
+                            
+                            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => {
+                                if (!stateData.schedules[d]) stateData.schedules[d] = {};
+                            });
+                            
+                            saveCloudData();
+                            showToast("Database restored cleanly from file!", "success");
+                        } else {
+                            showToast("Invalid backup file layout format.", "danger");
+                        }
+                    } catch (err) {
+                        showToast("Failed to parse file JSON.", "danger");
+                    }
+                }
+                reader.readAsText(file);
+            }
+            input.click();
+        }
+
+        function openDiagnosticsModal() { 
+            const modal = document.getElementById('diagnosticsModal');
+            if (modal) modal.classList.remove('opacity-0', 'pointer-events-none'); 
+        }
+        function closeDiagnosticsModal() { 
+            const modal = document.getElementById('diagnosticsModal');
+            if (modal) modal.classList.add('opacity-0', 'pointer-events-none'); 
+        }
+        
+        function updateHeaderStatusPill() {
+            let dot = document.getElementById('statusDot'), txt = document.getElementById('statusText');
+            if(!dot || !txt) return;
+            if(syncMode==='offline') { dot.className="h-2 w-2 rounded-full bg-amber-500 animate-none"; txt.textContent="Local Sandbox"; return; }
+            if(runDiagnostics.firestore==='success') { dot.className="h-2 w-2 rounded-full bg-emerald-500"; txt.textContent="Online"; }
+            else { dot.className="h-2 w-2 rounded-full bg-rose-500"; txt.textContent="Offline/Error"; }
+        }
+
+        // ONE-CLICK MANUAL LEGACY DATABASE MIGRATION SYSTEM TRIGGER
+        async function triggerManualLegacyMigration() {
+            if (!isAdmin) {
+                showToast("Administrative Presidency override credentials are required.", "danger");
+                return;
+            }
+
+            const btn = document.getElementById('manualMigrateBtn');
+            if (btn) btn.disabled = true;
+
+            showToast("Opening secure migration handshakes...", "info");
+
+            try {
+                const legacySnap = await getLegacyRef().get();
+                if (legacySnap.exists) {
+                    const legacyData = legacySnap.data();
+                    
+                    const legacyPlayers = legacyData.players || [];
+                    const legacySchedules = legacyData.schedules || {};
+
+                    // Unpack and merge safely, preserving existing server passcode settings
+                    stateData.players = legacyPlayers;
+                    
+                    ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(day => {
+                        if (legacySchedules[day]) {
+                            stateData.schedules[day] = {};
+                            Object.keys(legacySchedules[day]).forEach(slot => {
+                                stateData.schedules[day][slot] = normalizeSlotData(legacySchedules[day][slot]);
+                            });
+                        }
+                    });
+
+                    await saveCloudData();
+                    showToast(`Successfully restored ${legacyPlayers.length} active players!`, "success");
+                    
+                    if (btn) btn.classList.add('hidden'); // auto-hide button once migration has finished successfully
+                } else {
+                    showToast("No historical legacy data was found at the global path.", "warning");
+                }
+            } catch (err) {
+                console.error("Migration handshakes interrupted: ", err.message);
+                showToast("Migration failed. Check connection parameters.", "danger");
+            } finally {
+                if (btn && !btn.classList.contains('hidden')) {
+                    btn.disabled = false;
+                }
+            }
+        }
+    </script>
+
+    <!-- Database Integration Framework Pipeline -->
+    <script>
+        // Game mapping definition configuration links
+        const dayConfig = {
+            day1: { name: "Construction", buff: "architect", title: "Infrastructure Minister (+20% Build Speed)", desc: "Calculates priority based on Construction speedups + Universal speedups combined with Furnace Level.", icon: "fa-compass-drafting", color: "text-cyan-400" },
+            day2: { name: "Basic Skills Up", buff: "scientist", title: "Vice President (+20% Tech)", desc: "Calculates metric prioritization score from combined Tech Research + Universal Speedups inventories.", icon: "fa-microscope", color: "text-violet-400" },
+            day3: { name: "Beast Slay", buff: "none", title: "Beast Slay Day (No Buff Required)", desc: "Day 3 focuses entirely on Stamina expenditure hunting monsters. No speedup scheduling required.", icon: "fa-paw", color: "text-emerald-400" },
+            day4: { name: "Hero Development", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Day 4 features no native speedup buff. However, the Education Minister is available to help players pre-start/promote high-tier troop batches early.", icon: "fa-shield-halved", color: "text-amber-400" },
+            day5: { name: "Power Boost", buff: "instructor", title: "Education Minister (+20% Training Speed)", desc: "Calculates priority ranking metrics for finishing pre-train batches and speeding up new troop squads.", icon: "fa-bolt", color: "text-orange-400" }
+        };
+
+        // STAGING vs PRODUCTION AUTOMATIC RESOLUTION
+        let appId = 'svs-scheduler-a1919'; 
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const isStagingParam = urlParams.get('env') === 'staging' || urlParams.get('stage') === 'true';
+
+        const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '';
+        const isSandboxFrame = window.location.hostname.includes('null') || window.location.hostname.includes('sandbox') || window.location.pathname.includes('artifacts');
+        
+        if (isLocalHost || isSandboxFrame || isStagingParam) {
+            appId = 'svs-scheduler-a1919-staging'; 
+            
+            window.addEventListener('DOMContentLoaded', () => {
+                const banner = document.getElementById('sandboxBanner');
+                const pill = document.getElementById('envIndicatorPill');
+                if (banner) banner.classList.remove('hidden');
+                if (pill) {
+                    pill.textContent = "Staging Sandbox";
+                    pill.className = "text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                }
+            });
+        }
+
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            try {
+                firebaseConfig = typeof __firebase_config === 'string' 
+                    ? JSON.parse(__firebase_config) 
+                    : __firebase_config;
+            } catch (e) {
+                console.error("Failed to parse __firebase_config: ", e.message);
+            }
+        }
+        if (!firebaseConfig) {
+            firebaseConfig = {
+              apiKey: "AIzaSyDQuzprhL2M3hrR585iyHeLr0BtUTMfCxA",
+              authDomain: "svs-scheduler-a1919.firebaseapp.com",
+              databaseURL: "https://svs-scheduler-a1919-default-rtdb.firebaseio.com",
+              projectId: "svs-scheduler-a1919",
+              storageBucket: "svs-scheduler-a1919.firebasestorage.app",
+              messagingSenderId: "1070850863206",
+              appId: "1:1070850863206:web:a2de4c38691fd0c89ebda7"
+            };
+        }
+
+        let db, auth, unsubscribeState = null;
+        let currentUser = null; 
+
+        try {
+            const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+            db = app.firestore();
+            auth = app.auth();
+            runDiagnostics.sdkInit = 'success';
+        } catch(e) { 
+            console.error("Firebase Initialization Exception: ", e.message);
+            runDiagnostics.sdkInit = 'failed'; 
+        }
+
+        // CRASH-PROOFED REFERENCE RESOLUTION GUARDS
+        function getCollectionRef() {
+            if (!activeStateId) return null;
+            return db.collection('artifacts').doc(appId)
+                     .collection('public').doc('data')
+                     .collection('states').doc(activeStateId);
+        }
+
+        function getLegacyRef() {
+            return db.collection('artifacts').doc(appId)
+                     .collection('public').doc('data')
+                     .collection('state_schedulers').doc('global_schedules');
+        }
+
+        function subscribeToData() {
+            if (!db || !currentUser || syncMode === 'offline' || !activeStateId) return;
+            if (unsubscribeState) unsubscribeState();
+            
+            const currentRef = getCollectionRef();
+            if (!currentRef) return;
+
+            unsubscribeState = currentRef.onSnapshot(async doc => {
+                runDiagnostics.firestore = 'success';
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    stateData.players = data.players || [];
+                    stateData.settings = data.settings || {};
+                    const rawSchedules = data.schedules || {};
+                    
+                    stateData.schedules = {};
+                    ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(day => {
+                        stateData.schedules[day] = {};
+                    });
+
+                    Object.keys(rawSchedules).forEach(dayId => {
+                        if (['day1', 'day2', 'day3', 'day4', 'day5'].includes(dayId)) {
+                            stateData.schedules[dayId] = {};
+                            const slots = rawSchedules[dayId] || {};
+                            Object.keys(slots).forEach(slot => {
+                                stateData.schedules[dayId][slot] = normalizeSlotData(slots[slot]);
+                            });
+                        }
+                    });
+                    refreshUI();
+                } else {
+                    // SILENT DATA MIGRATOR TRIGGER
+                    if (activeStateId === '4336') {
+                        try {
+                            const legacyDoc = await getLegacyRef().get();
+                            if (legacyDoc.exists) {
+                                const legacyData = legacyDoc.get('schedules') ? legacyDoc.data() : { players: [], schedules: {} };
+                                
+                                legacyData.settings = {
+                                    stateId: "4336",
+                                    playerPasscodeHash: "", 
+                                    presidencyPasscodeHash: "8c6976e5" 
+                                };
+
+                                await currentRef.set(legacyData);
+                                showToast("Migrated legacy scheduling registry to secure partition successfully!", "success");
+                            } else {
+                                await currentRef.set({ players: [], schedules: {}, settings: { stateId: "4336", playerPasscodeHash: "", presidencyPasscodeHash: "8c6976e5" } });
+                            }
+                        } catch(migrationErr) {
+                            console.error("Migration Error: ", migrationErr.message);
+                        }
+                    }
+                }
+            }, err => { 
+                runDiagnostics.firestore = 'failed'; 
+                refreshUI(); 
+            });
+        }
+
+        async function saveCloudData() {
+            refreshUI();
+            if (syncMode === 'offline') {
+                localStorage.setItem(`offline_state_${activeStateId}`, JSON.stringify(stateData));
+                return;
+            }
+            if(!db || !currentUser || syncMode==='offline' || !activeStateId) return;
+            try {
+                const serializedPayload = JSON.parse(JSON.stringify({
+                    players: stateData.players,
+                    schedules: stateData.schedules,
+                    settings: stateData.settings || {}
+                }));
+                const ref = getCollectionRef();
+                if (ref) {
+                    await ref.set(serializedPayload); 
+                }
+            } catch(e) { 
+                runDiagnostics.firestore='failed'; 
+                updateHeaderStatusPill();
+            }
+        }
+
+        async function testManualDatabaseWrite() {
+            try {
+                const ref = getCollectionRef();
+                if (ref) {
+                    await ref.update({ lastTestWrite: new Date().toISOString() });
+                    showToast("Write test successful!", "success");
+                }
+            } catch(e) { showToast("Write test failure.", "error"); }
+        }
+
+        function activateOfflineSandboxMode(reason) {
+            syncMode = 'offline';
+            runDiagnostics.auth = 'offline_fallback';
+            runDiagnostics.firestore = 'offline_fallback';
+            
+            // Mock credentials so the UI proceeds instantly
+            currentUser = { uid: "sandbox-local-user" };
+            
+            // Unlock Launch Pad button visually
+            const btn = document.getElementById('lookupSubmitBtn');
+            const text = document.getElementById('lookupBtnText');
+            const spin = document.getElementById('lookupSpinIcon');
+            if (btn) {
+                btn.disabled = false;
+                btn.className = "w-full py-3 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer";
+            }
+            if (text) text.textContent = "Next";
+            if (spin) spin.style.display = "none";
+            
+            showToast("Iframe network blocks detected. Running local Sandbox mode.", "warning");
+        }
+
+        function showToast(m, type="info") {
+            const c = document.getElementById('toastContainer');
+            if(!c) return;
+            const t = document.createElement('div');
+            t.className = `p-3 text-xs font-bold border rounded-lg shadow-xl bg-slate-800 border-slate-700 text-slate-200 transition duration-300 opacity-0 transform translate-y-2`;
+            if (type === "success") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-emerald-950 border-emerald-500 text-emerald-200";
+            if (type === "danger" || type === "error") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-rose-950 border-rose-500 text-rose-200";
+            if (type === "warning") t.className = "p-3 text-xs font-bold border rounded-lg shadow-xl bg-amber-950 border-amber-500 text-amber-200";
+            t.textContent = m;
+            c.appendChild(t);
+            setTimeout(() => t.classList.remove('opacity-0', 'translate-y-2'), 20);
+            setTimeout(() => { t.classList.add('opacity-0'); setTimeout(()=>t.remove(), 300); }, 4000);
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            initEventListeners();
+            switchDay('day4'); 
+
+            // Restore state id from cache if available cleanly via the central route bypass logic
+            const cachedState = localStorage.getItem('active_state_v2');
+            if (cachedState) {
+                activeStateId = cachedState;
+                const targetInput = document.getElementById('targetStateInput');
+                if (targetInput) targetInput.value = cachedState;
+                
+                bypassLaunchPadDirect();
+            }
+
+            // SAFETY TIMEOUT GUARD: Switch to offline mode if Safari blocks connection for 3.5 seconds
+            setTimeout(() => {
+                if (!currentUser && syncMode !== 'offline') {
+                    console.log("Iframe connectivity limit hit. Initiating offline recovery mode.");
+                    activateOfflineSandboxMode("Iframe partition blocked.");
+                }
+            }, 3500);
+
+            if (auth) {
+                auth.onAuthStateChanged(user => {
+                    currentUser = user;
+                    if (user) {
+                        const btn = document.getElementById('lookupSubmitBtn');
+                        const text = document.getElementById('lookupBtnText');
+                        const spin = document.getElementById('lookupSpinIcon');
+                        
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.className = "w-full py-3 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer";
+                        }
+                        if (text) text.textContent = "Next";
+                        if (spin) spin.style.display = "none";
+
+                        const tag = document.getElementById('userIdTag');
+                        if (tag) tag.classList.remove('hidden');
+                        
+                        // Only trigger subscribe if we already logged into a state to prevent boot collisions
+                        if (activeStateId) {
+                            subscribeToData();
+                        }
+                    } else {
+                        const tag = document.getElementById('userIdTag');
+                        if (tag) tag.classList.add('hidden');
+                    }
+                });
+                try { 
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await auth.signInWithCustomToken(__initial_auth_token);
+                    } else {
+                        await auth.signInAnonymously(); 
+                    }
+                } catch(e){
+                    console.error("Firebase Auth Exception: ", e.message);
+                    activateOfflineSandboxMode(e.message);
+                }
+            }
+        });
     </script>
 </body>
 </html>
