@@ -69,51 +69,62 @@ function calculateBearMarch() {
 }
 
 /**
- * Initializes and updates the Chart.js Radar Chart
+ * Initializes and updates the Chart.js Radar Chart with Safety Check
  */
 function updateBearRadarChart(dataPoints) {
+    // Safety check: Don't run if Chart.js CDN script hasn't loaded yet
+    if (typeof Chart === 'undefined') {
+        console.warn("Chart.js not loaded yet. Retrying radar render...");
+        setTimeout(() => updateBearRadarChart(dataPoints), 250);
+        return;
+    }
+
     const canvas = document.getElementById('bearRadarCanvas');
     if (!canvas) return;
 
-    if (!bearRadarChart) {
-        const ctx = canvas.getContext('2d');
-        bearRadarChart = new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: ['Lethality', 'Attack', 'Crowding Efficiency', 'Frontline Triggering', 'Damage Multiplier'],
-                datasets: [{
-                    label: 'Tactical Deployment Rating',
-                    data: dataPoints,
-                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                    borderColor: '#38bdf8',
-                    pointBackgroundColor: '#38bdf8',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#38bdf8',
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        pointLabels: {
-                            color: '#94a3b8',
-                            font: { size: 10, weight: 'bold' }
-                        },
-                        ticks: { display: false, max: 100, min: 0 }
-                    }
+    try {
+        if (!bearRadarChart) {
+            const ctx = canvas.getContext('2d');
+            bearRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Lethality', 'Attack', 'Crowding Efficiency', 'Frontline Baseline', 'Joiner Multiplier'],
+                    datasets: [{
+                        label: 'Tactical Deployment Rating',
+                        data: dataPoints,
+                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                        borderColor: '#38bdf8',
+                        pointBackgroundColor: '#38bdf8',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#38bdf8',
+                        borderWidth: 2
+                    }]
                 },
-                plugins: {
-                    legend: { display: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: {
+                                color: '#94a3b8',
+                                font: { size: 10, weight: 'bold' }
+                            },
+                            ticks: { display: false, max: 100, min: 0 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
                 }
-            }
-        });
-    } else {
-        bearRadarChart.data.datasets[0].data = dataPoints;
-        bearRadarChart.update();
+            });
+        } else {
+            bearRadarChart.data.datasets[0].data = dataPoints;
+            bearRadarChart.update();
+        }
+    } catch(e) {
+        console.error("Error rendering Bear Radar Chart:", e);
     }
 }
