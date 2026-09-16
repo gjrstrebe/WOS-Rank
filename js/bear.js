@@ -1,8 +1,5 @@
 // Whiteout Survivor Bear Trap Math & Native SVG Radar Engine
 
-/**
- * Main Bear Trap March & Stat Calculator
- */
 function calculateBearMarch() {
     const totalCapacity = parseInt(document.getElementById('bearMarchCapacity')?.value || 150000);
     const infRatio = parseInt(document.getElementById('bearInfRatio')?.value || 10) / 100;
@@ -18,6 +15,11 @@ function calculateBearMarch() {
     if (document.getElementById('countInfantry')) document.getElementById('countInfantry').textContent = infCount.toLocaleString();
     if (document.getElementById('countLancer')) document.getElementById('countLancer').textContent = lanCount.toLocaleString();
     if (document.getElementById('countMarksman')) document.getElementById('countMarksman').textContent = markCount.toLocaleString();
+
+    // Update Stacked Distribution Bar Widths
+    if (document.getElementById('barMarksman')) document.getElementById('barMarksman').style.width = `${markRatio * 100}%`;
+    if (document.getElementById('barLancer')) document.getElementById('barLancer').style.width = `${lanRatio * 100}%`;
+    if (document.getElementById('barInfantry')) document.getElementById('barInfantry').style.width = `${infRatio * 100}%`;
 
     // Frontline Trigger Requirement Evaluation (~5,000 Infantry baseline)
     const infStatus = document.getElementById('infantryTriggerStatus');
@@ -66,14 +68,10 @@ function calculateBearMarch() {
     updateNativeSvgRadar(lethality, attack, crowding, frontline, multiplier);
 }
 
-/**
- * Draws the 5-Axis Radar Polygon natively using SVG math
- */
 function updateNativeSvgRadar(lethality, attack, crowding, frontline, multiplier) {
     const polygon = document.getElementById('radarPolygon');
     if (!polygon) return;
 
-    // 5 Axis angles in radians (Top, Top-Right, Bottom-Right, Bottom-Left, Top-Left)
     const angles = [
         -Math.PI / 2, 
         -Math.PI / 2 + (2 * Math.PI / 5),
