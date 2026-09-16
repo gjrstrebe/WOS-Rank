@@ -10,7 +10,6 @@
     <!-- FontAwesome Icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Custom Theme Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -75,18 +74,6 @@
         </div>
     </header>
 
-    <!-- LAUNCH PAD PORTAL (State Login) -->
-    <div id="launchPadPortal" class="hidden max-w-md mx-auto my-12 p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-4">
-        <h2 class="text-lg font-black text-white">Select Alliance State</h2>
-        <form id="stateLookupForm" onsubmit="handleStateLookup(event)" class="space-y-3">
-            <input type="text" id="targetStateInput" placeholder="Enter State Number (e.g. 1080)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white text-center font-mono focus:outline-none focus:border-sky-400">
-            <button type="submit" id="lookupSubmitBtn" class="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-lg text-xs transition">
-                <span id="lookupBtnText">Enter Command Center</span>
-                <i id="lookupSpinIcon" class="fa-solid fa-spinner fa-spin hidden"></i>
-            </button>
-        </form>
-    </div>
-
     <!-- MAIN APP CONTAINER -->
     <main id="mainDashboardApp" class="max-w-7xl mx-auto px-4 py-6">
 
@@ -109,7 +96,7 @@
                     <span class="text-xs text-slate-500 font-mono">UTC Time Slots</span>
                 </div>
                 <div id="scheduleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Schedule Slots Render Here Dynamically -->
+                    <!-- Dynamic timetable content -->
                 </div>
             </div>
         </div>
@@ -141,10 +128,23 @@
                         <input type="number" id="bearMarchCapacity" value="150000" step="5000" onchange="calculateBearMarch()" oninput="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-sky-400 focus:outline-none">
                     </div>
 
+                    <!-- 100% STACKED RATIO VISUAL BAR -->
+                    <div>
+                        <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase mb-1.5">
+                            <span>Troop March Breakdown</span>
+                            <span id="totalRatioPercentDisplay" class="text-sky-400">100% Total</span>
+                        </div>
+                        <div class="h-4 w-full bg-slate-800 rounded-lg overflow-hidden flex border border-slate-700 p-0.5 gap-0.5">
+                            <div id="barMarksman" class="h-full bg-sky-400 rounded-sm transition-all duration-300" style="width: 60%"></div>
+                            <div id="barLancer" class="h-full bg-amber-400 rounded-sm transition-all duration-300" style="width: 30%"></div>
+                            <div id="barInfantry" class="h-full bg-emerald-400 rounded-sm transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+
                     <div class="space-y-4">
                         <div>
                             <div class="flex justify-between text-xs font-bold mb-1">
-                                <span class="text-sky-400">Marksmen Ratio (%)</span>
+                                <span class="text-sky-400"><i class="fa-solid fa-crosshair mr-1"></i> Marksmen Ratio (%)</span>
                                 <span id="countMarksman" class="text-slate-300 font-mono">90,000</span>
                             </div>
                             <input type="range" id="bearMarkRatio" min="0" max="100" value="60" oninput="calculateBearMarch()" class="w-full accent-sky-400 cursor-pointer">
@@ -152,7 +152,7 @@
 
                         <div>
                             <div class="flex justify-between text-xs font-bold mb-1">
-                                <span class="text-amber-400">Lancer Ratio (%)</span>
+                                <span class="text-amber-400"><i class="fa-solid fa-horse mr-1"></i> Lancer Ratio (%)</span>
                                 <span id="countLancer" class="text-slate-300 font-mono">45,000</span>
                             </div>
                             <input type="range" id="bearLanRatio" min="0" max="100" value="30" oninput="calculateBearMarch()" class="w-full accent-amber-400 cursor-pointer">
@@ -160,7 +160,7 @@
 
                         <div>
                             <div class="flex justify-between text-xs font-bold mb-1 flex-items-center">
-                                <span class="text-emerald-400">Infantry Ratio (%)</span>
+                                <span class="text-emerald-400"><i class="fa-solid fa-shield mr-1"></i> Infantry Ratio (%)</span>
                                 <span id="countInfantry" class="text-slate-300 font-mono">15,000</span>
                             </div>
                             <input type="range" id="bearInfRatio" min="0" max="100" value="10" oninput="calculateBearMarch()" class="w-full accent-emerald-400 cursor-pointer">
@@ -340,12 +340,12 @@
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
 
-    <!-- APP MODULAR SCRIPTS -->
-    <script src="./js/config.js"></script>
-    <script src="./js/bear.js"></script>
-    <script src="./js/scheduler.js"></script>
-    <script src="./js/scout.js"></script>
-    <script src="./js/firebase-service.js"></script>
-    <script src="./js/app.js"></script>
+    <!-- MODULAR SCRIPT FILES -->
+    <script src="js/config.js"></script>
+    <script src="js/bear.js"></script>
+    <script src="js/scheduler.js"></script>
+    <script src="js/scout.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
