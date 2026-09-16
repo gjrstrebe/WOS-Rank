@@ -37,21 +37,21 @@
     <header id="mainAppHeader" class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="h-9 w-9 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent">
+                <div class="h-9 w-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
                     <i class="fa-solid fa-shield-cat text-lg"></i>
                 </div>
                 <div>
                     <h1 class="text-sm font-black tracking-wide text-white uppercase">SVS State Command Center</h1>
                     <div class="flex items-center gap-2">
-                        <span id="statusDot" class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-                        <span id="statusText" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connecting...</span>
+                        <span id="statusDot" class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        <span id="statusText" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Online</span>
                     </div>
                 </div>
             </div>
 
             <!-- TAB NAVIGATION BUTTONS -->
             <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button id="tabBtn-scheduler" onclick="showTab('scheduler')" class="px-4 py-2 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center gap-1.5">
+                <button id="tabBtn-scheduler" onclick="showTab('scheduler')" class="px-4 py-2 text-xs font-black rounded-lg transition bg-sky-500/20 text-sky-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-calendar-days"></i> SVS Prep
                 </button>
                 <button id="tabBtn-bear" onclick="showTab('bear')" class="px-4 py-2 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center gap-1.5">
@@ -63,17 +63,29 @@
             </div>
         </div>
 
-        <!-- DAY SELECTOR TABS (Only visible on Scheduler tab) -->
+        <!-- DAY SELECTOR TABS -->
         <div id="daySelectorTabs" class="bg-slate-950/60 border-t border-slate-800/80 px-4 py-2">
             <div class="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto gap-2">
                 <button onclick="switchDay('day1')" id="dayTab-day1" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 1: Construction</button>
                 <button onclick="switchDay('day2')" id="dayTab-day2" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 2: Tech</button>
                 <button onclick="switchDay('day3')" id="dayTab-day3" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 3: Beast</button>
-                <button onclick="switchDay('day4')" id="dayTab-day4" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-brand-accent border border-slate-700 transition whitespace-nowrap">Day 4: Hero Dev</button>
+                <button onclick="switchDay('day4')" id="dayTab-day4" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-sky-400 border border-slate-700 transition whitespace-nowrap">Day 4: Hero Dev</button>
                 <button onclick="switchDay('day5')" id="dayTab-day5" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 5: Power Boost</button>
             </div>
         </div>
     </header>
+
+    <!-- LAUNCH PAD PORTAL (State Login) -->
+    <div id="launchPadPortal" class="hidden max-w-md mx-auto my-12 p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-4">
+        <h2 class="text-lg font-black text-white">Select Alliance State</h2>
+        <form id="stateLookupForm" onsubmit="handleStateLookup(event)" class="space-y-3">
+            <input type="text" id="targetStateInput" placeholder="Enter State Number (e.g. 1080)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white text-center font-mono focus:outline-none focus:border-sky-400">
+            <button type="submit" id="lookupSubmitBtn" class="w-full py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black rounded-lg text-xs transition">
+                <span id="lookupBtnText">Enter Command Center</span>
+                <i id="lookupSpinIcon" class="fa-solid fa-spinner fa-spin hidden"></i>
+            </button>
+        </form>
+    </div>
 
     <!-- MAIN APP CONTAINER -->
     <main id="mainDashboardApp" class="max-w-7xl mx-auto px-4 py-6">
@@ -108,13 +120,13 @@
             <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 class="text-xl font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-paw text-brand-warning"></i> Bear Trap Tactical Optimizer
+                        <i class="fa-solid fa-paw text-amber-400"></i> Bear Trap Tactical Optimizer
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Calculates optimal march ratios & joiner skill stacking using PCB V6a combat mechanics.</p>
                 </div>
                 <div class="text-right">
                     <span class="text-[10px] text-slate-500 uppercase font-bold block">Estimated Damage Rating</span>
-                    <span id="estimatedBearDamage" class="text-2xl font-black text-brand-accent font-mono">0</span>
+                    <span id="estimatedBearDamage" class="text-2xl font-black text-sky-400 font-mono">0</span>
                 </div>
             </div>
 
@@ -126,7 +138,7 @@
                     
                     <div>
                         <label class="text-xs text-slate-400 font-bold block mb-1.5">Total Rally March Capacity</label>
-                        <input type="number" id="bearMarchCapacity" value="150000" step="5000" onchange="calculateBearMarch()" oninput="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-brand-accent focus:outline-none">
+                        <input type="number" id="bearMarchCapacity" value="150000" step="5000" onchange="calculateBearMarch()" oninput="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-sky-400 focus:outline-none">
                     </div>
 
                     <div class="space-y-4">
@@ -278,7 +290,7 @@
         <div id="view-scout" class="hidden space-y-6">
             <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800">
                 <h2 class="text-xl font-black text-white flex items-center gap-2 mb-4">
-                    <i class="fa-solid fa-binoculars text-brand-accent"></i> Facility Scout Report Analyzer
+                    <i class="fa-solid fa-binoculars text-sky-400"></i> Facility Scout Report Analyzer
                 </h2>
                 <form onsubmit="handleScoutReportAnalysis(event)" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -311,7 +323,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 bg-brand-accent text-slate-950 font-black rounded-lg text-xs hover:bg-sky-400 transition">Analyze Counter Ratios</button>
+                    <button type="submit" class="w-full py-2.5 bg-sky-500 text-slate-950 font-black rounded-lg text-xs hover:bg-sky-400 transition">Analyze Counter Ratios</button>
                 </form>
 
                 <div id="scoutAnalysisReport" class="mt-6 space-y-4"></div>
@@ -328,12 +340,12 @@
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
 
-    <!-- APP MODULAR SCRIPTS (Load Order Critical) -->
-    <script src="js/config.js"></script>
-    <script src="js/bear.js"></script>
-    <script src="js/scheduler.js"></script>
-    <script src="js/scout.js"></script>
-    <script src="js/firebase-service.js"></script>
-    <script src="js/app.js"></script>
+    <!-- APP MODULAR SCRIPTS -->
+    <script src="./js/config.js"></script>
+    <script src="./js/bear.js"></script>
+    <script src="./js/scheduler.js"></script>
+    <script src="./js/scout.js"></script>
+    <script src="./js/firebase-service.js"></script>
+    <script src="./js/app.js"></script>
 </body>
 </html>
