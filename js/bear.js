@@ -1,6 +1,4 @@
-// Whiteout Survivor Bear Trap Math & Radar Chart Engine
-
-let bearRadarChart = null;
+// Whiteout Survivor Bear Trap Math & Native SVG Radar Engine
 
 /**
  * Main Bear Trap March & Stat Calculator
@@ -59,72 +57,41 @@ function calculateBearMarch() {
     }
 
     // Radar Chart Metric Scaling (0 - 100 scale)
-    const lethalityMetric = Math.min(100, Math.round((markRatio * 1.2 + lanRatio * 0.8) * 100));
-    const attackMetric = Math.min(100, Math.round((markRatio * 1.0 + lanRatio * 0.9 + infRatio * 0.3) * 100));
-    const crowdingEfficiency = Math.min(100, Math.round((1 - (infRatio * 0.6)) * 100));
-    const frontlineScore = Math.min(100, Math.round((infCount / 5000) * 100));
-    const damageMultiplierScore = Math.min(100, Math.round((finalJoinerMultiplier / 2.0) * 100));
+    const lethality = Math.min(100, Math.round((markRatio * 1.2 + lanRatio * 0.8) * 100));
+    const attack = Math.min(100, Math.round((markRatio * 1.0 + lanRatio * 0.9 + infRatio * 0.3) * 100));
+    const crowding = Math.min(100, Math.round((1 - (infRatio * 0.6)) * 100));
+    const frontline = Math.min(100, Math.round((infCount / 5000) * 100));
+    const multiplier = Math.min(100, Math.round((finalJoinerMultiplier / 2.0) * 100));
 
-    updateBearRadarChart([lethalityMetric, attackMetric, crowdingEfficiency, frontlineScore, damageMultiplierScore]);
+    updateNativeSvgRadar(lethality, attack, crowding, frontline, multiplier);
 }
 
 /**
- * Initializes and updates the Chart.js Radar Chart with Safety Check
+ * Draws the 5-Axis Radar Polygon natively using SVG math
  */
-function updateBearRadarChart(dataPoints) {
-    // Safety check: Don't run if Chart.js CDN script hasn't loaded yet
-    if (typeof Chart === 'undefined') {
-        console.warn("Chart.js not loaded yet. Retrying radar render...");
-        setTimeout(() => updateBearRadarChart(dataPoints), 250);
-        return;
-    }
+function updateNativeSvgRadar(lethality, attack, crowding, frontline, multiplier) {
+    const polygon = document.getElementById('radarPolygon');
+    if (!polygon) return;
 
-    const canvas = document.getElementById('bearRadarCanvas');
-    if (!canvas) return;
+    // 5 Axis angles in radians (Top, Top-Right, Bottom-Right, Bottom-Left, Top-Left)
+    const angles = [
+        -Math.PI / 2, 
+        -Math.PI / 2 + (2 * Math.PI / 5),
+        -Math.PI / 2 + (4 * Math.PI / 5),
+        -Math.PI / 2 + (6 * Math.PI / 5),
+        -Math.PI / 2 + (8 * Math.PI / 5)
+    ];
 
-    try {
-        if (!bearRadarChart) {
-            const ctx = canvas.getContext('2d');
-            bearRadarChart = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Lethality', 'Attack', 'Crowding Efficiency', 'Frontline Baseline', 'Joiner Multiplier'],
-                    datasets: [{
-                        label: 'Tactical Deployment Rating',
-                        data: dataPoints,
-                        backgroundColor: 'rgba(56, 189, 248, 0.2)',
-                        borderColor: '#38bdf8',
-                        pointBackgroundColor: '#38bdf8',
-                        pointBorderColor: '#fff',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#38bdf8',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            pointLabels: {
-                                color: '#94a3b8',
-                                font: { size: 10, weight: 'bold' }
-                            },
-                            ticks: { display: false, max: 100, min: 0 }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        } else {
-            bearRadarChart.data.datasets[0].data = dataPoints;
-            bearRadarChart.update();
-        }
-    } catch(e) {
-        console.error("Error rendering Bear Radar Chart:", e);
-    }
+    const center = 100;
+    const maxRadius = 75;
+    const values = [lethality, attack, crowding, frontline, multiplier];
+
+    const points = values.map((val, idx) => {
+        const r = (val / 100) * maxRadius;
+        const x = center + r * Math.cos(angles[idx]);
+        const y = center + r * Math.sin(angles[idx]);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+
+    polygon.setAttribute('points', points);
 }
