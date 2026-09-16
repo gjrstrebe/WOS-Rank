@@ -20,15 +20,23 @@ let firebaseConfig = {
     appId: "1:1070850863206:web:a2de4c38691fd0c89ebda7"
 };
 
-let db, auth, unsubscribeState = null;
+let db = null;
+let auth = null;
+let unsubscribeState = null;
 let currentUser = null; 
 
-try {
-    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
-    db = app.firestore();
-    auth = app.auth();
-} catch(e) { 
-    console.error("Firebase Initialization Exception: ", e.message);
+function initFirebase() {
+    try {
+        if (typeof firebase !== 'undefined') {
+            const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+            db = app.firestore();
+            auth = app.auth();
+            runDiagnostics.sdkInit = 'success';
+        }
+    } catch(e) { 
+        console.error("Firebase Initialization Exception: ", e.message);
+        runDiagnostics.sdkInit = 'failed';
+    }
 }
 
 function getCollectionRef() {
@@ -36,6 +44,25 @@ function getCollectionRef() {
     return db.collection('artifacts').doc(appId)
              .collection('public').doc('data')
              .collection('states').doc(activeStateId);
+}
+
+function updateHeaderStatusPill() {
+    let dot = document.getElementById('statusDot');
+    let txt = document.getElementById('statusText');
+    if (!dot || !txt) return;
+
+    if (syncMode === 'offline') { 
+        dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-none"; 
+        txt.textContent = "Local Sandbox"; 
+        return; 
+    }
+    if (runDiagnostics.firestore === 'success') { 
+        dot.className = "h-2 w-2 rounded-full bg-emerald-500"; 
+        txt.textContent = "Online"; 
+    } else { 
+        dot.className = "h-2 w-2 rounded-full bg-rose-500"; 
+        txt.textContent = "Offline/Error"; 
+    }
 }
 
 function subscribeToData() {
@@ -46,6 +73,7 @@ function subscribeToData() {
     if (!currentRef) return;
 
     unsubscribeState = currentRef.onSnapshot(async doc => {
+        runDiagnostics.firestore = 'success';
         if (doc.exists) {
             const data = doc.data();
             stateData.players = data.players || [];
@@ -68,6 +96,9 @@ function subscribeToData() {
             });
             refreshUI();
         }
+    }, err => {
+        runDiagnostics.firestore = 'failed';
+        updateHeaderStatusPill();
     });
 }
 
@@ -89,6 +120,7 @@ async function saveCloudData() {
             await ref.set(serializedPayload); 
         }
     } catch(e) { 
-        console.error("Error saving cloud data: ", e);
+        runDiagnostics.firestore = 'failed';
+        updateHeaderStatusPill();
     }
 }
