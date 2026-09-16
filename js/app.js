@@ -1,8 +1,5 @@
 // Main Application Controller & Event Listener Orchestrator
 
-/**
- * Tab switching controller
- */
 function showTab(tabId) {
     ['scheduler', 'bear', 'scout'].forEach(id => {
         const view = document.getElementById(`view-${id}`);
@@ -33,18 +30,15 @@ function showTab(tabId) {
     }
 }
 
-/**
- * Refreshes all active UI components
- */
 function refreshUI() { 
     renderPlayers(); 
     renderSchedule(); 
     calculateBearMarch();
+    if (typeof updateHeaderStatusPill === 'function') {
+        updateHeaderStatusPill();
+    }
 }
 
-/**
- * System Toast Notification Display
- */
 function showToast(message, type = "info") {
     const container = document.getElementById('toastContainer');
     if (!container) return;
@@ -66,7 +60,6 @@ function showToast(message, type = "info") {
     }, 4000);
 }
 
-// Portal Navigation Routines
 function routeToLaunchPad() {
     document.getElementById('mainDashboardApp')?.classList.add('hidden');
     document.getElementById('mainAppHeader')?.classList.add('hidden');
@@ -110,11 +103,13 @@ async function handleStateRegistration(event) {
     bypassLaunchPadDirect();
 }
 
-// Global Initialization Lifecycle
 window.addEventListener('DOMContentLoaded', () => {
+    if (typeof initFirebase === 'function') {
+        initFirebase();
+    }
+    
     switchDay('day4'); 
 
-    // Auto-login to cached server if available
     const cachedState = localStorage.getItem('active_state_v2');
     if (cachedState) {
         activeStateId = cachedState;
@@ -137,10 +132,16 @@ window.addEventListener('DOMContentLoaded', () => {
     if (typeof auth !== 'undefined' && auth) {
         auth.onAuthStateChanged(user => {
             currentUser = user;
+            runDiagnostics.auth = 'success';
             if (user && activeStateId && typeof subscribeToData === 'function') {
                 subscribeToData();
             }
+            refreshUI();
         });
-        auth.signInAnonymously().catch(e => console.error("Auth Exception: ", e));
+        auth.signInAnonymously().catch(e => {
+            console.error("Auth Exception: ", e);
+            runDiagnostics.auth = 'failed';
+            refreshUI();
+        });
     }
 });
