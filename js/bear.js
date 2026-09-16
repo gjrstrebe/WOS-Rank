@@ -1,95 +1,141 @@
-// Whiteout Survivor Bear Trap Math & Native SVG Radar Engine
+// Whiteout Survivor Bear Trap Combat Engine (PCB Model V6a)
 
-function calculateBearMarch() {
-    const totalCapacity = parseInt(document.getElementById('bearMarchCapacity')?.value || 150000);
-    const infRatio = parseInt(document.getElementById('bearInfRatio')?.value || 10) / 100;
-    const lanRatio = parseInt(document.getElementById('bearLanRatio')?.value || 30) / 100;
-    const markRatio = parseInt(document.getElementById('bearMarkRatio')?.value || 60) / 100;
+// Hero Skill 1 Buff Definitions (Top 4 Joiners Max +25% Each = +100% Capped)
+const JOINER_BUFF_VALUES = {
+    jessie: 0.25,
+    jasser: 0.25,
+    patrick: 0.25,
+    none: 0.00
+};
 
-    // Troop Counts
-    const infCount = Math.round(totalCapacity * infRatio);
-    const lanCount = Math.round(totalCapacity * lanRatio);
-    const markCount = Math.round(totalCapacity * markRatio);
+// Preset Troop Ratio Configurations
+const BEAR_PRESETS = {
+    optimal: { inf: 10, lan: 40, mar: 50 },  // Standard community optimal (crowding mitigated)
+    maxdps:  { inf: 5,  lan: 35, mar: 60 },  // Max Marksmen push with ~5k Inf trigger baseline
+    balanced: { inf: 20, lan: 40, mar: 40 }  // Safe balanced spread
+};
 
-    // Update Numerical Count Displays
-    if (document.getElementById('countInfantry')) document.getElementById('countInfantry').textContent = infCount.toLocaleString();
-    if (document.getElementById('countLancer')) document.getElementById('countLancer').textContent = lanCount.toLocaleString();
-    if (document.getElementById('countMarksman')) document.getElementById('countMarksman').textContent = markCount.toLocaleString();
-
-    // Update Stacked Distribution Bar Widths
-    if (document.getElementById('barMarksman')) document.getElementById('barMarksman').style.width = `${markRatio * 100}%`;
-    if (document.getElementById('barLancer')) document.getElementById('barLancer').style.width = `${lanRatio * 100}%`;
-    if (document.getElementById('barInfantry')) document.getElementById('barInfantry').style.width = `${infRatio * 100}%`;
-
-    // Frontline Trigger Requirement Evaluation (~5,000 Infantry baseline)
-    const infStatus = document.getElementById('infantryTriggerStatus');
-    if (infStatus) {
-        if (infCount >= 5000) {
-            infStatus.className = "text-xs font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-            infStatus.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> Frontline Trigger Met';
-        } else {
-            infStatus.className = "text-xs font-bold px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20";
-            infStatus.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Below ~5k Baseline';
-        }
-    }
-
-    // Joiner Skill 1 Stacking Logic (Cap +100%)
-    let joinerBonus = 0;
-    for (let i = 1; i <= 4; i++) {
-        const joinerVal = parseFloat(document.getElementById(`joinerSkill${i}`)?.value || 0);
-        joinerBonus += joinerVal;
-    }
-    const finalJoinerMultiplier = 1 + (Math.min(joinerBonus, 100) / 100);
-
-    const joinerStackDisplay = document.getElementById('joinerStackDisplay');
-    if (joinerStackDisplay) {
-        joinerStackDisplay.textContent = `+${Math.min(joinerBonus, 100)}% (${finalJoinerMultiplier.toFixed(2)}x)`;
-    }
-
-    // Crowding Engine Calculations: Damage scaling ~ sqrt(Troops)
-    const infDmg = Math.sqrt(infCount) * 0.4;
-    const lanDmg = Math.sqrt(lanCount) * 1.15;
-    const markDmg = Math.sqrt(markCount) * 1.45;
+/**
+ * Updates March Ratio Sliders dynamically guaranteeing 100% total sum
+ */
+function updateBearSliders(changed) {
+    const infSlider = document.getElementById('sliderInf');
+    const lanSlider = document.getElementById('sliderLan');
+    const marSlider = document.getElementById('sliderMar');
     
-    const baseDamageScore = Math.round((infDmg + lanDmg + markDmg) * 100 * finalJoinerMultiplier);
+    if (!infSlider || !lanSlider || !marSlider) return;
 
-    const totalDmgDisplay = document.getElementById('estimatedBearDamage');
-    if (totalDmgDisplay) {
-        totalDmgDisplay.textContent = baseDamageScore.toLocaleString();
+    let inf = parseInt(infSlider.value) || 0;
+    let lan = parseInt(lanSlider.value) || 0;
+    let mar = parseInt(marSlider.value) || 0;
+
+    // Balance remaining percentage to keep sum at 100%
+    if (changed === 'inf') {
+        let remaining = 100 - inf;
+        lan = Math.round(remaining * (lan / (lan + mar || 1)));
+        mar = 100 - inf - lan;
+    } else if (changed === 'lan') {
+        let remaining = 100 - lan;
+        inf = Math.round(remaining * (inf / (inf + mar || 1)));
+        mar = 100 - lan - inf;
+    } else if (changed === 'mar') {
+        let remaining = 100 - mar;
+        inf = Math.round(remaining * (inf / (inf + lan || 1)));
+        lan = 100 - mar - inf;
     }
 
-    // Radar Chart Metric Scaling (0 - 100 scale)
-    const lethality = Math.min(100, Math.round((markRatio * 1.2 + lanRatio * 0.8) * 100));
-    const attack = Math.min(100, Math.round((markRatio * 1.0 + lanRatio * 0.9 + infRatio * 0.3) * 100));
-    const crowding = Math.min(100, Math.round((1 - (infRatio * 0.6)) * 100));
-    const frontline = Math.min(100, Math.round((infCount / 5000) * 100));
-    const multiplier = Math.min(100, Math.round((finalJoinerMultiplier / 2.0) * 100));
+    // Update input slider values
+    infSlider.value = inf;
+    lanSlider.value = lan;
+    marSlider.value = mar;
 
-    updateNativeSvgRadar(lethality, attack, crowding, frontline, multiplier);
+    // Update UI text display
+    document.getElementById('sliderInfVal').textContent = `${inf}%`;
+    document.getElementById('sliderLanVal').textContent = `${lan}%`;
+    document.getElementById('sliderMarVal').textContent = `${mar}%`;
+
+    calculateBearMarch();
 }
 
-function updateNativeSvgRadar(lethality, attack, crowding, frontline, multiplier) {
-    const polygon = document.getElementById('radarPolygon');
-    if (!polygon) return;
+/**
+ * Applies a predefined troop ratio preset
+ */
+function applyBearPreset(presetKey) {
+    const preset = BEAR_PRESETS[presetKey];
+    if (!preset) return;
 
-    const angles = [
-        -Math.PI / 2, 
-        -Math.PI / 2 + (2 * Math.PI / 5),
-        -Math.PI / 2 + (4 * Math.PI / 5),
-        -Math.PI / 2 + (6 * Math.PI / 5),
-        -Math.PI / 2 + (8 * Math.PI / 5)
-    ];
+    const infSlider = document.getElementById('sliderInf');
+    const lanSlider = document.getElementById('sliderLan');
+    const marSlider = document.getElementById('sliderMar');
 
-    const center = 100;
-    const maxRadius = 75;
-    const values = [lethality, attack, crowding, frontline, multiplier];
+    if (infSlider && lanSlider && marSlider) {
+        infSlider.value = preset.inf;
+        lanSlider.value = preset.lan;
+        marSlider.value = preset.mar;
 
-    const points = values.map((val, idx) => {
-        const r = (val / 100) * maxRadius;
-        const x = center + r * Math.cos(angles[idx]);
-        const y = center + r * Math.sin(angles[idx]);
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
+        document.getElementById('sliderInfVal').textContent = `${preset.inf}%`;
+        document.getElementById('sliderLanVal').textContent = `${preset.lan}%`;
+        document.getElementById('sliderMarVal').textContent = `${preset.mar}%`;
 
-    polygon.setAttribute('points', points);
+        calculateBearMarch();
+    }
+}
+
+/**
+ * Primary Calculation Engine: Computes troop counts, Joiner Skill 1 stacking, and visual bar updating
+ */
+function calculateBearMarch() {
+    const capacityEl = document.getElementById('bearMarchCapacity');
+    if (!capacityEl) return;
+
+    const totalCapacity = parseInt(capacityEl.value) || 0;
+
+    const infPct = parseInt(document.getElementById('sliderInf')?.value || 10) / 100;
+    const lanPct = parseInt(document.getElementById('sliderLan')?.value || 40) / 100;
+    const marPct = parseInt(document.getElementById('sliderMar')?.value || 50) / 100;
+
+    // Compute raw unit counts based on capacity
+    const infCount = Math.round(totalCapacity * infPct);
+    const lanCount = Math.round(totalCapacity * lanPct);
+    const marCount = Math.round(totalCapacity * marPct);
+
+    // Update count displays on card
+    const displayInf = document.getElementById('bearInfantryCount');
+    const displayLan = document.getElementById('bearLancerCount');
+    const displayMar = document.getElementById('bearMarksmanCount');
+
+    if (displayInf) displayInf.textContent = infCount.toLocaleString();
+    if (displayLan) displayLan.textContent = lanCount.toLocaleString();
+    if (displayMar) displayMar.textContent = marCount.toLocaleString();
+
+    // Update dynamic visual bar widths
+    const barInf = document.getElementById('barInf');
+    const barLan = document.getElementById('barLan');
+    const barMar = document.getElementById('barMar');
+
+    if (barInf) {
+        barInf.style.width = `${(infPct * 100).toFixed(0)}%`;
+        barInf.textContent = `${(infPct * 100).toFixed(0)}%`;
+    }
+    if (barLan) {
+        barLan.style.width = `${(lanPct * 100).toFixed(0)}%`;
+        barLan.textContent = `${(lanPct * 100).toFixed(0)}%`;
+    }
+    if (barMar) {
+        barMar.style.width = `${(marPct * 100).toFixed(0)}%`;
+        barMar.textContent = `${(marPct * 100).toFixed(0)}%`;
+    }
+
+    // Compute Top 4 Joiners Skill 1 Stack (Max +100%)
+    const j1 = JOINER_BUFF_VALUES[document.getElementById('joiner1')?.value || 'jessie'] || 0;
+    const j2 = JOINER_BUFF_VALUES[document.getElementById('joiner2')?.value || 'jessie'] || 0;
+    const j3 = JOINER_BUFF_VALUES[document.getElementById('joiner3')?.value || 'jasser'] || 0;
+    const j4 = JOINER_BUFF_VALUES[document.getElementById('joiner4')?.value || 'patrick'] || 0;
+
+    const totalJoinerBoost = Math.min(j1 + j2 + j3 + j4, 1.00); // Capped at +100%
+    const totalBoostEl = document.getElementById('joinerBoostTotal');
+    
+    if (totalBoostEl) {
+        totalBoostEl.textContent = `+${(totalJoinerBoost * 100).toFixed(0)}% Boost`;
+    }
 }
