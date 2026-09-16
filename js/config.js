@@ -13,6 +13,9 @@ let syncMode = 'live';
 let timeDisplayMode = 'utc';
 let isAdmin = false;
 
+// Diagnostic Tracker Object
+let runDiagnostics = { sdkInit: 'checking', auth: 'checking', firestore: 'checking' };
+
 // Initialize Schedule Days Baseline
 ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(d => { 
     stateData.schedules[d] = {}; 
