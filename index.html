@@ -1,175 +1,339 @@
-<!-- BEAR OPTIMIZER VIEW -->
-<div id="view-bear" class="hidden space-y-6">
-    <!-- Header Banner -->
-    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h2 class="text-xl font-black text-white flex items-center gap-2">
-                <i class="fa-solid fa-paw text-brand-warning"></i> Bear Trap Tactical Optimizer
-            </h2>
-            <p class="text-xs text-slate-400 mt-1">Calculates optimal march ratios & joiner skill stacking using PCB V6a combat mechanics.</p>
-        </div>
-        <div class="text-right">
-            <span class="text-[10px] text-slate-500 uppercase font-bold block">Estimated Damage Rating</span>
-            <span id="estimatedBearDamage" class="text-2xl font-black text-brand-accent font-mono">0</span>
-        </div>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVS State Command Center & Bear Optimizer</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Theme Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0f172a',
+                            panel: '#1e293b',
+                            border: '#334155',
+                            accent: '#38bdf8',
+                            warning: '#fbbf24',
+                            danger: '#f43f5e',
+                            success: '#10b981'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
 
-    <!-- Main Grid: Controls & Native SVG Radar Chart -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Input Controls -->
-        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-5">
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-3">March Configuration</h3>
-            
-            <div>
-                <label class="text-xs text-slate-400 font-bold block mb-1.5">Total Rally March Capacity</label>
-                <input type="number" id="bearMarchCapacity" value="150000" step="5000" onchange="calculateBearMarch()" oninput="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-brand-accent focus:outline-none">
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <div class="flex justify-between text-xs font-bold mb-1">
-                        <span class="text-sky-400">Marksmen Ratio (%)</span>
-                        <span id="countMarksman" class="text-slate-300 font-mono">90,000</span>
-                    </div>
-                    <input type="range" id="bearMarkRatio" min="0" max="100" value="60" oninput="calculateBearMarch()" class="w-full accent-sky-400 cursor-pointer">
+    <!-- TOP HEADER BAR -->
+    <header id="mainAppHeader" class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-9 w-9 rounded-xl bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent">
+                    <i class="fa-solid fa-shield-cat text-lg"></i>
                 </div>
-
                 <div>
-                    <div class="flex justify-between text-xs font-bold mb-1">
-                        <span class="text-amber-400">Lancer Ratio (%)</span>
-                        <span id="countLancer" class="text-slate-300 font-mono">45,000</span>
+                    <h1 class="text-sm font-black tracking-wide text-white uppercase">SVS State Command Center</h1>
+                    <div class="flex items-center gap-2">
+                        <span id="statusDot" class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span id="statusText" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Connecting...</span>
                     </div>
-                    <input type="range" id="bearLanRatio" min="0" max="100" value="30" oninput="calculateBearMarch()" class="w-full accent-amber-400 cursor-pointer">
-                </div>
-
-                <div>
-                    <div class="flex justify-between text-xs font-bold mb-1 flex-items-center">
-                        <span class="text-emerald-400">Infantry Ratio (%)</span>
-                        <span id="countInfantry" class="text-slate-300 font-mono">15,000</span>
-                    </div>
-                    <input type="range" id="bearInfRatio" min="0" max="100" value="10" oninput="calculateBearMarch()" class="w-full accent-emerald-400 cursor-pointer">
                 </div>
             </div>
 
-            <!-- Frontline Status Badge -->
-            <div class="flex justify-between items-center pt-2 border-t border-slate-800">
-                <span class="text-xs text-slate-400 font-bold">Frontline Skill Requirement:</span>
-                <span id="infantryTriggerStatus" class="text-xs font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <i class="fa-solid fa-circle-check mr-1"></i> Frontline Trigger Met
-                </span>
+            <!-- TAB NAVIGATION BUTTONS -->
+            <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <button id="tabBtn-scheduler" onclick="showTab('scheduler')" class="px-4 py-2 text-xs font-black rounded-lg transition bg-brand-accent/20 text-brand-accent flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-days"></i> SVS Prep
+                </button>
+                <button id="tabBtn-bear" onclick="showTab('bear')" class="px-4 py-2 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-paw"></i> Bear Trap
+                </button>
+                <button id="tabBtn-scout" onclick="showTab('scout')" class="px-4 py-2 text-xs font-black rounded-lg transition text-slate-400 hover:text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-binoculars"></i> Scout Report
+                </button>
             </div>
         </div>
 
-        <!-- Native SVG 5-Axis Radar Visualizer -->
-        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Tactical Performance Matrix</h3>
-                <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded font-bold">5-Axis Radar</span>
+        <!-- DAY SELECTOR TABS (Only visible on Scheduler tab) -->
+        <div id="daySelectorTabs" class="bg-slate-950/60 border-t border-slate-800/80 px-4 py-2">
+            <div class="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto gap-2">
+                <button onclick="switchDay('day1')" id="dayTab-day1" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 1: Construction</button>
+                <button onclick="switchDay('day2')" id="dayTab-day2" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 2: Tech</button>
+                <button onclick="switchDay('day3')" id="dayTab-day3" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 3: Beast</button>
+                <button onclick="switchDay('day4')" id="dayTab-day4" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-brand-accent border border-slate-700 transition whitespace-nowrap">Day 4: Hero Dev</button>
+                <button onclick="switchDay('day5')" id="dayTab-day5" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Day 5: Power Boost</button>
             </div>
-            
-            <div class="relative w-full h-[240px] my-auto flex items-center justify-center">
-                <svg viewBox="0 0 200 200" class="w-full h-full max-h-[220px]">
-                    <!-- Web Grid Circles -->
-                    <polygon points="100,25 171,62 144,146 56,146 29,62" fill="none" stroke="#334155" stroke-width="1"/>
-                    <polygon points="100,50 147,75 129,131 71,131 53,75" fill="none" stroke="#1e293b" stroke-width="1"/>
-                    <polygon points="100,75 123,87 114,115 86,115 77,87" fill="none" stroke="#1e293b" stroke-width="1"/>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="mainDashboardApp" class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- 1. SCHEDULER VIEW -->
+        <div id="view-scheduler" class="space-y-6">
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div id="dayBuffBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold mb-2">
+                        <i id="dayBuffIcon" class="fa-solid fa-shield-halved"></i> <span id="dayBuffTitle">Education Minister (+20% Training Speed)</span>
+                    </div>
+                    <h2 id="dayTitleText" class="text-xl font-black text-white">Day 4: Hero Development & Troop Pre-Train</h2>
+                    <p id="dayDescText" class="text-xs text-slate-400 mt-1 max-w-2xl">Day 4 features no native speedup buff. Use Education Minister to pre-start or finish high-tier troop batches.</p>
+                </div>
+            </div>
+
+            <!-- Timetable Slot Grid -->
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">24-Hour Timetable Schedule</h3>
+                    <span class="text-xs text-slate-500 font-mono">UTC Time Slots</span>
+                </div>
+                <div id="scheduleGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Schedule Slots Render Here Dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. BEAR OPTIMIZER VIEW -->
+        <div id="view-bear" class="hidden space-y-6">
+            <!-- Header Banner -->
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-paw text-brand-warning"></i> Bear Trap Tactical Optimizer
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Calculates optimal march ratios & joiner skill stacking using PCB V6a combat mechanics.</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] text-slate-500 uppercase font-bold block">Estimated Damage Rating</span>
+                    <span id="estimatedBearDamage" class="text-2xl font-black text-brand-accent font-mono">0</span>
+                </div>
+            </div>
+
+            <!-- Main Grid: Controls & Native SVG Radar Chart -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Input Controls -->
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-5">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-3">March Configuration</h3>
                     
-                    <!-- Axis Spoke Lines -->
-                    <line x1="100" y1="100" x2="100" y2="25" stroke="#334155" stroke-width="1"/>
-                    <line x1="100" y1="100" x2="171" y2="62" stroke="#334155" stroke-width="1"/>
-                    <line x1="100" y1="100" x2="144" y2="146" stroke="#334155" stroke-width="1"/>
-                    <line x1="100" y1="100" x2="56" y2="146" stroke="#334155" stroke-width="1"/>
-                    <line x1="100" y1="100" x2="29" y2="62" stroke="#334155" stroke-width="1"/>
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold block mb-1.5">Total Rally March Capacity</label>
+                        <input type="number" id="bearMarchCapacity" value="150000" step="5000" onchange="calculateBearMarch()" oninput="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-brand-accent focus:outline-none">
+                    </div>
 
-                    <!-- Data Polygon -->
-                    <polygon id="radarPolygon" points="100,25 171,62 144,146 56,146 29,62" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="2"/>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span class="text-sky-400">Marksmen Ratio (%)</span>
+                                <span id="countMarksman" class="text-slate-300 font-mono">90,000</span>
+                            </div>
+                            <input type="range" id="bearMarkRatio" min="0" max="100" value="60" oninput="calculateBearMarch()" class="w-full accent-sky-400 cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span class="text-amber-400">Lancer Ratio (%)</span>
+                                <span id="countLancer" class="text-slate-300 font-mono">45,000</span>
+                            </div>
+                            <input type="range" id="bearLanRatio" min="0" max="100" value="30" oninput="calculateBearMarch()" class="w-full accent-amber-400 cursor-pointer">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1 flex-items-center">
+                                <span class="text-emerald-400">Infantry Ratio (%)</span>
+                                <span id="countInfantry" class="text-slate-300 font-mono">15,000</span>
+                            </div>
+                            <input type="range" id="bearInfRatio" min="0" max="100" value="10" oninput="calculateBearMarch()" class="w-full accent-emerald-400 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Frontline Status Badge -->
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                        <span class="text-xs text-slate-400 font-bold">Frontline Skill Requirement:</span>
+                        <span id="infantryTriggerStatus" class="text-xs font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <i class="fa-solid fa-circle-check mr-1"></i> Frontline Trigger Met
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Native SVG 5-Axis Radar Visualizer -->
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Tactical Performance Matrix</h3>
+                        <span class="text-[10px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-2 py-0.5 rounded font-bold">5-Axis Radar</span>
+                    </div>
                     
-                    <!-- Labels -->
-                    <text x="100" y="15" fill="#38bdf8" font-size="8" font-weight="bold" text-anchor="middle">Lethality</text>
-                    <text x="178" y="60" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="start">Attack</text>
-                    <text x="150" y="158" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="start">Crowding</text>
-                    <text x="50" y="158" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="end">Frontline</text>
-                    <text x="22" y="60" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="end">Joiner Cap</text>
-                </svg>
+                    <div class="relative w-full h-[240px] my-auto flex items-center justify-center">
+                        <svg viewBox="0 0 200 200" class="w-full h-full max-h-[220px]">
+                            <polygon points="100,25 171,62 144,146 56,146 29,62" fill="none" stroke="#334155" stroke-width="1"/>
+                            <polygon points="100,50 147,75 129,131 71,131 53,75" fill="none" stroke="#1e293b" stroke-width="1"/>
+                            <polygon points="100,75 123,87 114,115 86,115 77,87" fill="none" stroke="#1e293b" stroke-width="1"/>
+                            
+                            <line x1="100" y1="100" x2="100" y2="25" stroke="#334155" stroke-width="1"/>
+                            <line x1="100" y1="100" x2="171" y2="62" stroke="#334155" stroke-width="1"/>
+                            <line x1="100" y1="100" x2="144" y2="146" stroke="#334155" stroke-width="1"/>
+                            <line x1="100" y1="100" x2="56" y2="146" stroke="#334155" stroke-width="1"/>
+                            <line x1="100" y1="100" x2="29" y2="62" stroke="#334155" stroke-width="1"/>
+
+                            <polygon id="radarPolygon" points="100,25 171,62 144,146 56,146 29,62" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="2"/>
+                            
+                            <text x="100" y="15" fill="#38bdf8" font-size="8" font-weight="bold" text-anchor="middle">Lethality</text>
+                            <text x="178" y="60" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="start">Attack</text>
+                            <text x="150" y="158" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="start">Crowding</text>
+                            <text x="50" y="158" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="end">Frontline</text>
+                            <text x="22" y="60" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="end">Joiner Cap</text>
+                        </svg>
+                    </div>
+
+                    <div class="text-[10px] text-slate-500 text-center">
+                        Monitors Lethality, Attack, Crowding Efficiency, Frontline Baseline, and Joiner Multiplier in real time.
+                    </div>
+                </div>
             </div>
 
-            <div class="text-[10px] text-slate-500 text-center">
-                Monitors Lethality, Attack, Crowding Efficiency, Frontline Baseline, and Joiner Multiplier in real time.
-            </div>
-        </div>
-    </div>
+            <!-- Joiner Skill Stacker & Mechanics Rules -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Joiner 1st Skill Multipliers -->
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Top 4 Joiner 1st Skill Stack</h3>
+                        <span id="joinerStackDisplay" class="text-xs font-mono font-bold text-emerald-400">+100% (2.00x)</span>
+                    </div>
+                    <p class="text-xs text-slate-400">Select the 1st Skill level (+25% max each) of the top 4 rally joiners. Max cap is +100% total boost.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #1 Skill</label>
+                            <select id="joinerSkill1" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
+                                <option value="25">+25% (Lvl 5)</option>
+                                <option value="20">+20% (Lvl 4)</option>
+                                <option value="15">+15% (Lvl 3)</option>
+                                <option value="10">+10% (Lvl 2)</option>
+                                <option value="0">0% (None)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #2 Skill</label>
+                            <select id="joinerSkill2" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
+                                <option value="25">+25% (Lvl 5)</option>
+                                <option value="20">+20% (Lvl 4)</option>
+                                <option value="15">+15% (Lvl 3)</option>
+                                <option value="10">+10% (Lvl 2)</option>
+                                <option value="0">0% (None)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #3 Skill</label>
+                            <select id="joinerSkill3" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
+                                <option value="25">+25% (Lvl 5)</option>
+                                <option value="20">+20% (Lvl 4)</option>
+                                <option value="15">+15% (Lvl 3)</option>
+                                <option value="10">+10% (Lvl 2)</option>
+                                <option value="0">0% (None)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #4 Skill</label>
+                            <select id="joinerSkill4" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
+                                <option value="25">+25% (Lvl 5)</option>
+                                <option value="20">+20% (Lvl 4)</option>
+                                <option value="15">+15% (Lvl 3)</option>
+                                <option value="10">+10% (Lvl 2)</option>
+                                <option value="0">0% (None)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Joiner Skill Stacker & Plain-English Combat Rules -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Joiner 1st Skill Multipliers -->
-        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Top 4 Joiner 1st Skill Stack</h3>
-                <span id="joinerStackDisplay" class="text-xs font-mono font-bold text-emerald-400">+100% (2.00x)</span>
-            </div>
-            <p class="text-xs text-slate-400">Select the 1st Skill level (+25% max each) of the top 4 rally joiners. Max cap is +100% total boost.</p>
-            
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #1 Skill</label>
-                    <select id="joinerSkill1" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
-                        <option value="25">+25% (Lvl 5)</option>
-                        <option value="20">+20% (Lvl 4)</option>
-                        <option value="15">+15% (Lvl 3)</option>
-                        <option value="10">+10% (Lvl 2)</option>
-                        <option value="0">0% (None)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #2 Skill</label>
-                    <select id="joinerSkill2" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
-                        <option value="25">+25% (Lvl 5)</option>
-                        <option value="20">+20% (Lvl 4)</option>
-                        <option value="15">+15% (Lvl 3)</option>
-                        <option value="10">+10% (Lvl 2)</option>
-                        <option value="0">0% (None)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #3 Skill</label>
-                    <select id="joinerSkill3" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
-                        <option value="25">+25% (Lvl 5)</option>
-                        <option value="20">+20% (Lvl 4)</option>
-                        <option value="15">+15% (Lvl 3)</option>
-                        <option value="10">+10% (Lvl 2)</option>
-                        <option value="0">0% (None)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Joiner #4 Skill</label>
-                    <select id="joinerSkill4" onchange="calculateBearMarch()" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none">
-                        <option value="25">+25% (Lvl 5)</option>
-                        <option value="20">+20% (Lvl 4)</option>
-                        <option value="15">+15% (Lvl 3)</option>
-                        <option value="10">+10% (Lvl 2)</option>
-                        <option value="0">0% (None)</option>
-                    </select>
+                <!-- Mechanics Rules -->
+                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-3">PCB Mechanics Cheat Sheet</h3>
+                    <ul class="space-y-2.5 text-xs text-slate-300">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-shield-halved text-emerald-400 mt-0.5"></i>
+                            <span><strong>Frontline Triggering:</strong> Send ~5,000 Infantry to trigger captain defense/buff skills without crowding out your primary DPS troops.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-chart-line text-sky-400 mt-0.5"></i>
+                            <span><strong>Troop Crowding Law:</strong> Damage scales with diminishing returns as troop count grows. Stacking high-density DPS (Marksmen/Lancers) yields significantly higher damage returns than expanding raw march capacity.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-bolt text-amber-400 mt-0.5"></i>
+                            <span><strong>Joiner Hard Cap:</strong> Only the top 4 rally joiners' 1st hero skills apply to the rally, capping out at a maximum +100% total damage boost (+25% each).</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Plain-English Theorycrafting Rules -->
-        <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800 pb-3">PCB Mechanics Cheat Sheet</h3>
-            <ul class="space-y-2.5 text-xs text-slate-300">
-                <li class="flex items-start gap-2">
-                    <i class="fa-solid fa-shield-halved text-emerald-400 mt-0.5"></i>
-                    <span><strong>Frontline Triggering:</strong> Send ~5,000 Infantry to trigger captain defense/buff skills without crowding out your primary DPS troops.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <i class="fa-solid fa-chart-line text-sky-400 mt-0.5"></i>
-                    <span><strong>Troop Crowding Law:</strong> Damage scales with diminishing returns as troop count grows. Stacking high-density DPS (Marksmen/Lancers) yields significantly higher damage returns than expanding raw march capacity.</span>
-                </li>
-                <li class="flex items-start gap-2">
-                    <i class="fa-solid fa-bolt text-amber-400 mt-0.5"></i>
-                    <span><strong>Joiner Hard Cap:</strong> Only the top 4 rally joiners' 1st hero skills apply to the rally, capping out at a maximum +100% total damage boost (+25% each).</span>
-                </li>
-            </ul>
+        <!-- 3. SCOUT VIEW -->
+        <div id="view-scout" class="hidden space-y-6">
+            <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800">
+                <h2 class="text-xl font-black text-white flex items-center gap-2 mb-4">
+                    <i class="fa-solid fa-binoculars text-brand-accent"></i> Facility Scout Report Analyzer
+                </h2>
+                <form onsubmit="handleScoutReportAnalysis(event)" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs text-slate-400 font-bold block mb-1">Target Facility Type</label>
+                            <select id="scoutFacilityType" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                                <option value="stronghold">Stronghold</option>
+                                <option value="fortress">Fortress</option>
+                                <option value="castle">Sunfire Castle</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 font-bold block mb-1">Garrison Size</label>
+                            <input type="number" id="scoutGarrisonSize" value="1000000" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="text-xs text-emerald-400 font-bold block mb-1">Infantry %</label>
+                            <input type="number" id="scoutInfPercent" value="33" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-amber-400 font-bold block mb-1">Lancer %</label>
+                            <input type="number" id="scoutLanPercent" value="33" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="text-xs text-sky-400 font-bold block mb-1">Marksman %</label>
+                            <input type="number" id="scoutMarkPercent" value="34" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-2.5 bg-brand-accent text-slate-950 font-black rounded-lg text-xs hover:bg-sky-400 transition">Analyze Counter Ratios</button>
+                </form>
+
+                <div id="scoutAnalysisReport" class="mt-6 space-y-4"></div>
+            </div>
         </div>
-    </div>
-</div>
+
+    </main>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- FIREBASE COMPAT SDKS -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+
+    <!-- APP MODULAR SCRIPTS (Load Order Critical) -->
+    <script src="js/config.js"></script>
+    <script src="js/bear.js"></script>
+    <script src="js/scheduler.js"></script>
+    <script src="js/scout.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
