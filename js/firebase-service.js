@@ -32,12 +32,26 @@ function initFirebase() {
             db = app.firestore();
             auth = app.auth();
             runDiagnostics.sdkInit = 'success';
+
+            // Auto-listen for user auth state (or trigger anonymous login)
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    subscribeToData();
+                } else {
+                    // If no user is logged in, sign in anonymously so read access works
+                    auth.signInAnonymously().catch(err => {
+                        console.error("Anon auth failed:", err);
+                    });
+                }
+            });
         }
     } catch(e) { 
         console.error("Firebase Initialization Exception: ", e.message);
         runDiagnostics.sdkInit = 'failed';
     }
 }
+
 
 function getCollectionRef() {
     if (!activeStateId || !db) return null;
