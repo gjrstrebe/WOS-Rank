@@ -62,18 +62,33 @@ function showToast(message, type = "info") {
 // Launch Pad & State Selection Controllers
 // ==========================================
 
+function resetPortalState() {
+    document.getElementById('stateLookupForm')?.classList.remove('hidden');
+    document.getElementById('stateLoginForm')?.classList.add('hidden');
+    document.getElementById('stateRegistrationForm')?.classList.add('hidden');
+
+    // Unlock button and replace spinner with "Next"
+    const btn = document.getElementById('lookupSubmitBtn');
+    const text = document.getElementById('lookupBtnText');
+    const spin = document.getElementById('lookupSpinIcon');
+    
+    if (btn) {
+        btn.disabled = false;
+        btn.className = "w-full py-3 px-4 bg-brand-accent hover:bg-sky-400 text-brand-dark font-black rounded-lg text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer";
+    }
+    if (text) text.textContent = "Next";
+    if (spin) spin.style.display = "none";
+}
+
 function routeToLaunchPad() {
     document.getElementById('mainDashboardApp')?.classList.add('hidden');
     document.getElementById('mainAppHeader')?.classList.add('hidden');
     document.getElementById('daySelectorTabs')?.classList.add('hidden');
     document.getElementById('launchPadPortal')?.classList.remove('hidden');
+
+    resetPortalState();
 }
 
-function resetPortalState() {
-    document.getElementById('stateLookupForm')?.classList.remove('hidden');
-    document.getElementById('stateLoginForm')?.classList.add('hidden');
-    document.getElementById('stateRegistrationForm')?.classList.add('hidden');
-}
 
 async function handleStateLookup(event) {
     if (event) event.preventDefault();
