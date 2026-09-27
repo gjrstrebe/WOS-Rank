@@ -25,18 +25,16 @@ function showTab(tabId) {
         else dayBar.classList.add('hidden');
     }
 
-    if (tabId === 'bear') {
+    if (tabId === 'bear' && typeof calculateBearMarch === 'function') {
         calculateBearMarch();
     }
 }
 
 function refreshUI() { 
-    renderPlayers(); 
-    renderSchedule(); 
-    calculateBearMarch();
-    if (typeof updateHeaderStatusPill === 'function') {
-        updateHeaderStatusPill();
-    }
+    if (typeof renderPlayers === 'function') renderPlayers(); 
+    if (typeof renderSchedule === 'function') renderSchedule(); 
+    if (typeof calculateBearMarch === 'function') calculateBearMarch();
+    if (typeof updateHeaderStatusPill === 'function') updateHeaderStatusPill();
 }
 
 function showToast(message, type = "info") {
@@ -60,6 +58,10 @@ function showToast(message, type = "info") {
     }, 4000);
 }
 
+// ==========================================
+// Launch Pad & State Selection Controllers
+// ==========================================
+
 function routeToLaunchPad() {
     document.getElementById('mainDashboardApp')?.classList.add('hidden');
     document.getElementById('mainAppHeader')?.classList.add('hidden');
@@ -74,16 +76,24 @@ function resetPortalState() {
 }
 
 async function handleStateLookup(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     const input = document.getElementById('targetStateInput');
     if (!input || !input.value.trim()) return;
 
-    activeStateId = input.value.trim();
+    const selectedId = input.value.trim();
+    if (typeof setActiveState === 'function') {
+        setActiveState(selectedId);
+    } else {
+        activeStateId = selectedId;
+        localStorage.setItem('svs_active_state', activeStateId);
+    }
     bypassLaunchPadDirect();
 }
 
 function bypassLaunchPadDirect() {
-    localStorage.setItem('active_state_v2', activeStateId);
+    if (activeStateId) {
+        localStorage.setItem('svs_active_state', activeStateId);
+    }
     
     document.getElementById('mainDashboardApp')?.classList.remove('hidden');
     document.getElementById('mainAppHeader')?.classList.remove('hidden');
@@ -94,23 +104,119 @@ function bypassLaunchPadDirect() {
 }
 
 async function handleStateLogin(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     bypassLaunchPadDirect();
 }
 
 async function handleStateRegistration(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     bypassLaunchPadDirect();
 }
+
+// ==========================================
+// Presidency / Admin Modal Handlers
+// ==========================================
+
+function openAdminModal() {
+    const modal = document.getElementById('adminModal') || document.getElementById('presidencyModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function closeAdminModal() {
+    const modal = document.getElementById('adminModal') || document.getElementById('presidencyModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+async function verifyAdminPasscode(passcode) {
+    if (!passcode) return false;
+    const inputHash = await sha256(passcode);
+    const storedHash = stateData.settings?.adminHash || "";
+    
+    // Default fallback passcode check if not explicitly set
+    if (!storedHash && (passcode === "1234" || passcode === "admin")) {
+        isAdmin = true;
+        showToast("Presidency Admin Access Granted", "success");
+        closeAdminModal();
+        refreshUI();
+        return true;
+    }
+
+    if (storedHash && inputHash === storedHash) {
+        isAdmin = true;
+        showToast("Presidency Admin Access Granted", "success");
+        closeAdminModal();
+        refreshUI();
+        return true;
+    }
+
+    showToast("Invalid Passcode", "error");
+    return false;
+}
+
+// ==========================================
+// Schedule Slot & Applicant Drawer Handlers
+// ==========================================
+
+function openSlotDrawer(slotTime) {
+    activeDrawerSlot = slotTime;
+    const drawer = document.getElementById('applicantDrawer') || document.getElementById('slotDrawer');
+    if (drawer) {
+        drawer.classList.remove('hidden');
+        drawer.classList.add('flex');
+    }
+    if (typeof renderDrawerApplicants === 'function') renderDrawerApplicants();
+}
+
+function closeDrawer() {
+    activeDrawerSlot = null;
+    const drawer = document.getElementById('applicantDrawer') || document.getElementById('slotDrawer');
+    if (drawer) {
+        drawer.classList.add('hidden');
+        drawer.classList.remove('flex');
+    }
+}
+
+function assignPlayerToSlot(playerName) {
+    if (!currentDay || !activeDrawerSlot) return;
+
+    if (!stateData.schedules[currentDay]) stateData.schedules[currentDay] = {};
+    const slotObj = normalizeSlotData(stateData.schedules[currentDay][activeDrawerSlot]);
+
+    // Toggle assign/unassign
+    if (slotObj.lockedWinner === playerName) {
+        slotObj.lockedWinner = null;
+        showToast(`Removed ${playerName} from ${activeDrawerSlot}`, "info");
+    } else {
+        slotObj.lockedWinner = playerName;
+        showToast(`Assigned ${playerName} to ${activeDrawerSlot}`, "success");
+    }
+
+    stateData.schedules[currentDay][activeDrawerSlot] = slotObj;
+    
+    if (typeof saveCloudData === 'function') saveCloudData();
+    closeDrawer();
+}
+
+// ==========================================
+// Initialization & Event Binding
+// ==========================================
 
 window.addEventListener('DOMContentLoaded', () => {
     if (typeof initFirebase === 'function') {
         initFirebase();
     }
     
-    switchDay('day4'); 
+    if (typeof switchDay === 'function') {
+        switchDay('day4'); 
+    }
 
-    const cachedState = localStorage.getItem('active_state_v2');
+    const cachedState = localStorage.getItem('svs_active_state');
     if (cachedState) {
         activeStateId = cachedState;
         const targetInput = document.getElementById('targetStateInput');
