@@ -28,16 +28,18 @@ let currentUser = null;
 function initFirebase() {
     try {
         if (typeof firebase !== 'undefined') {
-            const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+            const isFirstInit = !firebase.apps.length;
+            const app = isFirstInit ? firebase.initializeApp(firebaseConfig) : firebase.app();
             
-            // Force long-polling transport for iOS / Mobile Safari socket stability
-            db = app.firestore();
-            db.settings({ experimentalForceLongPolling: true });
+            // Only set settings on initial creation to avoid override warnings
+            if (!db) {
+                db = app.firestore();
+                db.settings({ experimentalForceLongPolling: true });
+            }
 
             auth = app.auth();
             runDiagnostics.sdkInit = 'success';
 
-            // Listen for user auth state or initialize anonymous session
             auth.onAuthStateChanged(user => {
                 if (user) {
                     currentUser = user;
@@ -54,6 +56,7 @@ function initFirebase() {
         runDiagnostics.sdkInit = 'failed';
     }
 }
+
 
 function getCollectionRef() {
     if (!activeStateId || !db) return null;
