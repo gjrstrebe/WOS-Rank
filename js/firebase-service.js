@@ -29,17 +29,20 @@ function initFirebase() {
     try {
         if (typeof firebase !== 'undefined') {
             const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+            
+            // Initialize Firestore and force long-polling transport for iOS / mobile compatibility
             db = app.firestore();
+            db.settings({ experimentalForceLongPolling: true });
+
             auth = app.auth();
             runDiagnostics.sdkInit = 'success';
 
-            // Auto-listen for user auth state (or trigger anonymous login)
+            // Auto-listen for user auth state
             auth.onAuthStateChanged(user => {
                 if (user) {
                     currentUser = user;
                     subscribeToData();
                 } else {
-                    // If no user is logged in, sign in anonymously so read access works
                     auth.signInAnonymously().catch(err => {
                         console.error("Anon auth failed:", err);
                     });
@@ -51,6 +54,7 @@ function initFirebase() {
         runDiagnostics.sdkInit = 'failed';
     }
 }
+
 
 
 function getCollectionRef() {
