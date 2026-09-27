@@ -30,14 +30,14 @@ function initFirebase() {
         if (typeof firebase !== 'undefined') {
             const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
             
-            // Initialize Firestore and force long-polling transport for iOS / mobile compatibility
+            // Force long-polling transport for iOS / Mobile Safari socket stability
             db = app.firestore();
             db.settings({ experimentalForceLongPolling: true });
 
             auth = app.auth();
             runDiagnostics.sdkInit = 'success';
 
-            // Auto-listen for user auth state
+            // Listen for user auth state or initialize anonymous session
             auth.onAuthStateChanged(user => {
                 if (user) {
                     currentUser = user;
@@ -55,8 +55,6 @@ function initFirebase() {
     }
 }
 
-
-
 function getCollectionRef() {
     if (!activeStateId || !db) return null;
     return db.collection('artifacts').doc(appId)
@@ -68,6 +66,12 @@ function updateHeaderStatusPill() {
     let dot = document.getElementById('statusDot');
     let txt = document.getElementById('statusText');
     if (!dot || !txt) return;
+
+    if (!activeStateId) {
+        dot.className = "h-2 w-2 rounded-full bg-amber-400 animate-pulse";
+        txt.textContent = "Select Server";
+        return;
+    }
 
     if (syncMode === 'offline') { 
         dot.className = "h-2 w-2 rounded-full bg-amber-500 animate-none"; 
@@ -83,6 +87,17 @@ function updateHeaderStatusPill() {
     }
 }
 
+function setActiveState(newStateId) {
+    if (!newStateId) return;
+    activeStateId = String(newStateId).trim();
+    localStorage.setItem('svs_active_state', activeStateId);
+    
+    runDiagnostics.firestore = 'checking';
+    updateHeaderStatusPill();
+
+    subscribeToData();
+}
+
 function subscribeToData() {
     if (!db || !currentUser || syncMode === 'offline' || !activeStateId) return;
     if (unsubscribeState) unsubscribeState();
@@ -92,6 +107,8 @@ function subscribeToData() {
 
     unsubscribeState = currentRef.onSnapshot(async doc => {
         runDiagnostics.firestore = 'success';
+        updateHeaderStatusPill();
+
         if (doc.exists) {
             const data = doc.data();
             stateData.players = data.players || [];
@@ -112,16 +129,34 @@ function subscribeToData() {
                     });
                 }
             });
-            refreshUI();
+        } else {
+            // Uninitialized or brand-new state - clear local baseline
+            stateData.players = [];
+            stateData.settings = {};
+            ['day1', 'day2', 'day3', 'day4', 'day5'].forEach(day => {
+                stateData.schedules[day] = {};
+            });
         }
+
+        // Re-render UI and dismiss server selection modals if open
+        if (typeof refreshUI === 'function') refreshUI();
+        
+        const stateModal = document.getElementById('stateSelectModal') || document.getElementById('serverModal') || document.getElementById('stateModal');
+        if (stateModal) {
+            stateModal.classList.add('hidden');
+            stateModal.classList.remove('flex');
+        }
+
     }, err => {
+        console.error("Firestore Subscription Error:", err);
         runDiagnostics.firestore = 'failed';
         updateHeaderStatusPill();
     });
 }
 
 async function saveCloudData() {
-    refreshUI();
+    if (typeof refreshUI === 'function') refreshUI();
+    
     if (syncMode === 'offline') {
         localStorage.setItem(`offline_state_${activeStateId}`, JSON.stringify(stateData));
         return;
@@ -138,6 +173,7 @@ async function saveCloudData() {
             await ref.set(serializedPayload); 
         }
     } catch(e) { 
+        console.error("Save Cloud Data Error:", e);
         runDiagnostics.firestore = 'failed';
         updateHeaderStatusPill();
     }
