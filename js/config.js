@@ -5,7 +5,7 @@ let stateData = {
     settings: {} 
 };
 
-let activeStateId = ''; 
+let activeStateId = localStorage.getItem('svs_active_state') || ''; 
 let currentDay = 'day4'; 
 let activeDrawerSlot = null;
 let localDrawerApplicants = []; 
