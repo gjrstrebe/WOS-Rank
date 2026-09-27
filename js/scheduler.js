@@ -176,6 +176,9 @@ function renderPlayers() {
 /**
  * Renders 24-hour timetable slots schedule
  */
+/**
+ * Renders 24-hour timetable slots schedule
+ */
 function renderSchedule() {
     const container = document.getElementById('scheduleContainer');
     if (!container) return;
@@ -191,23 +194,32 @@ function renderSchedule() {
         if (!winner) {
             apps.forEach(n => {
                 let p = stateData.players.find(pl => pl.name === n);
-                if (p && getPlayerScore(p, currentDay) > maxScore) { winner = n; maxScore = getPlayerScore(p, currentDay); }
+                if (p && getPlayerScore(p, currentDay) > maxScore) { 
+                    winner = n; 
+                    maxScore = getPlayerScore(p, currentDay); 
+                }
             });
         } else {
             let p = stateData.players.find(pl => pl.name === winner);
             if (p) maxScore = getPlayerScore(p, currentDay);
         }
 
-        let statusBadge = !winner ? `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">Vacant</span>`
-            : (sData.lockedWinner ? `<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">🔒 Locked: ${winner} (${maxScore.toFixed(2)})</span>`
-            : `<span class="text-[10px] bg-brand-accent/10 text-brand-accent border border-brand-accent/20 px-2 py-0.5 rounded-full font-bold">Secured: ${winner} (${maxScore.toFixed(2)})</span>`);
+        let statusBadge = !winner 
+            ? `<span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">Vacant</span>`
+            : (sData.lockedWinner 
+                ? `<span class="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">🔒 Locked: ${winner} (${maxScore.toFixed(2)})</span>`
+                : `<span class="text-[10px] bg-brand-accent/10 text-brand-accent border border-brand-accent/20 px-2 py-0.5 rounded-full font-bold">Secured: ${winner} (${maxScore.toFixed(2)})</span>`);
 
         container.innerHTML += `
-            <div class="p-3 bg-slate-900/40 border border-brand-border rounded-xl flex items-center justify-between hover:border-slate-800 transition">
+            <div onclick="openSlotDrawer('${slot}')" class="p-3 bg-slate-900/40 border border-brand-border hover:border-brand-accent/50 rounded-xl flex items-center justify-between cursor-pointer transition">
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-bold text-white font-mono">${slot} UTC</span>
                     ${statusBadge}
                 </div>
+                <button type="button" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-brand-accent text-xs font-bold rounded-lg border border-brand-accent/20 transition">
+                    Assign
+                </button>
             </div>`;
     });
 }
+
